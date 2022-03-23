@@ -1,5 +1,5 @@
 # setup.py
-from .pyhades import __version__
+from pyhades import __version__
 import setuptools
 import platform
 
@@ -16,7 +16,7 @@ setuptools.setup(
     version=__version__,
     author="KnowAI",
     author_email="dev.know.ai@gmail.com",
-    description="A python library to develop continuous tasks using concurrency sync or async",
+    description="A python library to develop continuous tasks using sync or async concurrent threads",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="GNU AFFERO GENERAL PUBLIC LICENSE",

@@ -9,13 +9,11 @@ edit_uri: ""
 site_dir: _build/html
 
 nav:
-    - Introduction: 'index.md'
-    - Install: 'install.md'
-    - QuickStart: 'quick_start.md'
+    - Summary: 'index.md'
+    - User Guide:
+      - State Machines: 'user_guide_state_machines.md'
     - API Reference:
       - PyHades: 'api_core.md'
-    - User Guide: 'user_guide.md'
-    - Contributing: 'contributing.md'
 
 markdown_extensions:
   - admonition
