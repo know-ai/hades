@@ -54,7 +54,7 @@ class _ContinuosWorker:
         if elapsed < self._period:
             time.sleep(self._period - elapsed)
         else:
-            print("Logger Worker: Failed to log items on time...")
+            logging.warning(f"Worker {self._name}: Failed to execute task on time...")
 
         self.set_last()
 
@@ -88,6 +88,7 @@ class _ContinuosWorker:
         self._status = RUNNING
 
         while True:
+
             if self._status == STOP:
 
                 return

@@ -48,3 +48,9 @@ class StateMachineManager:
         result["state_machines"] = machines
 
         return result
+
+    def exist_machines(self):
+        r"""
+        Documentation here
+        """
+        return len(self._machines) > 0

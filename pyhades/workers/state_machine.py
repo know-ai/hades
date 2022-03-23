@@ -145,9 +145,10 @@ class StateMachineWorker(BaseWorker):
         self.jobs = list()
 
     def loop_closure(self, machine, interval):
-
+        
         def loop():
             machine.loop()
+            
             local_interval = machine.get_state_interval()
             interval = machine.get_interval()
             interval = min(interval, local_interval)
@@ -158,6 +159,7 @@ class StateMachineWorker(BaseWorker):
     def run(self):
 
         for machine, interval, mode in self._manager.get_machines():
+            logging.info(f"State Machine: {machine.name} started")
             if mode == "async":
                 self._async_scheduler.add_machine(machine, interval)
             else:

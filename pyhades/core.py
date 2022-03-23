@@ -9,6 +9,8 @@ import logging
 import concurrent.futures
 from datetime import datetime
 
+from .utils import log_detailed
+
 from ._singleton import Singleton
 
 from .workers import _ContinuosWorker, StateMachineWorker
@@ -34,10 +36,10 @@ class PyHades(Singleton):
         self._start_up_datetime = ""
         self._mode = 'development'
         self._logging_level = logging.INFO
-        self._log_file = ""
+        self._log_file = "hades.log"
         self._thread_functions = list()
         self._max_threads = 20
-        self._threads = None
+        self._threads = list()
         self.workers = list()
 
         self._machine_manager = StateMachineManager()
@@ -129,6 +131,10 @@ class PyHades(Singleton):
 
         return self._machine_manager.get_machines()
 
+    def get_state_machine_manager(self):
+
+        return self._machine_manager
+
     def define_machine(self, name="", interval=1, mode="sync", **kwargs):
         """
         Append a state machine to the state machine manager
@@ -182,6 +188,19 @@ class PyHades(Singleton):
 
             return wrapper
 
+    def _start_logger(self):
+
+        log_format = "%(asctime)s:%(levelname)s:%(message)s"
+
+        level = self._logging_level
+        log_file = self._log_file
+
+        if not log_file:
+            logging.basicConfig(level=level, format=log_format)
+            return
+        
+        logging.basicConfig(filename=log_file, level=level, format=log_format)
+
     def _start_threads(self):
         r"""
         Documentation here
@@ -193,9 +212,11 @@ class PyHades(Singleton):
         for _f in self._thread_functions:
 
             try:
-                self.workers.append(self._scheduler.submit(_f))
+                logging.info(f"Thread {_f._name} started")
+                self._threads.append(self._scheduler.submit(_f))
             except Exception as e:
                 message = "Error on continous functions worker start-up"
+                log_detailed(e, message)
 
     def _stop_threads(self):
 
@@ -204,28 +225,26 @@ class PyHades(Singleton):
                 worker.stop()
             except Exception as e:
                 message = "Error on wokers stop"
-                print(e, message)
+                log_detailed(e, message)
 
     def _start_workers(self):
 
-        _machine_worker = StateMachineWorker(self._machine_manager)
+        state_manager = self.get_state_machine_manager()
+
+        if state_manager.exist_machines():
+
+            state_worker = StateMachineWorker(self._machine_manager)
+            self.workers.append(state_worker)
 
         try:
 
-            workers = [
-                _machine_worker, 
-            ]
-
-            for worker in workers:
-
+            for worker in self.workers:
                 worker.daemon = True
                 worker.start()
 
         except Exception as e:
             message = "Error on wokers start-up"
-            print(e, message)
-
-        self.workers = workers
+            log_detailed(e, message)
 
     def stop_workers(self):
 
@@ -234,7 +253,7 @@ class PyHades(Singleton):
                 worker.stop()
             except Exception as e:
                 message = "Error on wokers stop"
-                print(e, message)
+                log_detailed(e, message)
 
     def run(self):
         r"""
@@ -243,19 +262,23 @@ class PyHades(Singleton):
         _start_up_datetime = datetime.now()
         self.set_start_up_datetime(_start_up_datetime)
 
+        self._start_logger()
         self._start_workers()
         self._start_threads()
 
-        try:         
+        try:     
+            logging.info("Hades started")    
+            
             while True:
 
                 time.sleep(1)
 
         except (KeyboardInterrupt, SystemExit):
-            print("Manual Shutting down!!!")
+            
             self._stop_threads()
             self.stop_workers()
-            time.sleep(1)
+            # time.sleep(1)
+            logging.info("Manual Shutting down")
             sys.exit()
             
             
