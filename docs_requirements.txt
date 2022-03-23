@@ -1,0 +1,4 @@
+mkdocs==1.1.2
+mkdocs-material==6.2.5
+mkautodoc==0.1.0
+PyHades==0.0.1
