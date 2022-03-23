@@ -3,8 +3,8 @@ site_name: PyHades Documentation
 theme:
   name: material
 
-repo_name: PyHades
-repo_url: https://github.com/crivero7/RackioAI
+repo_name: Hades
+repo_url: https://github.com/know-ai/hades
 edit_uri: ""
 site_dir: _build/html
 

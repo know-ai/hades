@@ -14,19 +14,19 @@ system_platform = platform.system()
 setuptools.setup(
     name="PyHades",
     version=__version__,
-    author="Carlos Rivero",
+    author="KnowAI",
     author_email="dev.know.ai@gmail.com",
-    description="A modern Python Framework for automation and control applications development",
+    description="A python library to develop continuous tasks using concurrency sync or async",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license="MIT",
-    url="https://github.com/knowai/pyhades",
+    license="GNU AFFERO GENERAL PUBLIC LICENSE",
+    url="https://github.com/know-ai/hades",
     include_package_data=True,
     packages=setuptools.find_packages(),
     install_requires=_requirements,
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE",
         "Operating System :: OS Independent",
     ]
 )
