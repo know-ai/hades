@@ -7,6 +7,8 @@ import heapq
 import logging
 import time
 
+from ..utils import log_detailed
+
 from collections import deque
 from threading import Thread
 
@@ -26,11 +28,11 @@ class MachineScheduler():
         
         self._ready.append(func)
 
-    def call_later(self, delay, func):
+    def call_later(self, delay, func, machine):
         
         self._sequence += 1
         deadline = time.time() + delay
-        heapq.heappush(self._sleeping, (deadline, self._sequence, func))
+        heapq.heappush(self._sleeping, (deadline, self._sequence, func, machine))
 
     def stop(self):
 
@@ -43,14 +45,15 @@ class MachineScheduler():
                 break
 
             if not self._ready:
-                deadline, _, func = heapq.heappop(self._sleeping)
+                deadline, _, func, machine = heapq.heappop(self._sleeping)
                 delta = deadline - time.time()
                 if delta > 0:
                     time.sleep(delta)
+                else:
+                    logging.warning(f"State Machine: {machine.name} not executed on time...")  
                 self._ready.append(func)
 
             while self._ready:
-                
                 func = self._ready.popleft()
                 func()
 
@@ -75,7 +78,7 @@ class SchedThread(Thread):
             local_interval = machine.get_state_interval()
             interval = machine.get_interval()
             interval = min(interval, local_interval)
-            scheduler.call_later(interval, loop)
+            scheduler.call_later(interval, loop, machine)
 
         return loop
     
@@ -129,7 +132,7 @@ class AsyncStateMachineWorker(BaseWorker):
                 sched.stop()
             except Exception as e:
                 message = "Error on async scheduler stop"
-                print(e, message)
+                log_detailed(e, message)
     
 
 class StateMachineWorker(BaseWorker):
@@ -148,7 +151,6 @@ class StateMachineWorker(BaseWorker):
         
         def loop():
             machine.loop()
-            
             local_interval = machine.get_state_interval()
             interval = machine.get_interval()
             interval = min(interval, local_interval)

@@ -1,4 +1,7 @@
+from email import message
+import logging
 from inspect import ismethod
+from .utils import log_detailed
 
 from statemachine import StateMachine
 from statemachine import State as _State
@@ -174,7 +177,6 @@ class PyHadesStateMachine(StateMachine):
 
         return result
 
-
     def _get_active_transitions(self):
 
         result = list()
@@ -207,7 +209,7 @@ class PyHadesStateMachine(StateMachine):
                     method()
             except Exception as e:
                 error = str(e)
-                print("Machine - {}:{}".format(self.name, error))
+                logging.error("Machine - {}:{}".format(self.name, error))
 
     def _loop(self):
 
@@ -224,13 +226,13 @@ class PyHadesStateMachine(StateMachine):
                     method()
                 except Exception as e:
                     message = "Machine - {}: Error on machine loop".format(self.name)
-                    print(e, message)
+                    log_detailed(e, message)
 
             self._activate_triggers()
 
         except Exception as e:
             error = str(e)
-            print("Machine - {}:{}".format(self.name, error))
+            logging.error("Machine - {}:{}".format(self.name, error))
 
     def loop(self):
 
@@ -298,7 +300,7 @@ class PyHadesStateMachine(StateMachine):
                     
                     error = str(e)
 
-                    print("Machine - {}:{}".format(self.name, error))
+                    logging.error("Machine - {}:{}".format(self.name, error))
                     value = None
 
             result[key] = value
