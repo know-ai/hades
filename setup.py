@@ -25,8 +25,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=_requirements,
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE",
+        "Programming Language :: Python :: 3.9",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Framework :: Flask",
         "Operating System :: OS Independent",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: System :: Logging",
+        "Topic :: System :: Monitoring"
     ]
 )
