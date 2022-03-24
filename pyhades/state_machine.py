@@ -122,24 +122,34 @@ class PyHadesStateMachine(StateMachine):
         self.attrs = attrs
     
     def get_states(self):
-
+        r"""
+        Documentation in construction
+        """
         return [state.identifier for state in self.states]
 
     def get_state_interval(self):
-        
+        r"""
+        Documentation in construction
+        """
         return self.current_state.interval
 
     def get_interval(self):
-
+        r"""
+        Documentation in construction
+        """
         return self._machine_interval
 
     def set_interval(self, interval):
-
+        r"""
+        Documentation in construction
+        """
         self._machine_interval = interval
 
     @classmethod
     def get_attributes(cls):
-
+        r"""
+        Documentation in construction
+        """
         result = dict()
         
         props = cls.__dict__
@@ -178,7 +188,9 @@ class PyHadesStateMachine(StateMachine):
         return result
 
     def _get_active_transitions(self):
-
+        r"""
+        Documentation in construction
+        """
         result = list()
 
         current_state = self.current_state
@@ -194,7 +206,9 @@ class PyHadesStateMachine(StateMachine):
         return result
 
     def _activate_triggers(self):
-
+        r"""
+        Documentation in construction
+        """
         transitions = self._get_active_transitions()
 
         for transition in transitions:
@@ -212,7 +226,9 @@ class PyHadesStateMachine(StateMachine):
                 logging.error("Machine - {}:{}".format(self.name, error))
 
     def _loop(self):
-
+        r"""
+        Documentation in construction
+        """
         try:
             state_name = self.current_state.identifier.lower()
             method_name = "while_" + state_name
@@ -235,11 +251,15 @@ class PyHadesStateMachine(StateMachine):
             logging.error("Machine - {}:{}".format(self.name, error))
 
     def loop(self):
-
+        r"""
+        Documentation in construction
+        """
         self._loop()
     
     def serialize(self):
-
+        r"""
+        Documentation in construction
+        """
         def is_serializable(value):
 
             if isinstance(value, float):
@@ -309,7 +329,7 @@ class PyHadesStateMachine(StateMachine):
 
     def get_state(self):
         r"""
-        Documentation here
+        Documentation in construction
         """
 
         return self.current_state.identifier

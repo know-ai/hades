@@ -1,12 +1,13 @@
 # PyHades
 A python library to develop continuous tasks using concurrency sync or async
 
+___
 ## Installation
 You can install PyHades from PyPi
 ```python
 pip install PyHades
 ```
-
+___
 # Usage
 PyHades is based on Singleton Pattern, so you can instantiate it anywhere in your app and it will keep its reference and be the same object throughout your app.
 
@@ -15,7 +16,7 @@ from pyhades import PyHades
 
 app = PyHades()
 ```
-
+___
 ## Making Threads
 PyHades uses [ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor), so, you can define communication threads asynchronously easily using the *thread* decorator.
 
@@ -41,7 +42,7 @@ Finally, to run your threads, you must call the *run* method of your app.
 ```python
 app.run()
 ```
-
+___
 ## OPCUA Client Threads
 You can also evaluate the number of tags you can query an OPC UA server based on the time period you use executing the thread.
 
@@ -76,7 +77,7 @@ if __name__=='__main__':
 
     app.run()
 ```
-
+___
 ## State Machines
 You can also create your own classes using the [state machine](https://en.wikipedia.org/wiki/State_pattern#:~:text=The%20state%20pattern%20is%20a,concept%20of%20finite%2Dstate%20machines.) design pattern on a simple way.
 
@@ -85,48 +86,79 @@ from pyhades import PyHades, PyHadesStateMachine, State
 
 app = PyHades()
 
-@app.define_machine('TwoStep', 0.1, mode="async")
-class TwoStep(PyHadesStateMachine):
+@app.define_machine(name='TrafficLight', interval=1.0, mode="async")
+class TrafficLightMachine(PyHadesStateMachine):
 
     # states
-
-    state1  = State('State1', initial=True)
-    state2  = State('State2')
+    green  = State('Green', initial=True)
+    yellow  = State('Yellow')
+    red  = State('Red')
 
     # transitions
-
-    forward = state1.to(state2)
-    back = state2.to(state1)
+    slowdown = green.to(yellow)
+    stop = yellow.to(red)
+    go = red.to(green)
 
     # parameters
-
-    count = 0
+    time_left = 30
 
     def __init__(self, name):
 
         super().__init__(name)
 
-    def on_back(self):
+    def on_slowdown(self):
 
-        self.count = 0
+        self.time_left = 3
 
-    def while_state1(self):
+    def on_stop(self):
 
-        self.count += 1
+        self.time_left = 20
 
-        print(f"{self.name}: {self.count} - {self.get_state()}")
-        if self.count == 5:
-            self.forward()
+    def on_go(self):
 
-    def while_state2(self):
+        self.time_left = 30
 
-        self.count += 1
+    def while_green(self):
 
-        print(f"{self.name}: {self.count} - {self.get_state()}")
-        if self.count >= 10:
-            self.back()
+        print(self)
+        if self.time_left == 0:
+
+            self.slowdown()
+
+        self.time_left -= 1
+
+    def while_yellow(self):
+
+        print(self)
+        if self.time_left == 0:
+
+            self.stop()
+
+        self.time_left -= 1
+
+    def while_red(self):
+
+        print(self)
+        if self.time_left == 0:
+
+            self.go()
+        
+        self.time_left -= 1
+
+    def __str__(self):
+
+        return f"{self.name}: {self.get_state()} - {self.time_left} second left."
 
 if __name__=='__main__':
 
     app.run()
 ```
+___
+## Source code
+
+You can check the latest sources on [GitHub](https://github.com/know-ai/hades):
+
+___
+## Documentation
+
+The official documentation can be found in [Read the Docs](https://pyhades.readthedocs.io/en/latest/)

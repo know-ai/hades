@@ -3,7 +3,6 @@ pyhades/core.py
 
 This module implements the core app class and methods for PyHades
 """
-from csv import excel_tab
 import time
 import sys
 import logging
@@ -45,7 +44,7 @@ class PyHades(Singleton):
 
         self._machine_manager = StateMachineManager()
 
-    def set_start_up_datetime(self, value):
+    def _set_start_up_datetime(self, value):
         r"""
         Documentation here
         """
@@ -53,21 +52,21 @@ class PyHades(Singleton):
 
     def get_start_up_datetime(self):
         r"""
-        Documentation here
+        Documentation in construction
         """
 
         return self._start_up_datetime
 
     def set_mode(self, mode):
         r"""
-        Documentation here
+        Documentation in construction
         """
 
         self._mode = mode
     
     def get_mode(self):
         r"""
-        Documentation here
+        Documentation in construction
         """
 
         return self._mode
@@ -98,11 +97,11 @@ class PyHades(Singleton):
 
     def set_threads(self, nthreads):
         r"""
-        Documentation here
+        Documentation in construction
         """
         self._max_threads = nthreads
 
-    def append_machine(self, machine, interval=1, mode="sync"):
+    def _append_machine(self, machine, interval=1, mode="sync"):
         """
         Append a state machine to the state machine manager.
         
@@ -133,7 +132,9 @@ class PyHades(Singleton):
         return self._machine_manager.get_machines()
 
     def get_state_machine_manager(self):
-
+        r"""
+        Documentation in construction
+        """
         return self._machine_manager
 
     def define_machine(self, name="", interval=1, mode="sync", **kwargs):
@@ -150,7 +151,7 @@ class PyHades(Singleton):
 
             machine = cls(name, **kwargs)
             
-            self.append_machine(machine, interval=interval, mode=mode)
+            self._append_machine(machine, interval=interval, mode=mode)
 
             return cls
 
@@ -258,10 +259,10 @@ class PyHades(Singleton):
 
     def run(self):
         r"""
-        Documentation here
+        Documentation in construction
         """
         _start_up_datetime = datetime.now()
-        self.set_start_up_datetime(_start_up_datetime)
+        self._set_start_up_datetime(_start_up_datetime)
 
         self._start_logger()
         self._start_workers()
@@ -282,28 +283,13 @@ class PyHades(Singleton):
             sys.exit()
 
     def run_in_context(self):
-
+        r"""
+        Documentation in construction
+        """
         _start_up_datetime = datetime.now()
-        self.set_start_up_datetime(_start_up_datetime)
+        self._set_start_up_datetime(_start_up_datetime)
 
         self._start_logger()
         self._start_workers()
         self._start_threads()
             
-
-class PyHadesContext(object):
-
-    def __init__(self, app):
-
-        if isinstance(app, PyHades):
-            self.app = app
-
-    def __enter__(self):
-        self.app.run_in_context()
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        self.app._stop_threads()
-        self.app._stop_workers()
-        logging.info("Manual Shutting down")
-        sys.exit()

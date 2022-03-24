@@ -12,8 +12,12 @@ nav:
     - Summary: 'index.md'
     - User Guide:
       - State Machines: 'user_guide_state_machines.md'
+      - Web Frameworks Integration: 'user_guide_context.md'
     - API Reference:
       - PyHades: 'api_core.md'
+      - PyHadesContext: 'api_context.md'
+      - PyHadesStateMachine: 'api_state_machine.md'
+      - Models: 'api_models.md'
 
 markdown_extensions:
   - admonition
