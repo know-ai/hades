@@ -3,6 +3,7 @@ pyhades/core.py
 
 This module implements the core app class and methods for PyHades
 """
+from csv import excel_tab
 import time
 import sys
 import logging
@@ -36,7 +37,7 @@ class PyHades(Singleton):
         self._start_up_datetime = ""
         self._mode = 'development'
         self._logging_level = logging.INFO
-        self._log_file = "hades.log"
+        self._log_file = "app.log"
         self._thread_functions = list()
         self._max_threads = 20
         self._threads = list()
@@ -246,7 +247,7 @@ class PyHades(Singleton):
             message = "Error on wokers start-up"
             log_detailed(e, message)
 
-    def stop_workers(self):
+    def _stop_workers(self):
 
         for worker in self.workers:
             try:
@@ -276,9 +277,33 @@ class PyHades(Singleton):
         except (KeyboardInterrupt, SystemExit):
             
             self._stop_threads()
-            self.stop_workers()
-            # time.sleep(1)
+            self._stop_workers()
             logging.info("Manual Shutting down")
             sys.exit()
+
+    def run_in_context(self):
+
+        _start_up_datetime = datetime.now()
+        self.set_start_up_datetime(_start_up_datetime)
+
+        self._start_logger()
+        self._start_workers()
+        self._start_threads()
             
-            
+
+class PyHadesContext(object):
+
+    def __init__(self, app):
+
+        if isinstance(app, PyHades):
+            self.app = app
+
+    def __enter__(self):
+        self.app.run_in_context()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.app._stop_threads()
+        self.app._stop_workers()
+        logging.info("Manual Shutting down")
+        sys.exit()

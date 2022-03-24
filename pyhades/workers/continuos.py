@@ -87,21 +87,26 @@ class _ContinuosWorker:
 
         self._status = RUNNING
 
-        while True:
+        try:
 
-            if self._status == STOP:
+            while True:
 
-                return
-            
-            else:
+                if self._status == STOP:
 
-                self._status = RUNNING
-                try:
-                    self._f()
-                except Exception as e:
-                    
-                    self.log_error(e)
-                    self._status = ERROR
+                    return
+                
+                else:
 
-            self.sleep_elapsed()
-            
+                    self._status = RUNNING
+                    try:
+                        self._f()
+                    except Exception as e:
+                        
+                        self.log_error(e)
+                        self._status = ERROR
+
+                self.sleep_elapsed()
+        
+        except (KeyboardInterrupt, SystemExit):
+            print('CTRL + C')
+            self._status = STOP
