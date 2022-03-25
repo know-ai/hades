@@ -40,7 +40,7 @@ class TagValue:
 
         self.source_timestamp = datetime.now()
 
-        self.status_code = TagStatusCode.GOOD
+        self.status_code = StatusCode.GOOD
         
     def set_min_value(self, min_value):
 
