@@ -35,4 +35,5 @@ if __name__=='__main__':
 ## User Guide
 You can define a PyHadesStateMachine to solve problem with this [Design Pattern](https://en.wikipedia.org/wiki/State_pattern#:~:text=The%20state%20pattern%20is%20a,concept%20of%20finite%2Dstate%20machines.)
 
-- [State Machines]()
+- [State Machines](https://hades.readthedocs.io/en/latest/user_guide_state_machines)
+- [Current Value Table](https://hades.readthedocs.io/en/latest/user_guide_cvt)

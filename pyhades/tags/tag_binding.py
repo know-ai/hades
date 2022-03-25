@@ -6,36 +6,22 @@ WRITE = "write"
 class TagBinding:
 
     """
-    Class used within Rackio State Machine.
+    Class used within PyHades State Machine.
 
     This class is used to bind tag values with 
-    an instance of a Rackio State Machine object,
+    an instance of a PyHades State Machine object,
     in the machine loop, before executing current
     state, tag bindings of an object are updated
-    with last values from the Tag Engine, 
-    after execution, the Tag Engine is updated,
+    with last values from the CVT Engine, 
+    after execution, the CVT Engine is updated,
     the direction of the binding must be provided, 
     otherwise `read` direction is used.
 
     Usage:
 
     ```python
-    class TwoStep(RackioStateMachine):
-
-        # states
-
-        state1  = State('State1', initial=True)
-        state2  = State('State2')
-
-        # transitions
-    
-        forward = state1.to(state2)
-        back = state2.to(state1)
-
-        # bindings
-
-        t1 = TagBinding("T1")
-        t2 = TagBinding("T2", direction="write")
+    >>> time_left = TagBinding('time_left')
+    >>> time_left_write = TagBinding('time_left', direction='write')
     ```
     """
 
@@ -65,10 +51,10 @@ class Group:
 class GroupBinding:
 
     """
-    Class used within Rackio State Machine.
+    Class used within PyHades State Machine.
 
     This class is used to bind a tag group values 
-    with an instance of a Rackio State Machine object,
+    with an instance of a PyHades State Machine object,
     in the machine loop, before executing current
     state, group bindings of an object are updated
     with last values of all tags in that group from 
@@ -79,22 +65,8 @@ class GroupBinding:
     Usage:
 
     ```python
-    class TwoStep(RackioStateMachine):
-
-        # states
-
-        state1  = State('State1', initial=True)
-        state2  = State('State2')
-
-        # transitions
-    
-        forward = state1.to(state2)
-        back = state2.to(state1)
-
-        # bindings
-
-        g1 = GroupBinding("G1")
-        g2 = GroupBinding("G2", direction="write")
+    >>> g1 = GroupBinding("G1")
+    >>> g2 = GroupBinding("G2", direction="write")
     ```
     """
     

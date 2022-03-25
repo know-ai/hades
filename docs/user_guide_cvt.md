@@ -216,4 +216,4 @@ Note that in the class attributes section the variables that will be linked to t
 
 You say, why complicate things if according to the zen of python there is a phrase that simple is better than complicated?
 
-Well, it turns out that by inheriting CVTEngine from the singleton design pattern, all fully structured information can be shared throughout the entire application and used throughout the development as if it were a simple variable in the application and also using a safe thread mechanism.
+Well, it turns out that by inheriting CVTEngine from the singleton design pattern, all fully structured information can be shared throughout the entire application and used throughout the development as if it were a simple variable in the application and also using a thread-safe mechanism.

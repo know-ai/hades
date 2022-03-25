@@ -254,10 +254,6 @@ class CVTEngine(Singleton):
     ```python
     >>> from pyhades.tags import CVTEngine
     >>> tag_egine = CVTEngine()
-    >>> tag_engine.write_tag("TAG1", 40.43)
-    >>> value = tag_engine.read_tag("TAG1")
-    >>> print(value)
-    40.43
     ```
 
     """
@@ -276,22 +272,32 @@ class CVTEngine(Singleton):
         self._response_lock.acquire()
 
     def set_data_type(self, data_type):
-        """
-        Sets a new type as string format.
+        r"""
+        Sets a new data_type as string format.
         
         **Parameters:**
-        * **_type** (str): Type.
+        * **data_type** (str): Data type.
+
+        **Returns** `None`
+
         """
         if data_type not in self._cvt.get_data_types():
             self._cvt.set_data_type(data_type)
 
     def get_data_type(self, name):
         """
-        Gets a tag type as string format.
+        Gets a tag data type as string format.
         
         **Parameters:**
 
         * **name** (str): Tag name.
+
+        **Returns**
+
+        * **(str)**
+        ```python
+        >>> tag_egine.get_data_type('TAG1')
+        ```
         """
 
         return self._cvt.get_data_type(name)
@@ -344,13 +350,16 @@ class CVTEngine(Singleton):
         **Parameters:**
 
         * **name** (str): Tag name.
-        * **data_type** (float, int, bool): Tag value ("int", "float", "bool")
         * **unit** (str): Engineering units.
+        * **data_type** (float, int, bool): Tag value ("int", "float", "bool")
+        * **desc** (str): Tag description
+        * **min_value** (int - float): Field instrument lower value
+        * **max_value** (int - float): Field instrument higher value
 
         Usage:
     
         ```python
-        >>> tag_engine.set_tag("speed", "float", "km/h")
+        >>> tag_engine.set_tag("speed", "float", "km/h", "Speed of car", 0.0, 240.0)
         ```
         """
         
@@ -365,7 +374,17 @@ class CVTEngine(Singleton):
         
         **Parameters:**
         
-        * **tags** (list): List of tag name, type units and description.
+        * **tags** (list): List of tag name, unit, data type, description, min and max value
+
+        ```python
+        >>> tags = [
+                ("TAG1", 'ºC', 'float', 'Inlet temperature', 0.0, 100.0),
+                ("TAG2", 'kPa', 'float', 'Inlet pressure', 100.0),
+                ("TAG3", 'm3/s', 'float', 'Inlet flow'),
+                ("TAG4", 'kg/s', 'float')
+            ]
+        >>> tag_engine.set_tags(tags)
+        ```
         """
         for tag_attrs in tags:
 
@@ -382,6 +401,19 @@ class CVTEngine(Singleton):
         
         * **group** (str): Group name.
         * **tags** (list): List of defined tag names.
+
+        ```python
+        >>> temp_tags = [
+                ("TAG1", 'ºC', 'float', 'Inlet temperature', 0.0, 100.0),
+                ("TAG2", 'ºC', 'float', 'Outlet temperature', 0.0, 100.0)
+            ]
+        >>> pressure_tags = [
+                ("TAG3", 'kPa', 'float', 'Inlet pressure', 100.0, 200.0),
+                ("TAG4", 'kPa', 'float', 'Outlet pressure', 0.0, 100.0)
+            ]
+        >>> tag_engine.set_group('Temperatures', temp_tags)
+        >>> tag_engine.set_group('Pressures', pressure_tags)
+        ```
         """
 
         self._groups[group] = list()
@@ -399,8 +431,13 @@ class CVTEngine(Singleton):
         
         **Parameters:**
         
-        * **group** (str): Group name.
-
+        * **group** (list of str): Group name.
+        ```python
+        >>> tag_engine.get_group('Temperatures')
+        ['TAG1', 'TAG2']
+        >>> tag_engine.get_group('Pressures')
+        ['TAG3', 'TAG4']
+        ```
         """
 
         return self._groups[group]
@@ -426,7 +463,10 @@ class CVTEngine(Singleton):
         **Parameters:**
 
         * **name** (str): Tag name.
-        * **value** (float, int, bool):  Tag value ("int", "float", "bool")
+        * **value** (float, int, bool, str):  Tag value ("int", "float", "bool", "str")
+        ```python
+        >>> tag_engine.write_tag('TAG1', 50.53)
+        ```
         """
 
         _query = dict()
@@ -448,6 +488,11 @@ class CVTEngine(Singleton):
         **Parameters:**
 
         * **name** (str): Tag name.
+
+        ```python
+        >>> tag_engine.read_tag('TAG1')
+        50.53
+```
         """
 
         _query = dict()
@@ -621,6 +666,27 @@ class CVTEngine(Singleton):
         **Parameters:**
         
         * **name** (str): Tag name.
+
+        ```python
+        >>> tag_engine.read_attributes('TAG1')
+        {
+            "value":{
+                    "status_code":{
+                    "name": 'GOOD',
+                    "value": '0x000000000',
+                    "description":  'Operation succeeded'
+                },
+                "source_timestamp": '03/25/2022, 14:39:29.189422',
+                "value": 50.53,
+            },
+            'name': 'TAG1', 
+            'unit': 'ºC', 
+            'data_type': 'float', 
+            'description': 'Inlet temperature', 
+            'min_value': 0.0, 
+            'max_value': 100.0
+        }
+        ```
         """
 
         _query = dict()
