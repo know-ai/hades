@@ -1,4 +1,3 @@
-from email import message
 import logging
 from inspect import ismethod
 from .utils import log_detailed
@@ -120,35 +119,102 @@ class PyHadesStateMachine(StateMachine):
                 continue
 
         self.attrs = attrs
+
+    def info(self):
+        r"""
+        Gets general information of the state machine
+
+        **Returns**
+
+        * **(str)**
+
+        Usage
+
+        ```python
+        >>> machine = app.get_machine(name)
+        >>> info = machine.info()
+        ```
+        """
+        return f'''\nState Machine: {self.name} - Interval: {self.get_interval()} seconds - States: {self.get_states()} - Transitions: {self.get_transitions_name()}'''
     
     def get_states(self):
         r"""
-        Documentation in construction
+        Get a list of state names of the state machine
+
+        **Returns**
+
+        * **(list)**
+
+        Usage
+        
+        ```python
+        >>> machine = app.get_machine(name)
+        >>> states = machine.get_states()
+        ```
+
         """
         return [state.identifier for state in self.states]
 
     def get_state_interval(self):
         r"""
-        Documentation in construction
+        Gets current state interval
+
+        **Returns**
+
+        * **(float)**
+
+        Usage
+
+        ```python
+        >>> machine = app.get_machine(name)
+        >>> current_interval = machine.get_state_interval()
+        ```
+
         """
         return self.current_state.interval
 
     def get_interval(self):
         r"""
-        Documentation in construction
+        Gets overall state machine interval
+
+        **Returns**
+
+        * **(float)**
+
+        Usage
+
+        ```python
+        >>> machine = app.get_machine(name)
+        >>> interval = machine.get_interval()
+        ```
         """
         return self._machine_interval
 
     def set_interval(self, interval):
         r"""
-        Documentation in construction
+        Sets overall machine interval
+
+        **Parameters**
+
+        * **interval:** (float) overal machine interval in seconds
+
+        Usage
+
+        ```python
+        >>> machine = app.get_machine(name)
+        >>> machine.set_interval(0.5)
+        ```
         """
         self._machine_interval = interval
 
     @classmethod
     def get_attributes(cls):
         r"""
-        Documentation in construction
+        Gets class attributes defined by [model types]()
+
+        **Returns**
+
+        * **(dict)**
         """
         result = dict()
         
@@ -189,7 +255,11 @@ class PyHadesStateMachine(StateMachine):
 
     def _get_active_transitions(self):
         r"""
-        Documentation in construction
+        Gets allowed transitions based on the current state
+
+        **Returns**
+
+        * **(list)**
         """
         result = list()
 
@@ -205,9 +275,27 @@ class PyHadesStateMachine(StateMachine):
 
         return result
 
+    def get_transitions_name(self):
+        r"""
+        Get all transitions name define in the state machine
+
+        **Returns**
+
+        * **(list)** of string
+        """
+        transitions = self.transitions
+        
+        _transitions = list()
+
+        for transition in transitions:
+            _transitions.append(transition.identifier)
+
+        return _transitions
+
     def _activate_triggers(self):
         r"""
-        Documentation in construction
+        Allows to execute the on_ method in transitions when it's necesary
+
         """
         transitions = self._get_active_transitions()
 
@@ -252,13 +340,14 @@ class PyHadesStateMachine(StateMachine):
 
     def loop(self):
         r"""
-        Documentation in construction
+        Starts state machine thread and it allows to execute the correct while_ method
+        in the state machine loop execution
         """
         self._loop()
     
     def serialize(self):
         r"""
-        Documentation in construction
+        Gets state machine attributes serialized
         """
         def is_serializable(value):
 
@@ -329,7 +418,11 @@ class PyHadesStateMachine(StateMachine):
 
     def get_state(self):
         r"""
-        Documentation in construction
+        Gets current state of the state machine
+
+        **Returns**
+
+        * **state:** (str) current state of the state machine
         """
 
         return self.current_state.identifier

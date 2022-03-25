@@ -15,7 +15,7 @@ STRING = "str"
 class PropertyType:
 
     """
-    Implement an abstract propery type
+    Implement an abstract property type
     """
 
     def __init__(self, _type, default=None, unit=None):

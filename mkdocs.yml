@@ -17,6 +17,7 @@ nav:
       - PyHades: 'api_core.md'
       - PyHadesContext: 'api_context.md'
       - PyHadesStateMachine: 'api_state_machine.md'
+      - StateMachineManager: 'api_state_machine_manager.md'
       - Models: 'api_models.md'
 
 markdown_extensions:

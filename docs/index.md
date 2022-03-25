@@ -25,7 +25,7 @@ app = PyHades()
 @app.thread(period=0.5)
 def say_hello():
 
-    print('Hello wiht a 0.5 second period')
+    print('Hello with a 0.5 second period')
 
 if __name__=='__main__':
 

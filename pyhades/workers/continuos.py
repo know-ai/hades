@@ -34,6 +34,9 @@ class _ContinuosWorker:
         hades = PyHades()
         hades._thread_functions.append(self)
 
+    def __str__(self):
+        return f'''\nThread Name: {self._name} - Period: {self._period} seconds - Status: {self._status}'''
+
     def serialize(self):
 
         result = dict()
@@ -81,8 +84,6 @@ class _ContinuosWorker:
 
     def __call__(self, *args):
 
-        time.sleep(self._period)
-
         self.set_last()
 
         self._status = RUNNING
@@ -108,5 +109,5 @@ class _ContinuosWorker:
                 self.sleep_elapsed()
         
         except (KeyboardInterrupt, SystemExit):
-            print('CTRL + C')
+            
             self._status = STOP

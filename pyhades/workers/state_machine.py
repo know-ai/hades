@@ -5,6 +5,7 @@ This module implements State Machine Worker.
 """
 import heapq
 import logging
+from statistics import mode
 import time
 
 from ..utils import log_detailed
@@ -147,7 +148,19 @@ class StateMachineWorker(BaseWorker):
 
         self.jobs = list()
 
+    def __str__(self):
+        state_machines = self._manager.get_machines()
+        result = ''
+
+        for state_machine, interval, mode in state_machines:
+
+            result += state_machine.info() + '\n'
+        
+        return result
+
     def loop_closure(self, machine, interval):
+
+        self._machine = machine
         
         def loop():
             machine.loop()
