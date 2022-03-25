@@ -5,7 +5,7 @@ from .utils import log_detailed
 from statemachine import StateMachine
 from statemachine import State as _State
 
-
+from .tags import CVTEngine, TagBinding, GroupBinding
 from .models import FloatType, IntegerType, BooleanType, StringType
 
 FLOAT = "float"
@@ -85,11 +85,14 @@ class PyHadesStateMachine(StateMachine):
     * **name** (str): state machine name.
 
     """
+    tag_engine = CVTEngine()
 
     def __init__(self, name, **kwargs):
         
         super(PyHadesStateMachine, self).__init__()
         self.name = name
+        self._tag_bindings = list()
+        self._group_bindings = list()
         self._machine_interval = list()
 
         attrs = self.get_attributes()
@@ -97,6 +100,17 @@ class PyHadesStateMachine(StateMachine):
         for key, value in attrs.items():
         
             try:
+                if isinstance(value, TagBinding):
+                    self._tag_bindings.append((key, value))
+                    _value = self.tag_engine.read_tag(value.tag)
+
+                    setattr(self, key, _value)
+
+                if isinstance(value, GroupBinding):
+                    self._group_bindings.append((key, value))
+                    _value = value.values
+
+                    setattr(self, key, _value)
 
                 if key in kwargs:
                     default = kwargs[key]
@@ -313,6 +327,49 @@ class PyHadesStateMachine(StateMachine):
                 error = str(e)
                 logging.error("Machine - {}:{}".format(self.name, error))
 
+    def _update_tags(self, direction=READ):
+
+        for attr, _binding in self._tag_bindings:
+
+            try:
+                if direction == READ and _binding.direction == READ:
+                
+                    tag = _binding.tag
+                    value = self.tag_engine.read_tag(tag)
+                    value = setattr(self, attr, value)
+                
+                elif direction == WRITE and _binding.direction == WRITE:
+                    tag = _binding.tag
+                    value = getattr(self, attr)
+                    self.tag_engine.write_tag(tag, value)
+            
+            except Exception as e:
+                message = "Machine - {}: Error on machine tag-bindings".format(self.name)
+                log_detailed(e, message)
+
+    def _update_groups(self, direction=READ):
+    
+        for attr, _binding in self._group_bindings:
+
+            try:
+                if direction == READ and _binding.direction == READ:
+                
+                    _binding.update()
+
+                    setattr(self, attr, _binding.values)
+                
+                elif direction == WRITE and _binding.direction == WRITE:
+                    
+                    values = getattr(self, attr)
+                    
+                    _binding.values = values
+
+                    _binding.update()
+            
+            except Exception as e:
+                message = "Machine - {}: Error on machine group-bindings".format(self.name)
+                log_detailed(e, message)
+
     def _loop(self):
         r"""
         Documentation in construction
@@ -322,8 +379,13 @@ class PyHadesStateMachine(StateMachine):
             method_name = "while_" + state_name
 
             if method_name in dir(self):
-
+                update_tags = getattr(self, '_update_tags')
+                update_groups = getattr(self, '_update_groups')
                 method = getattr(self, method_name)
+
+                # update tag read bindings
+                update_tags()
+                update_groups()
 
                 # loop machine
                 try:
@@ -331,6 +393,10 @@ class PyHadesStateMachine(StateMachine):
                 except Exception as e:
                     message = "Machine - {}: Error on machine loop".format(self.name)
                     log_detailed(e, message)
+
+                #update tag write bindings
+                update_tags("write")
+                update_groups("write")
 
             self._activate_triggers()
 

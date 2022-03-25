@@ -18,7 +18,7 @@ class CVT:
 
     This class is intended hold in memory tag based values and 
     observers for those required tags, this class is intended to be
-    used by Rackio itself and not for other purposes
+    used by PyHades itself and not for other purposes
 
     Usage:
     
