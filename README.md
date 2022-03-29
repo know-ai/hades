@@ -242,11 +242,6 @@ if __name__=='__main__':
     app.run()
 ```
 ___
-## Source code
-
-You can check the latest sources on [GitHub](https://github.com/know-ai/hades):
-
-___
 ## Documentation
 
 The official documentation can be found in [Read the Docs](https://hades.readthedocs.io/en/latest/)
