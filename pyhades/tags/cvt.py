@@ -6,7 +6,6 @@ tag values, in a thread safe implementation for Data Acquisition,
 Database logging, Math operations and others real time processes.
 """
 import threading
-import logging
 import copy
 
 from .._singleton import Singleton
@@ -492,7 +491,7 @@ class CVTEngine(Singleton):
         ```python
         >>> tag_engine.read_tag('TAG1')
         50.53
-```
+        ```
         """
 
         _query = dict()

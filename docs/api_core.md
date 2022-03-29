@@ -1,6 +1,8 @@
 ::: pyhades.PyHades
     :docstring:
     :members: thread
+    :members: set_mode
+    :members: get_mode
     :members: set_max_threads
     :members: threads_running
     :members: threads_info
@@ -13,6 +15,9 @@
     :members: get_start_up_datetime
     :members: get_state_machine_manager
     :members: set_log
+    :members: set_db
+    :members: set_dbtags
+    :members: get_dbtags
     :members: info
     :members: run
     :members: safe_start

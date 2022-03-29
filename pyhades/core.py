@@ -9,19 +9,27 @@ import logging
 import concurrent.futures
 from datetime import datetime
 
+from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
+
 from .utils import log_detailed
 
 from ._singleton import Singleton
 
-from .workers import _ContinuosWorker, StateMachineWorker
+from .workers import _ContinuosWorker, StateMachineWorker, LoggerWorker
 
-from .managers import StateMachineManager
+from .managers import StateMachineManager, DBManager
 
+from .dbmodels import SQLITE, POSTGRESQL, MYSQL
 # PyHades Status
 
 STARTED = 'Started'
 RUNNING = 'Running'
 STOPPED = 'Stopped'
+
+DEVELOPMENT_MODE = 'Development'
+PRODUCTION_MODE = 'Production'
+
+APP_MODES = [DEVELOPMENT_MODE, PRODUCTION_MODE]
 
 
 class PyHades(Singleton):
@@ -47,8 +55,12 @@ class PyHades(Singleton):
         self._thread_functions = list()
         self._threads = list()
         self.workers = list()
+        self._mode = DEVELOPMENT_MODE
 
         self._machine_manager = StateMachineManager()
+        self._db_manager = DBManager()
+
+        self.db = None
 
     def info(self):
         r"""
@@ -61,6 +73,43 @@ class PyHades(Singleton):
         \n* State Machines Running: {self.state_machines_running()}
         {self.state_machines_info()}
         '''
+
+    def set_mode(self, mode:str):
+        r"""
+        Allows to you define "Development" or "Production" mode.
+
+        For Development mode you use Sqlitedatabase by default when you define it.
+
+        For Production mode you can use Sqlite - Postgres - MySQL
+
+        **Parameters**
+
+        * **mode** (str): App mode ('Development' or 'Production')
+
+        **Return** `None`
+
+        ```python
+        >>> app = PyHades()
+        >>> app.set_mode('Development')
+        ```
+        """
+        if mode.capitalize() in APP_MODES:
+            self._mode = mode
+
+    def get_mode(self):
+        r"""
+        Gets app mode
+
+        **Returns**
+        
+        * **mode** (str)
+
+        ```python
+        >>> app.get_mode()
+        'Development'
+        ```
+        """
+        return self._mode
 
     def threads_running(self):
         r"""
@@ -165,6 +214,27 @@ class PyHades(Singleton):
 
         return self._start_up_datetime
 
+    def append_table(self, table):
+        """
+        Append a database model class definition.
+        
+        **Parameters:**
+
+        * **table** (BaseModel): A Base Model Inheritance.
+        """
+
+        self._db_manager.register_table(table)
+
+    def define_table(self, cls):
+        """
+        Append a database model class definition
+        by a class decoration.
+        """
+
+        self.append_table(cls)
+
+        return cls
+
     def set_log(self, level=logging.INFO, file:str="app.log"):
         r"""
         Sets the log file and level.
@@ -188,6 +258,106 @@ class PyHades(Singleton):
         if file:
 
             self._log_file = file
+
+    def set_db(self, dbtype=SQLITE, drop_table=True, cascade=False, **kwargs):
+        """
+        Sets the database, it supports SQLite and Postgres,
+        in case of SQLite, the filename must be provided.
+
+        if app mode is "Development" you must use SQLite Databse
+        
+        **Parameters:**
+
+        * **dbfile** (str): a path to database file.
+        * *drop_table** (bool): If you want to drop table.
+        * **cascade** (bool): if there are some table dependency, drop it as well
+        * **kwargs**: Same attributes to a postgres connection.
+
+        **Returns:** `None`
+
+        Usage:
+
+        ```python
+        >>> app.set_db(dbfile="app.db")
+        ```
+        """
+
+        from .dbmodels import proxy
+
+        if self.get_mode() == DEVELOPMENT_MODE:
+
+            dbfile = kwargs.get("dbfile", ":memory:")
+
+            self._db = SqliteDatabase(dbfile, pragmas={
+                'journal_mode': 'wal',
+                'journal_size_limit': 1024,
+                'cache_size': -1024 * 64,  # 64MB
+                'foreign_keys': 1,
+                'ignore_check_constraints': 0,
+                'synchronous': 0}
+            )
+
+        elif dbtype == SQLITE:
+
+            dbfile = kwargs.get("dbfile", ":memory:")
+            
+            self._db = SqliteDatabase(dbfile, pragmas={
+                'journal_mode': 'wal',
+                'journal_size_limit': 1024,
+                'cache_size': -1024 * 64,  # 64MB
+                'foreign_keys': 1,
+                'ignore_check_constraints': 0,
+                'synchronous': 0}
+            )
+
+        elif dbtype == MYSQL:
+            
+            db_name = kwargs['name']
+            del kwargs['name']
+            self._db = MySQLDatabase(db_name, **kwargs)
+
+        elif dbtype == POSTGRESQL:
+            
+            db_name = kwargs['name']
+            del kwargs['name']
+            self._db = PostgresqlDatabase(db_name, **kwargs)
+        
+        proxy.initialize(self._db)
+        self._db_manager.set_db(self._db)
+        self._db_manager.set_dropped(drop_table, cascade)
+
+    def set_dbtags(self, tags, period=0.5, delay=1.0):
+        """
+        Sets the database tags for logging.
+
+        If you want to log any tag defined in CVTengine, you must define it here
+        
+        **Parameters:**
+
+        * **tags** (list): A list of the tags.
+
+        **Returns:** `None`
+
+        Usage:
+
+        ```python
+        >>> tags = ["P1", "P2", "T1"]
+        >>> app.set_dbtags(tags, period=1.0)
+        ```
+        """
+
+        self._db_manager.set_period(period)
+        self._db_manager.set_delay(delay)
+
+        for _tag in tags:
+            self._db_manager.add_tag(_tag, period)
+
+    def get_dbtags(self):
+        """
+        Returns the database tags for logging.
+        """
+
+        return self._db_manager.get_tags()
 
     def set_max_threads(self, max_threads:int):
         r"""
@@ -378,12 +548,17 @@ class PyHades(Singleton):
         r"""
         Starts defined workers like State Machines.
         """
+        db_worker = LoggerWorker(self._db_manager)
         state_manager = self.get_state_machine_manager()
+
+        db_worker.init_database()
 
         if state_manager.exist_machines():
 
             state_worker = StateMachineWorker(self._machine_manager)
             self.workers.append(state_worker)
+
+        self.workers.append(db_worker)
 
         try:
 

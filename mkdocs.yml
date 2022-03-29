@@ -14,6 +14,7 @@ nav:
       - State Machines: 'user_guide_state_machines.md'
       - Web Frameworks Integration: 'user_guide_context.md'
       - Current Value Table (CVT): 'user_guide_cvt.md'
+      - Database: 'user_guide_db.md'
     - API Reference:
       - PyHades: 'api_core.md'
       - PyHadesContext: 'api_context.md'
@@ -21,6 +22,7 @@ nav:
       - StateMachineManager: 'api_state_machine_manager.md'
       - Models: 'api_models.md'
       - CVT: 'api_cvt.md'
+      - Database: 'api_db.md'
 
 markdown_extensions:
   - admonition
