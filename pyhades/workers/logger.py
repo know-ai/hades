@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""rackio/workers/logger.py
+"""pyhades/workers/logger.py
 
 This module implements Logger Worker.
 """

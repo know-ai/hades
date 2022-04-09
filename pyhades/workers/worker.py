@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""rackio/workers/worker.py
+"""pyhades/workers/worker.py
 
 This module implements all thread classes for workers.
 """

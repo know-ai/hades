@@ -8,6 +8,7 @@ import sys
 import logging
 import concurrent.futures
 from datetime import datetime
+import os
 
 from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
 
@@ -259,7 +260,19 @@ class PyHades(Singleton):
 
             self._log_file = file
 
-    def set_db(self, dbtype=SQLITE, drop_table=True, cascade=False, **kwargs):
+    def drop_db(self, dbfile):
+
+        files = [dbfile]
+        files.append(f"{dbfile}-shm")
+        files.append(f"{dbfile}-wal")
+
+        for file in files:
+
+            if os.path.exists(file):
+                
+                os.remove(file)
+            
+    def set_db(self, dbtype=SQLITE, drop_table=False, **kwargs):
         """
         Sets the database, it supports SQLite and Postgres,
         in case of SQLite, the filename must be provided.
@@ -324,7 +337,7 @@ class PyHades(Singleton):
         
         proxy.initialize(self._db)
         self._db_manager.set_db(self._db)
-        self._db_manager.set_dropped(drop_table, cascade)
+        self._db_manager.set_dropped(drop_table)
 
     def set_dbtags(self, tags, period=0.5, delay=1.0):
         """
@@ -432,6 +445,18 @@ class PyHades(Singleton):
         ```
         """
         return self._machine_manager
+
+    def get_db_manager(self):
+        r"""
+        Gets DB Manager
+
+        **Returns:** DBManager instance
+
+        ```python
+        >>> app.get_state_machine_manager()
+        ```
+        """
+        return self._db_manager
 
     def define_machine(self, name="", interval=1, mode="sync", **kwargs):
         """
@@ -543,6 +568,28 @@ class PyHades(Singleton):
             except Exception as e:
                 message = "Error on wokers stop"
                 log_detailed(e, message)
+    
+    def init_db(self):
+
+        db_worker = LoggerWorker(self._db_manager)
+        db_worker.init_database()
+        try:
+
+            db_worker.daemon = True
+            db_worker.start()
+
+        except Exception as e:
+            message = "Error on db worker start-up"
+            log_detailed(e, message)
+
+        return db_worker
+
+    def stop_db(self, db_worker):
+        try:
+            db_worker.stop()
+        except Exception as e:
+            message = "Error on db worker stop"
+            log_detailed(e, message)
 
     def _start_workers(self):
         r"""
@@ -567,7 +614,7 @@ class PyHades(Singleton):
                 worker.start()
 
         except Exception as e:
-            message = "Error on wokers start-up"
+            message = "Error on workers start-up"
             log_detailed(e, message)
 
     def _stop_workers(self):

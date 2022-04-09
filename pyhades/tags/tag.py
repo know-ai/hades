@@ -1,4 +1,5 @@
 from .tag_value import TagValue
+from ..utils import Observer
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
@@ -89,3 +90,28 @@ class Tag:
         for observer in self._observers:
 
             observer.update()
+
+class TagObserver(Observer):
+    """
+    Implement the Observer updating interface to keep its state
+    consistent with the subject's.
+    Store state that should stay consistent with the subject's.
+    """
+    def __init__(self, tag_queue):
+
+        super(TagObserver, self).__init__()
+        self._tag_queue = tag_queue
+
+    def update(self):
+
+        """
+        This methods inserts the changing Tag into a 
+        Producer-Consumer Queue Design Pattern
+        """
+        
+        result = dict()
+
+        result["tag"] = self._subject.name
+        result["value"] = self._subject.value
+
+        self._tag_queue.put(result)

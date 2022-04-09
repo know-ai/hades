@@ -5,23 +5,22 @@ This module implements Logger Manager.
 """
 import logging
 from ..logger import DataLoggerEngine, LogTable
-from ..dbmodels import TagTrend, TagValue
+from ..dbmodels import TagTrend, TagValue, Alarm, AlarmSummary
 
 
 class DBManager:
     """Database Manager class for database logging settings.
     """
 
-    def __init__(self, period=0.5, delay=1.0, drop_tables=True, cascade=False):
+    def __init__(self, period=1.0, delay=1.0, drop_tables=False):
 
         self._period = period
         self._delay = delay
         self._drop_tables = drop_tables
-        self._cascade = cascade
 
         self._logging_tags = LogTable()
         self._logger = DataLoggerEngine()
-        self._tables = [TagTrend, TagValue]
+        self._tables = [TagTrend, TagValue, Alarm, AlarmSummary]
 
     def set_db(self, db):
 
@@ -31,10 +30,9 @@ class DBManager:
 
         return self._logger.get_db()
 
-    def set_dropped(self, drop_tables, cascade):
+    def set_dropped(self, drop_tables):
 
         self._drop_tables = drop_tables
-        self._cascade = cascade
 
     def get_dropped(self):
 
@@ -50,11 +48,11 @@ class DBManager:
 
         self._logger.create_tables(tables)
 
-    def drop_tables(self, cascade=False):
+    def drop_tables(self):
 
         tables = self._tables
         
-        self._logger.drop_tables(tables, cascade)
+        self._logger.drop_tables(tables)
 
     def add_tag(self, tag, period):
         

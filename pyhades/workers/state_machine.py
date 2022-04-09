@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""rackio/workers/state.py
+"""pyhades/workers/state.py
 
 This module implements State Machine Worker.
 """
