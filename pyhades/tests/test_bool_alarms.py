@@ -132,7 +132,7 @@ class TestBoolAlarms(unittest.TestCase):
         
         with self.subTest("Testing in service alarm"):
 
-            self.assertEqual(self._alarm.state.state, AlarmState.ACKED.state)
+            self.assertEqual(self._alarm.state.state, AlarmState.NORM.state)
 
 if __name__=='__main__':
 
