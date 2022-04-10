@@ -18,7 +18,7 @@ from ._singleton import Singleton
 
 from .workers import _ContinuosWorker, StateMachineWorker, LoggerWorker
 
-from .managers import StateMachineManager, DBManager
+from .managers import StateMachineManager, DBManager, AlarmManager
 
 from .dbmodels import SQLITE, POSTGRESQL, MYSQL
 # PyHades Status
@@ -60,6 +60,7 @@ class PyHades(Singleton):
 
         self._machine_manager = StateMachineManager()
         self._db_manager = DBManager()
+        self._alarm_manager = AlarmManager()
 
         self.db = None
 
@@ -453,10 +454,76 @@ class PyHades(Singleton):
         **Returns:** DBManager instance
 
         ```python
-        >>> app.get_state_machine_manager()
+        >>> app.db_manager()
         ```
         """
         return self._db_manager
+
+    def get_alarm_manager(self):
+        r"""
+        Gets DB Manager
+
+        **Returns:** AlarmManager instance
+
+        ```python
+        >>> app.alarm_manager()
+        ```
+        """
+        return self._alarm_manager
+
+    def append_alarm(self, alarm):
+        """
+        Append an alarm to the alarm manager.
+        
+        **Parameters:**
+
+        * **alarm** (`Alarm`): an alarm object.
+        """
+
+        self._alarm_manager.append_alarm(alarm)
+
+    def get_alarm(self, name):
+        """
+        Returns a Alarm defined by its name.
+        
+        **Parameters:**
+
+        * **name** (str): an alarm name.
+        """
+
+        alarm = self._alarm_manager.get_alarm(name)
+
+        return alarm
+
+    def get_alarm_by_tag(self, tag):
+        """
+        Returns a Alarm defined by its tag.
+
+        **Parameters:**
+
+        * **tag** (str): an alarm tag.
+        """
+
+        alarm = self._alarm_manager.get_alarm_by_tag(tag)
+
+        return alarm
+
+    def get_manager(self, name:str='state'):
+        """
+        Returns a specified application manager.
+        
+        **Parameters:**
+        
+        * **name** (str): a manager name.
+        """
+        if name == "alarm":
+            manager = self.get_alarm_manager()
+        elif name == "state":
+            manager = self.get_state_machine_manager()
+        elif name == 'db':
+            manager = self.get_db_manager()
+
+        return manager
 
     def define_machine(self, name="", interval=1, mode="sync", **kwargs):
         """
