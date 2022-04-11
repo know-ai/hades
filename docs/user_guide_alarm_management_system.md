@@ -4,7 +4,7 @@
 
 The primary function within the alarm system is to notify operators fo abnormal process conditions or equipment malfunctions and support the response. The alarm management system states can be represented by the following state diagram of the ISA 18.2 standard.
 
-![AMS States](img/ams_states.png)
+![AMS States](img/ams_states.svg)
 
 
 ## Making an AMS
@@ -91,12 +91,9 @@ class DAS(PyHadesStateMachine):
 
         client_id = None
         self.opcua_client_url = "http://localhost:8001"
-        # public_prosys_opc_hostname = "uademo.prosysopc.com"
-        # public_prosys_opc_port = 53530
-        local_prosys_opc_hostname = os.environ.get('LOCAL_PROSYS_OPC_HOSTNAME')
-        local_prosys_opc_port = int(os.environ.get('LOCAL_PROSYS_OPC_PORT'))
+        # OPC_SERVER_URL = "opc.tcp://uademo.prosysopc.com:53530/OPCUA/SimulationServer"
+        self.opcua_server_url = os.environ.get('OPC_SERVER_URL')
 
-        self.opcua_server_url = f"opc.tcp://{local_prosys_opc_hostname}:{local_prosys_opc_port}/OPCUA/SimulationServer"
         # Connect with opcua server
         payload = {'url': self.opcua_server_url}
         response = requests.post(f'{self.opcua_client_url}/api/client/connect_to_server', json=payload)
