@@ -15,6 +15,8 @@ nav:
       - Web Frameworks Integration: 'user_guide_context.md'
       - Current Value Table (CVT): 'user_guide_cvt.md'
       - Database: 'user_guide_db.md'
+      - Data Acquisition System (DAS): 'user_guide_data_acquisition_system.md'
+      - Alarm Management System (AMS): 'user_guide_alarm_management_system.md'
     - API Reference:
       - PyHades: 'api_core.md'
       - PyHadesContext: 'api_context.md'
@@ -23,6 +25,7 @@ nav:
       - Models: 'api_models.md'
       - CVT: 'api_cvt.md'
       - Database: 'api_db.md'
+      - Alarms: 'api_alarms.md'
 
 markdown_extensions:
   - admonition
