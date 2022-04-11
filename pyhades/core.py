@@ -16,7 +16,7 @@ from .utils import log_detailed
 
 from ._singleton import Singleton
 
-from .workers import _ContinuosWorker, StateMachineWorker, LoggerWorker
+from .workers import _ContinuosWorker, StateMachineWorker, LoggerWorker, AlarmWorker
 
 from .managers import StateMachineManager, DBManager, AlarmManager
 
@@ -663,13 +663,20 @@ class PyHades(Singleton):
         Starts defined workers like State Machines.
         """
         db_worker = LoggerWorker(self._db_manager)
-        state_manager = self.get_state_machine_manager()
-
         db_worker.init_database()
 
+        # AlarmWorker
+        alarm_manager = self.get_alarm_manager()
+        if len(alarm_manager.get_alarms())>0:
+
+            alarm_worker = AlarmWorker(alarm_manager)
+            self.workers.append(alarm_worker)
+
+        # StateMachine Worker
+        state_manager = self.get_state_machine_manager()
         if state_manager.exist_machines():
 
-            state_worker = StateMachineWorker(self._machine_manager)
+            state_worker = StateMachineWorker(state_manager)
             self.workers.append(state_worker)
 
         self.workers.append(db_worker)

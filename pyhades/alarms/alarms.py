@@ -58,6 +58,16 @@ class Alarm:
         self._trigger.type = _type
 
     @property
+    def value(self):
+
+        return self._value
+
+    @value.setter
+    def value(self, value):
+
+        self._value = value
+
+    @property
     def tag_alarm(self):
         r"""
         Documentation here

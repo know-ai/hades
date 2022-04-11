@@ -87,8 +87,6 @@ tag_engine.set_tag('Triangle', 'Adim.', 'int', 'Simulator triangle variable', -1
 interval = 1.0
 app.set_dbtags(['Triangle'], interval)
 
-# Alarm Definitions
-
 @app.define_machine(name='DAS', interval=1.0, mode="async")
 class DAS(PyHadesStateMachine):
 

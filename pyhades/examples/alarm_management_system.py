@@ -1,23 +1,9 @@
-# Alarm Management System (AMS)
+r"""
+pyhades/examples/alarm_management_system.py
 
-## Introduction
+This module explains how to implement a data acquisition system
+"""
 
-The primary function within the alarm system is to notify operators fo abnormal process conditions or equipment malfunctions and support the response. The alarm management system states can be represented by the following state diagram of the ISA 18.2 standard.
-
-![AMS States](img/ams_states.png)
-
-
-## Making an AMS
-
-This is not a rigorous alarm management system, it is simply a kind of system that allows you to simulate how a continuous process allows you to monitor some variables to which certain alarms have been subscribed to monitor their status; however, this can be the basis for building a real alarm management system based on the standard ISA 18.2
-
-Therefore, extending the previous case study on the data acquisition system, we add the functionality of declaring alarms to monitor variables.
-
-To prepare the OPC UA server and client, see sections *Running Prosys OPC Server Simulator* and *Running Pronode OPCUA Client* in [DAS](https://hades.readthedocs.io/en/latest/user_guide_data_acquisition_system//)
-
-
-```python
-# alarm_management_system.py
 from pyhades import PyHades, PyHadesStateMachine, State
 from pyhades.tags import CVTEngine, TagBinding
 from pyhades.alarms import Alarm, TriggerType
@@ -153,32 +139,4 @@ if __name__=="__main__":
         
         das = app.get_machine('DAS')
         das.disconnect_opc_client()
-```
-
-## Running PyHades AMS Service
-
-At this point you already have a PyHades AMS code, just is missing run it.
-
-If everything goes well so far, just is missing to declare the environment variable *OPC_SERVER_URL*, in this case, I am using Prosys OPC Server Simulator locally. So we can get its url in the Status section of the app, see teh following image.
-
-![Prosys OPCUA Server Simulator URL](img/opcua_server_url.png)
-
-Just, you must change the domain name by your ip address.
-
-So, with the following command you can define your environment variable for linux
-
-```
-export OPC_SERVER_URL=opc.tcp://[ip_address]:53530/OPCUA/SimulationServer
-```
-
-For Windows
-
-```
-set OPC_SERVER_URL=opc.tcp://[ip_address]:53530/OPCUA/SimulationServer
-```
-
-After that you can run the service with
-
-```
-python3 alarm_management_system.py
-```
+    

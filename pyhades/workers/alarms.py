@@ -22,7 +22,7 @@ class AlarmWorker(BaseWorker):
 
     def run(self):
 
-        if not self._manager.alarm_tags():
+        if not self._manager.get_alarms():
             return
 
         _queue = self._manager.get_queue()
