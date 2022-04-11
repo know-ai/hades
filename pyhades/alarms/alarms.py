@@ -12,6 +12,9 @@ from .trigger import Trigger, TriggerType
 
 
 class Alarm:
+    r"""
+    This class implements all definitions for Alarm object
+    """
 
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
@@ -47,19 +50,28 @@ class Alarm:
 
     def get_trigger(self):
         r"""
-        Documentation here
+        Gets Trigger object for alarm
         """
 
         return self._trigger
 
     def set_trigger(self, value, _type:str):
+        r"""
+        Sets Trigger object for alarm
 
+        **Parameters**
+
+        * **value**: (int - float - bool) Value at which the alarm is triggered
+        * **_type**: (str) ["HIGH-HIGH" - "HIGH" - "LOW" - "LOW-LOW" - "BOOL"] Alarm type
+        """
         self._trigger.value = value
         self._trigger.type = _type
 
     @property
     def value(self):
-
+        r"""
+        Property Sets and Gets current value of the tag that the alarm monitors
+        """
         return self._value
 
     @value.setter
@@ -70,7 +82,7 @@ class Alarm:
     @property
     def tag_alarm(self):
         r"""
-        Documentation here
+        Property (str) Sets and Gets tag of the alarm
         """
 
         return self._tag_alarm
@@ -81,23 +93,32 @@ class Alarm:
         self._tag_alarm = tag
 
     def write_tag_alarm(self, value):
-
+        r"""
+        Documentation for write_tag_alarm
+        """
         if self._tag_alarm:
 
             self.tag_engine.write_tag(self._tag, value)
     
     @property
     def name(self):
-
+        r"""
+        Property (str) Sets and Gets Alarm name
+        """
         return self._name
 
     @property
     def tag(self):
-
+        r"""
+        Property (str) Sets and Gets tag of the CVT that alarm monitors
+        """
         return self._tag
 
     @property
     def description(self):
+        r"""
+        Property (str) Sets and Gets alarm description
+        """
         return self._description
 
     @description.setter
@@ -107,7 +128,7 @@ class Alarm:
     @property
     def state(self):
         r"""
-        Documentation here
+        Property (AlarmState Object) Sets and Gets Alarm state
         """
         return self._state
 
@@ -126,7 +147,7 @@ class Alarm:
 
     def trigger_alarm(self):
         r"""
-        Documentation here
+        Trigger alarm in Unacknowledge state if the alarm is enabled
         """
         if not self.enabled and self.state.acknowledge_status==Status.NA.value:
 
@@ -137,17 +158,27 @@ class Alarm:
 
     @property
     def enabled(self):
-
+        r"""
+        Property, check if alarm is enabled
+        """
         return self._enabled
 
     def enable(self, value:bool):
+        r"""
+        Enable or disable alarm according the parameter *value*
 
+        **Parameters**
+
+        * **value**: (bool) if *True* enable alarm, otherwise, disable it
+        """
         if isinstance(value, bool):
 
             self._enable = value
 
     def acknowledge(self):
-
+        r"""
+        Allows you to acknowledge alarm triggered
+        """
         if not self.enabled:
 
             return
@@ -163,7 +194,9 @@ class Alarm:
         self._acknowledged_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def silence(self):
-
+        r"""
+        Documentation here for silence alarm
+        """
         if not self._enabled:
 
             return
@@ -171,7 +204,9 @@ class Alarm:
         self._silence = True
 
     def sound(self):
-
+        r"""
+        Documentation here for sound alamr
+        """
         if not self._enabled:
 
             return
@@ -179,7 +214,9 @@ class Alarm:
         self._silence = False
         
     def reset(self):
-
+        r"""
+        Returns alarm to normal condition
+        """
         self._enabled = True
         self._timestamp = None
         self._acknowledged_timestamp = None
@@ -190,6 +227,8 @@ class Alarm:
         self, 
         **options):
         r"""
+        Set alarm to Shelved state
+
         **Parameters**
 
         * **days:** (int)
@@ -209,36 +248,44 @@ class Alarm:
 
     def unshelve(self):
         r"""
-        Documentation here
+        Set Alarm to normal state after Shelved state
         """
         self._shelved_time = None
         self._shelved_until = None
         self.state = AlarmState.NORM
 
-    def supress_by_design(self):
+    def suppress_by_design(self):
         r"""
-        Documentation here
+        Suppress Alarm by design
         """
         self.state = AlarmState.DSUPR
 
-    def unsupress_by_design(self):
+    def unsuppress_by_design(self):
         r"""
-        Documentation here
+        Unsuppress alarm, return to normal state after suppress state
         """
         self.state = AlarmState.NORM
 
     def out_of_service(self):
         r"""
-        Documentation here
+        Remove alarm from service
         """
         self.state = AlarmState.OOSRV
     
     def in_service(self):
-
+        r"""
+        Return alarm to normal condition after Out Of Service state
+        """
         self.state = AlarmState.NORM
 
     def update(self, value):
+        r"""
+        Update alarm state according the tag value that the alarm monitors and according its state
 
+        **Parameters**
+
+        * **value**: (int - float - bool) according alarm type, current tag value
+        """
         if not self.enabled and self.state.acknowledge_status==Status.NA.value:
 
             return
@@ -309,7 +356,11 @@ class Alarm:
 
     def serialize(self):
         r"""
-        Documentation here
+        Allows you to serialize alarm to a dict jsonable
+
+        **Return**
+
+        * **alarm_info**: (dict) A jsonable dictionary
         """
         return {
             "timestamp": self._timestamp,

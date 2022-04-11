@@ -106,15 +106,15 @@ class TestLowAlarms(unittest.TestCase):
 
             self.assertEqual(self._alarm.state.state, AlarmState.NORM.state)
 
-    def testSupressedAlarm(self):
+    def testSuppressedAlarm(self):
 
-        self._alarm.supress_by_design()
+        self._alarm.suppress_by_design()
 
         with self.subTest("Testing suppress alarm"):
 
             self.assertEqual(self._alarm.state.state, AlarmState.DSUPR.state)
 
-        self._alarm.unsupress_by_design()
+        self._alarm.unsuppress_by_design()
 
         with self.subTest("Testing unsuppress alarm"):
 

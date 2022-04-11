@@ -27,7 +27,7 @@ NOT_ACTIVE = "Not Active"
 ANNUNCIATED = "Annunciated"
 NOT_ANNUNCIATED = "Not Annunciated"
 NOT_ACTIVE_OR_ACTIVE = "Not Active or Active"
-SUPRESSED = "Suppressed"
+SUPPRESSED = "Suppressed"
 NOT_APPLICABLE = "Not Applicable"
 ABNORMAL = "Abnormal"
 
@@ -155,7 +155,7 @@ class TestAlarmState(unittest.TestCase):
 
         with self.subTest("Testing SUPR Status name"):
             
-            state = Status(SUPRESSED)
+            state = Status(SUPPRESSED)
             self.assertEqual(state.name, SUPR)
 
         with self.subTest("Testing NA State name"):
@@ -197,8 +197,8 @@ class TestAlarmState(unittest.TestCase):
 
         with self.subTest("Testing SUPR Status value"):
             
-            state = Status(SUPRESSED)
-            self.assertEqual(state.value, SUPRESSED)
+            state = Status(SUPPRESSED)
+            self.assertEqual(state.value, SUPPRESSED)
 
         with self.subTest("Testing NA State value"):
             
