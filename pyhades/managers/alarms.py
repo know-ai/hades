@@ -194,5 +194,3 @@ class AlarmManager:
             if tag == _alarm.tag:
 
                 _alarm.update(value)
-
-                break
