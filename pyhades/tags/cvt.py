@@ -84,6 +84,7 @@ class CVT:
         """
 
         for name, data_type in tags:
+            
             self.set_tag(name, data_type)
 
     def get_tags(self):
@@ -711,7 +712,6 @@ class CVTEngine(Singleton):
                 data_type = parameters["data_type"]
 
                 self._cvt.set_tag(name, data_type)
-
                 self._response = {
                     "result": True
                 }
