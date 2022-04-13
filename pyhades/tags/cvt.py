@@ -10,6 +10,7 @@ import copy
 
 from .._singleton import Singleton
 from .tag import Tag
+from ..utils import log_detailed
 
 
 class CVT:
@@ -118,11 +119,6 @@ class CVT:
             self._tags[name].notify()
 
         else:
-            data_type = self._tags[name].get_data_type()
-
-            if data_type not in self.data_types:
-                value = copy.copy(value)
-                value.tag = name
 
             self._tags[name].set_value(value)
 
@@ -720,6 +716,8 @@ class CVTEngine(Singleton):
                     "result": True
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False
                 }
@@ -735,6 +733,8 @@ class CVTEngine(Singleton):
                     "response": tags
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -754,6 +754,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -773,6 +775,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -792,6 +796,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -811,6 +817,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -830,6 +838,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -849,6 +859,8 @@ class CVTEngine(Singleton):
                     "response": value
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -868,6 +880,8 @@ class CVTEngine(Singleton):
                     "response": attrs
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False,
                     "response": None
@@ -882,11 +896,12 @@ class CVTEngine(Singleton):
                 name = parameters["name"]
                 value = parameters["value"]
                 self._cvt.set_value(name, value)
-
                 self._response = {
                     "result": True
                 }
             except Exception as e:
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False
                 }
@@ -908,7 +923,8 @@ class CVTEngine(Singleton):
                 }
 
             except Exception as e:
-
+                message = "Error in CVTEngine"
+                log_detailed(e, message)
                 self._response = {
                     "result": False
                 }

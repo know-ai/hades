@@ -5,7 +5,7 @@ This module implements all thread classes for workers.
 """
 from threading import Thread
 from threading import Event as ThreadEvent
-from ..tags.cvt import CVTEngine
+from ..tags import CVTEngine
 
 
 class BaseWorker(Thread):

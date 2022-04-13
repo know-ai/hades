@@ -6,6 +6,7 @@ from statemachine import StateMachine
 from statemachine import State as _State
 
 from .tags import CVTEngine, TagBinding, GroupBinding
+from .logger import DataLoggerEngine
 from .models import FloatType, IntegerType, BooleanType, StringType
 
 FLOAT = "float"
@@ -86,6 +87,7 @@ class PyHadesStateMachine(StateMachine):
 
     """
     tag_engine = CVTEngine()
+    logger_engine = DataLoggerEngine()
 
     def __init__(self, name, **kwargs):
         

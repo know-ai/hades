@@ -91,7 +91,7 @@ class GroupBinding:
     def update(self):
 
         for tag in self.tags:
-
+            
             if self.direction == WRITE:
 
                 value = getattr(self.values, tag)

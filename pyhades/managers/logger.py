@@ -100,10 +100,7 @@ class DBManager:
     
         if self.get_dropped():
             try:
-                if self._cascade:
-                    self.drop_tables(cascade=True)
-                else:
-                    self.drop_tables()
+                self.drop_tables()
             except Exception as e:
                 error = str(e)
                 logging.error("Database:{}".format(error))

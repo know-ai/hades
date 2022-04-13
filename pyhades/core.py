@@ -664,6 +664,7 @@ class PyHades(Singleton):
         """
         db_worker = LoggerWorker(self._db_manager)
         db_worker.init_database()
+        self.workers.append(db_worker)
 
         # AlarmWorker
         alarm_manager = self.get_alarm_manager()
@@ -679,10 +680,8 @@ class PyHades(Singleton):
             state_worker = StateMachineWorker(state_manager)
             self.workers.append(state_worker)
 
-        self.workers.append(db_worker)
-
         try:
-
+            
             for worker in self.workers:
                 worker.daemon = True
                 worker.start()
@@ -708,7 +707,6 @@ class PyHades(Singleton):
         """
         _start_up_datetime = datetime.now()
         self._set_start_up_datetime(_start_up_datetime)
-
         self._start_logger()
         self._start_workers()
         self._start_threads()
