@@ -375,7 +375,7 @@ class Alarm:
             "acknowledged": self.state.is_acknowledged(),
             "acknowledged_timestamp": self._acknowledged_timestamp,
             "value": self._value,
-            "type": self._trigger.type,
+            "type": self._trigger.type.value,
             "audible": self.state.audible,
             "description": self.description
             

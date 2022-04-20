@@ -442,6 +442,8 @@ class PyHadesStateMachine(StateMachine):
 
         result = dict()
 
+        result["name"] = self.name
+
         result["state"] = self.current_state.identifier
 
         states = self.get_states()

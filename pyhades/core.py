@@ -57,6 +57,7 @@ class PyHades(Singleton):
         self._threads = list()
         self.workers = list()
         self._mode = DEVELOPMENT_MODE
+        self._sio = None
 
         self._machine_manager = StateMachineManager()
         self._db_manager = DBManager()
@@ -112,6 +113,14 @@ class PyHades(Singleton):
         ```
         """
         return self._mode
+
+    def set_socketio(self, sio):
+
+        self._sio = sio
+
+    def get_socketio(self):
+
+        return self._sio
 
     def threads_running(self):
         r"""

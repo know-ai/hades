@@ -3,6 +3,8 @@ from .core import BaseModel
 from peewee import DateTimeField, TextField, IntegerField, CharField, FloatField
 from datetime import datetime
 
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
 class Alarm(BaseModel):
     
     timestamp = DateTimeField(default=datetime.now)
@@ -18,9 +20,11 @@ class Alarm(BaseModel):
         alarm.save()
 
     @classmethod
-    def read(cls):
+    def read(cls, lasts:int=1):
 
-        pass
+        alarms = cls.select().order_by(cls.id.desc())[0:lasts]
+    
+        return alarms
 
     @classmethod
     def update(cls):
@@ -31,6 +35,21 @@ class Alarm(BaseModel):
     def delete(cls):
 
         pass
+
+    def serialize(self):
+        r"""
+        Documentation here
+        """
+        result = {
+            "timestamp": self.timestamp.strftime(DATETIME_FORMAT),
+            "name": self.name,
+            "state": self.state,
+            "description": self.description,
+            "priority": self.priority,
+            "value": self.value
+        }
+
+        return result
 
 
 class AlarmSummary(BaseModel):
