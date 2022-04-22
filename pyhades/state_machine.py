@@ -442,9 +442,15 @@ class PyHadesStateMachine(StateMachine):
 
         result = dict()
 
-        result["name"] = self.name
+        result["name"] = {
+            'value': self.name,
+            'unit': None
+        }
 
-        result["state"] = self.current_state.identifier
+        result["state"] = {
+            'value': self.current_state.identifier,
+            'unit': None
+        }
 
         states = self.get_states()
         checkers = ["is_" + state for state in states]
@@ -453,13 +459,16 @@ class PyHadesStateMachine(StateMachine):
         attrs = self.get_attributes()
         
         for key in attrs.keys():
+            
             if key in checkers:
                 continue
             if key in methods:
                 continue
             if not ismodel_instance(attrs[key]):
                 continue
-            
+
+            obj = attrs[key]
+            unit = obj.unit
             value = getattr(self, key)
 
             if not is_serializable(value):
@@ -474,6 +483,8 @@ class PyHadesStateMachine(StateMachine):
                         value = bool(value)
                     else:
                         value = str(value)
+                    
+                    unit = obj.unit
 
                 except Exception as e:
                     
@@ -482,7 +493,10 @@ class PyHadesStateMachine(StateMachine):
                     logging.error("Machine - {}:{}".format(self.name, error))
                     value = None
 
-            result[key] = value
+            result[key] = {
+                'value': value,
+                'unit': unit
+            }
 
         return result
 

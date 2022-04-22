@@ -282,7 +282,7 @@ class PyHades(Singleton):
                 
                 os.remove(file)
             
-    def set_db(self, dbtype=SQLITE, drop_table=False, **kwargs):
+    def set_db(self, dbtype=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
         """
         Sets the database, it supports SQLite and Postgres,
         in case of SQLite, the filename must be provided.
@@ -306,6 +306,10 @@ class PyHades(Singleton):
         """
 
         from .dbmodels import proxy
+
+        if clear_default_tables:
+
+            self._db_manager.clear_default_tables()
 
         if self.get_mode() == DEVELOPMENT_MODE:
 

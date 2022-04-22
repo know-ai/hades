@@ -22,6 +22,8 @@ class DBManager:
         self._logger = DataLoggerEngine()
         self._tables = [TagTrend, TagValue, Alarm, AlarmSummary]
 
+        self._extra_tables = []
+
     def set_db(self, db):
 
         self._logger.set_db(db)
@@ -40,19 +42,23 @@ class DBManager:
 
     def register_table(self, cls):
 
-        self._tables.append(cls)
+        self._extra_tables.append(cls)
 
     def create_tables(self):
 
-        tables = self._tables
+        self._tables.extend(self._extra_tables)
 
-        self._logger.create_tables(tables)
+        self._logger.create_tables(self._tables)
 
     def drop_tables(self):
 
         tables = self._tables
         
         self._logger.drop_tables(tables)
+
+    def clear_default_tables(self):
+
+        self._tables = []
 
     def add_tag(self, tag, period):
         

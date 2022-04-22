@@ -67,3 +67,4 @@ class BooleanType(PropertyType):
     def __init__(self, default=None, unit=None):
 
         super(BooleanType, self).__init__(BOOL, default, unit)
+
