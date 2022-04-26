@@ -7,9 +7,10 @@ Database logging, Math operations and others real time processes.
 """
 import threading
 import copy
-
+import yaml
 from .._singleton import Singleton
 from .tag import Tag
+import yaml
 from ..utils import log_detailed
 
 
@@ -262,10 +263,58 @@ class CVTEngine(Singleton):
         self._groups = dict()
         self._request_lock = threading.Lock()
         self._response_lock = threading.Lock()
-
+        self._config = None
+        self.__tags = list()
         self._response = None
 
         self._response_lock.acquire()
+
+    def set_config(self, config_file):
+        r"""
+        Documentaion here
+        """
+        with open(config_file) as f:
+            
+            self._config = yaml.load(f, Loader=yaml.FullLoader)
+
+            if 'tags' in self._config['modules']:
+
+                if 'groups' in self._config['modules']['tags']:
+
+                    groups = self._config['modules']['tags']['groups']
+                    self.__set_config_groups(groups)
+
+                else:
+
+                    tags = self._config['modules']['tags']
+                    __tags = self.__set_config_tags(tags)
+
+                    self.set_tags(__tags)
+
+    def __set_config_groups(self, groups):
+        r"""
+        Documentation here
+        """                
+        for group, _tags in groups.items():
+
+            __tags = self.__set_config_tags(_tags)
+            
+            self.set_group(group, __tags)
+
+    def __set_config_tags(self, tags):
+        r"""
+        Documentaion here
+        """
+        __tags = list()
+        for _, attrs in tags.items():
+
+            _tag = Tag(**attrs)
+
+            __tags.append(_tag.parser())
+            
+        self.__tags.extend(__tags)
+
+        return __tags
 
     def set_data_type(self, data_type):
         r"""

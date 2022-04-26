@@ -13,6 +13,7 @@ class Tag:
         self.data_type = data_type
         self.description = desc
         self._observers = set()
+        self.__tag_parsed = list()
 
     def set_value(self, value):
 
@@ -90,6 +91,19 @@ class Tag:
         for observer in self._observers:
 
             observer.update()
+
+    def parser(self):
+        r"""
+        Documentation here
+        """
+        return (
+            self.name,
+            self.get_data_type(),
+            self.get_unit(),
+            self.get_description(),
+            self.value.get_min_value(),
+            self.value.get_max_value()
+        )
 
 class TagObserver(Observer):
     """
