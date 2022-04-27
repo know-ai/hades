@@ -29,7 +29,6 @@ class DataLogger:
     def __init__(self):
 
         self._db = None
-        self.tags_dbo = dict()
 
     def set_db(self, db):
 
@@ -42,10 +41,7 @@ class DataLogger:
     def set_tag(self, tag, period):
 
         now = datetime.now()
-        trend = TagTrend(name=tag, start=now, period=period)
-        trend.save()
-
-        self.tags_dbo[tag] = trend
+        TagTrend.create(name=tag, start=now, period=period)
 
     def set_tags(self, tags, period):
         
@@ -71,8 +67,7 @@ class DataLogger:
 
     def write_tag(self, tag, value):
 
-        trend = self.tags_dbo[tag]
-
+        trend = TagTrend.read_by_name(tag)
         tag_value = TagValue.create(tag=trend, value=value)
         tag_value.save()
 

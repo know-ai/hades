@@ -9,6 +9,7 @@ import logging
 import concurrent.futures
 from datetime import datetime
 import os
+import yaml
 
 from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
 
@@ -19,6 +20,8 @@ from ._singleton import Singleton
 from .workers import _ContinuosWorker, StateMachineWorker, LoggerWorker, AlarmWorker
 
 from .managers import StateMachineManager, DBManager, AlarmManager
+
+from .tags import CVTEngine
 
 from .dbmodels import SQLITE, POSTGRESQL, MYSQL
 # PyHades Status
@@ -61,6 +64,7 @@ class PyHades(Singleton):
 
         self._machine_manager = StateMachineManager()
         self._db_manager = DBManager()
+        self._engine = CVTEngine()
         self._alarm_manager = AlarmManager()
 
         self.db = None
@@ -281,7 +285,48 @@ class PyHades(Singleton):
             if os.path.exists(file):
                 
                 os.remove(file)
+
+    def set_db_from_config_file(self, config_file):
+        r"""
+        Documention here
+        """
+        with open(config_file) as f:
+                
+                config = yaml.load(f, Loader=yaml.FullLoader)
+
+        if 'db' in config:
+
+            app_mode = self.get_mode()
+            db_config = config['db']
+
+            if app_mode == DEVELOPMENT_MODE:
+
+                if 'dev_mode' in db_config:
+                    dev_db_config = db_config['dev_mode']
+                    self.set_db(dbtype=SQLITE, dbfile=dev_db_config['db_file'])
+
+                else:
+
+                    logging.error(f"You must define dev_mode key in db configuration in your config file")
+
+            else:
+
+                if 'prod_mode' in db_config:
+                    prod_db_config = db_config['prod_mode']
+                    DATABASE = {
+                        'user': prod_db_config['db_user'],
+                        'password': prod_db_config['db_password'],
+                        'host': prod_db_config['db_host'],
+                        'port': prod_db_config['db_port']
+                        }
+                    self.set_db(dbtype=prod_db_config['db_type'], app=prod_db_config['db_name'], **DATABASE)
+
+                else:
+
+                    logging.error(f"You must define prod_mode key in db configuration in your config file")
             
+            self.set_dbtags(self._engine.get_tags(), db_config['sample_time'], delay=db_config['delay'])
+
     def set_db(self, dbtype=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
         """
         Sets the database, it supports SQLite and Postgres,
