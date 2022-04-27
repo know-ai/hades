@@ -11,6 +11,8 @@ from datetime import datetime
 import os
 import yaml
 
+from .alarms import Alarm, TriggerType
+
 from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
 
 from .utils import log_detailed
@@ -516,6 +518,40 @@ class PyHades(Singleton):
         ```
         """
         return self._db_manager
+
+    def define_alarm_from_config_file(self, config_file):
+        r"""
+        Documentation here
+        """
+        with open(config_file) as f:
+                
+                config = yaml.load(f, Loader=yaml.FullLoader)
+
+        if 'alarms' in config:
+
+            alarms = config['alarms']
+            self.__set_config_alarms(alarms)
+
+        else:
+
+            logging.warning(f"You must define alarms key in your config file")
+
+    def __set_config_alarms(self, alarms):
+        r"""
+        Documentaion here
+        """
+        for _, attrs in alarms.items():
+
+            name = attrs['name']
+            tag = attrs['tag']
+            desc = attrs['desc']
+            _type = attrs['type']
+            trigger = attrs['trigger']
+
+            alarm = Alarm(name, tag, desc)
+            _trigger = TriggerType(_type.upper())
+            alarm.set_trigger(value=trigger, _type=_trigger.value)
+            self.append_alarm(alarm)
 
     def get_alarm_manager(self):
         r"""
