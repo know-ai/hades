@@ -5,7 +5,7 @@ This module implements Logger Manager.
 """
 import logging
 from ..logger import DataLoggerEngine, LogTable
-from ..dbmodels import TagTrend, TagValue, Alarm, AlarmSummary
+from ..dbmodels import Tags, TagValue, Alarms, AlarmSummary, Variables, Units, DataTypes
 
 
 class DBManager:
@@ -20,7 +20,7 @@ class DBManager:
 
         self._logging_tags = LogTable()
         self._logger = DataLoggerEngine()
-        self._tables = [TagTrend, TagValue, Alarm, AlarmSummary]
+        self._tables = [Variables, Units, DataTypes, Tags, TagValue, Alarms, AlarmSummary]
 
         self._extra_tables = []
 

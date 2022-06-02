@@ -8,7 +8,7 @@ to retrieve history, trends and waveforms from database.
 from datetime import datetime, timedelta
 
 from .engine import DataLoggerEngine
-from ..dbmodels import TagTrend, TagValue
+from ..dbmodels import Tags, TagValue
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -21,16 +21,16 @@ class QueryLogger:
 
     def get_values(self, tag):
 
-        query = TagTrend.select().order_by(TagTrend.start.desc())
-        trend = query.where(TagTrend.name == tag).get()
+        query = Tags.select().order_by(Tags.start.desc())
+        trend = query.where(Tags.name == tag).get()
         values = trend.values
         
         return values
 
     def get_period(self, tag):
 
-        query = TagTrend.select().order_by(TagTrend.start.desc())
-        trend = query.where(TagTrend.name == tag).get()
+        query = Tags.select().order_by(Tags.start.desc())
+        trend = query.where(Tags.name == tag).get()
         
         return float(trend.period)
 
@@ -42,15 +42,15 @@ class QueryLogger:
 
     def get_start(self, tag):
 
-        query = TagTrend.select().order_by(TagTrend.start.desc())
-        trend = query.where(TagTrend.name == tag).get()
+        query = Tags.select().order_by(Tags.start.desc())
+        trend = query.where(Tags.name == tag).get()
         
         return trend.start
 
     def query_waveform(self, tag, start, stop):
 
-        _query = TagTrend.select().order_by(TagTrend.start)
-        trend = _query.where(TagTrend.name == tag).get()
+        _query = Tags.select().order_by(Tags.start)
+        trend = _query.where(Tags.name == tag).get()
         
         start = datetime.strptime(start, DATETIME_FORMAT)
         stop = datetime.strptime(stop, DATETIME_FORMAT)
@@ -73,8 +73,8 @@ class QueryLogger:
 
     def query_trend(self, tag, start, stop):
 
-        _query = TagTrend.select().order_by(TagTrend.start)
-        trend = _query.where(TagTrend.name == tag).get()
+        _query = Tags.select().order_by(Tags.start)
+        trend = _query.where(Tags.name == tag).get()
         
         start = datetime.strptime(start, DATETIME_FORMAT)
         stop = datetime.strptime(stop, DATETIME_FORMAT)

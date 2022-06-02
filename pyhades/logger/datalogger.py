@@ -7,7 +7,7 @@ will create a time-serie for each tag in a short memory data base.
 
 from datetime import datetime
 
-from ..dbmodels import TagTrend, TagValue
+from ..dbmodels import Tags, TagValue
 
 
 class DataLogger:
@@ -41,7 +41,7 @@ class DataLogger:
     def set_tag(self, tag, period):
 
         now = datetime.now()
-        TagTrend.create(name=tag, start=now, period=period)
+        Tags.create(name=tag, start=now, period=period)
 
     def set_tags(self, tags, period):
         
@@ -67,14 +67,14 @@ class DataLogger:
 
     def write_tag(self, tag, value):
 
-        trend = TagTrend.read_by_name(tag)
+        trend = Tags.read_by_name(tag)
         tag_value = TagValue.create(tag=trend, value=value)
         tag_value.save()
 
     def read_tag(self, tag):
         
-        query = TagTrend.select().order_by(TagTrend.start)
-        trend = query.where(TagTrend.name == tag).get()
+        query = Tags.select().order_by(Tags.start)
+        trend = query.where(Tags.name == tag).get()
         
         period = trend.period
         values = trend.values.select()

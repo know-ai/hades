@@ -44,7 +44,16 @@ class CVT:
 
         return name in self._tags.keys()
 
-    def set_tag(self, name:str, unit:str, data_type:str, desc="", min_value=None, max_value=None):
+    def set_tag(
+        self, 
+        name:str, 
+        unit:str, 
+        data_type:str, 
+        desc:str="", 
+        min_value:float=None, 
+        max_value:float=None,
+        tcp_source_address:str=None,
+        node_namespace:str=None):
         """Initialize a new Tag object in the _tags dictionary.
         
         # Parameters
@@ -72,7 +81,7 @@ class CVT:
             data_type = data_type.__name__
             self.set_data_type(data_type)
 
-        tag = Tag(name, unit, data_type, desc, min_value, max_value)
+        tag = Tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
         self._tags[name] = tag
 
@@ -93,6 +102,30 @@ class CVT:
         """
 
         return self._tags.keys()
+
+    def get_tag_by_node_namespace(self, node_namespace):
+        r"""
+        Documentation here
+        """
+        for tag_name, tag in self._tags.items():
+
+            if tag.get_node_namespace()==node_namespace:
+
+                return tag_name
+
+        return None
+
+    def get_node_namespace_by_tag_name(self, name):
+        r"""
+        Documentation here
+        """
+        for tag_name, tag in self._tags.items():
+
+            if tag_name==name:
+
+                return tag.get_node_namespace()
+
+        return None
 
     def set_value(self, name, value):
         """Sets a new value for a defined tag.
@@ -277,19 +310,23 @@ class CVTEngine(Singleton):
             
             self._config = yaml.load(f, Loader=yaml.FullLoader)
 
-            if 'tags' in self._config['modules']:
+            if self._config['modules'] is not None:
 
-                if 'groups' in self._config['modules']['tags']:
+                if 'tags' in self._config['modules']:
 
-                    groups = self._config['modules']['tags']['groups']
-                    self.__set_config_groups(groups)
+                    if self._config['modules']['tags'] is not None:
 
-                else:
+                        if 'groups' in self._config['modules']['tags']:
 
-                    tags = self._config['modules']['tags']
-                    __tags = self.__set_config_tags(tags)
+                            groups = self._config['modules']['tags']['groups']
+                            self.__set_config_groups(groups)
 
-                    self.set_tags(__tags)
+                        else:
+
+                            tags = self._config['modules']['tags']
+                            __tags = self.__set_config_tags(tags)
+
+                            self.set_tags(__tags)
 
     def __set_config_groups(self, groups):
         r"""
@@ -369,13 +406,25 @@ class CVTEngine(Singleton):
 
         return self._cvt.get_description(name)
 
-    def get_min_value(self, name):
+    def get_min_value(self, name:str):
 
         return self._cvt.get_min_value(name)
 
     def get_max_value(self, name):
 
         return self._cvt.get_max_value(name)
+
+    def get_tagname_by_node_namespace(self, node_namespace:str):
+        r"""
+        Documentation here
+        """
+        return self._cvt.get_tag_by_node_namespace(node_namespace)
+
+    def get_node_namespace_by_tag_name(self, name:str):
+        r"""
+        Documentation here
+        """
+        return self._cvt.get_node_namespace_by_tag_name(name)
 
     def tag_defined(self, name):
         """
@@ -388,7 +437,16 @@ class CVTEngine(Singleton):
 
         return self._cvt.tag_defined(name)
 
-    def set_tag(self, name:str, unit:str, data_type:str, desc="", min_value=None, max_value=None):
+    def set_tag(
+        self, 
+        name:str, 
+        unit:str, 
+        data_type:str, 
+        desc="", 
+        min_value=None, 
+        max_value=None,
+        tcp_source_address=None,
+        node_namespace=None):
         """
         Sets a new value for a defined tag, in thread-safe mechanism.
         
@@ -410,7 +468,7 @@ class CVTEngine(Singleton):
         
         if not self.tag_defined(name):
 
-            self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value)
+            self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags):
         """

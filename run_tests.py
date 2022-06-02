@@ -6,6 +6,7 @@ from pyhades.tests.test_high_high_alarms import TestHighHighAlarms
 from pyhades.tests.test_low_low_alarms import TestLowLowAlarms
 from pyhades.tests.test_low_alarms import TestLowAlarms
 from pyhades.tests.test_alarm_manager import TestAlarmManager
+from pyhades.tests.test_dbmodels import TestDBModels
 
 
 def suite():
@@ -21,6 +22,7 @@ def suite():
     tests.append(TestLoader().loadTestsFromTestCase(TestLowLowAlarms))
     tests.append(TestLoader().loadTestsFromTestCase(TestLowAlarms))
     tests.append(TestLoader().loadTestsFromTestCase(TestAlarmManager))
+    tests.append(TestLoader().loadTestsFromTestCase(TestDBModels))
     suite = TestSuite(tests)
     return suite
 

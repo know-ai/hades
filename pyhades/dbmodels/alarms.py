@@ -1,11 +1,11 @@
 from time import time
 from .core import BaseModel
-from peewee import DateTimeField, TextField, IntegerField, CharField, FloatField
+from peewee import DateTimeField, TextField, IntegerField, FloatField
 from datetime import datetime
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-class Alarm(BaseModel):
+class Alarms(BaseModel):
     
     timestamp = DateTimeField(default=datetime.now)
     name = TextField()

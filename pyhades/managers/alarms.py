@@ -5,7 +5,7 @@ This module implements Alarm Manager.
 from datetime import datetime
 import queue
 from ..tags import CVTEngine, TagObserver
-from ..dbmodels import Alarm as AlarmModel
+from ..dbmodels import Alarms as AlarmModel
 from ..alarms import AlarmState
 
 
@@ -77,6 +77,24 @@ class AlarmManager:
                 alarms.append(alarm)
 
         return alarms
+
+    def get_alarm_by_tag(self, tag:str):
+        r"""
+        Gets alarm associated to some tag
+
+        **Parameters**
+
+        * **tag**: (str) tag name defined in cvt associated to the alarm
+
+        **Returns**
+
+        * **alarm** (list) of alarm objects
+        """
+        for alarm in self._alarms:
+            
+            if tag == alarm.tag:
+                
+                return alarm
 
     def get_alarms(self):
         r"""

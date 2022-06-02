@@ -5,7 +5,7 @@ This module implements all Alarms class definitions and Alarm Handlers.
 """
 from datetime import datetime, timedelta
 from ..tags import CVTEngine
-from ..dbmodels import Alarm as AlarmModel
+from ..dbmodels import Alarms as AlarmModel
 from ..logger import DataLoggerEngine
 from .states import AlarmState, Status
 from .trigger import Trigger, TriggerType
@@ -27,6 +27,7 @@ class Alarm:
         self._value = False
         self._message = None
         self._state = AlarmState.NORM
+        self._mnemonic = AlarmState.NORM.mnemonic
         self._trigger = Trigger()
         self._tag_alarm = None
         self._enabled = True
@@ -47,6 +48,30 @@ class Alarm:
             'weeks': 0
         }
         self._shelved_until = None
+        self.__default_operations()
+
+    def __default_operations(self):
+        r"""
+        Documentation here
+        """
+        self._operations = {
+            'acknowledge': 'not active',
+            'enable': 'not active',
+            'disable': 'active',
+            'silence': 'not active',
+            'shelve': 'active',
+            'suppress by design': 'active',
+            'unsuppressed': 'not active',
+            'out of service': 'active',
+            'return to service': 'not active',
+            'reset': 'active'
+        }
+
+    def get_operations(self):
+        r"""
+        Documentation here
+        """
+        return self._operations
 
     def get_trigger(self):
         r"""
@@ -155,6 +180,10 @@ class Alarm:
        
         self._timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.state = AlarmState.UNACK
+        self._operations['acknowledge'] = 'active'
+        self._operations['shelve'] = 'not active'
+        self._operations['suppress by design'] = 'not active'
+        self._operations['out of service'] = 'not active'
 
     @property
     def enabled(self):
@@ -163,7 +192,7 @@ class Alarm:
         """
         return self._enabled
 
-    def enable(self, value:bool):
+    def enable(self):
         r"""
         Enable or disable alarm according the parameter *value*
 
@@ -171,9 +200,25 @@ class Alarm:
 
         * **value**: (bool) if *True* enable alarm, otherwise, disable it
         """
-        if isinstance(value, bool):
 
-            self._enable = value
+        self._enabled = True
+
+        self._operations['disable'] = 'active'
+        self._operations['enable'] = 'not active'
+
+    def disable(self):
+        r"""
+        Enable or disable alarm according the parameter *value*
+
+        **Parameters**
+
+        * **value**: (bool) if *True* enable alarm, otherwise, disable it
+        """
+
+        self._enabled = False
+
+        self._operations['disable'] = 'not active'
+        self._operations['enable'] = 'active'
 
     def acknowledge(self):
         r"""
@@ -192,6 +237,7 @@ class Alarm:
             self.state = AlarmState.NORM
 
         self._acknowledged_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self._operations['acknowledge'] = 'not active'
 
     def silence(self):
         r"""
@@ -202,6 +248,7 @@ class Alarm:
             return
 
         self._silence = True
+        self._operations['silence'] = 'not active'
 
     def sound(self):
         r"""
@@ -222,6 +269,7 @@ class Alarm:
         self._acknowledged_timestamp = None
         self._silence = False
         self.state = AlarmState.NORM
+        self.__default_operations()
 
     def shelve(
         self, 
@@ -245,6 +293,9 @@ class Alarm:
             self._shelved_until = self._shelved_time + timedelta(**options_time)
         
         self.state = AlarmState.SHLVD
+        self._operations['shelve'] = 'not active'
+        self._operations['suppress by design'] = 'not active'
+        self._operations['out of service'] = 'not active'
 
     def unshelve(self):
         r"""
@@ -253,30 +304,47 @@ class Alarm:
         self._shelved_time = None
         self._shelved_until = None
         self.state = AlarmState.NORM
+        self._operations['shelve'] = 'active'
+        self._operations['suppress by design'] = 'active'
+        self._operations['out of service'] = 'nactive'
 
     def suppress_by_design(self):
         r"""
         Suppress Alarm by design
         """
         self.state = AlarmState.DSUPR
+        self._operations['shelve'] = 'not active'
+        self._operations['suppress by design'] = 'not active'
+        self._operations['out of service'] = 'not active'
+        self._operations['unsuppress by design'] = 'active'
 
     def unsuppress_by_design(self):
         r"""
         Unsuppress alarm, return to normal state after suppress state
         """
         self.state = AlarmState.NORM
+        self._operations['shelve'] = 'active'
+        self._operations['suppress by design'] = 'active'
+        self._operations['out of service'] = 'active'
 
     def out_of_service(self):
         r"""
         Remove alarm from service
         """
         self.state = AlarmState.OOSRV
+        self._operations['shelve'] = 'not active'
+        self._operations['suppress by design'] = 'not active'
+        self._operations['out of service'] = 'not active'
+        self._operations['return to service'] = 'active'
     
-    def in_service(self):
+    def return_to_service(self):
         r"""
         Return alarm to normal condition after Out Of Service state
         """
         self.state = AlarmState.NORM
+        self._operations['shelve'] = 'active'
+        self._operations['suppress by design'] = 'active'
+        self._operations['out of service'] = 'active'
 
     def update(self, value):
         r"""
@@ -368,6 +436,7 @@ class Alarm:
             "tag": self.tag,
             "tag_alarm": self.tag_alarm,
             "state": self.state.state,
+            "mnemonic": self.state.mnemonic,
             "enabled": self.enabled,
             "process": self.state.process_condition,
             "triggered": self.state.is_triggered,
@@ -377,6 +446,7 @@ class Alarm:
             "value": self._value,
             "type": self._trigger.type.value,
             "audible": self.state.audible,
-            "description": self.description
+            "description": self.description,
+            "operations": self.get_operations()
             
         }

@@ -5,7 +5,17 @@ DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
 class Tag:
 
-    def __init__(self, name, unit, data_type, desc="", min_value=None, max_value=None):
+    def __init__(
+        self, 
+        name, 
+        unit, 
+        data_type, 
+        desc="", 
+        min_value=None, 
+        max_value=None, 
+        tcp_source_address=None, 
+        node_namespace=None
+        ):
 
         self.name = name
         self.value = TagValue(min_value=min_value, max_value=max_value)
@@ -14,6 +24,8 @@ class Tag:
         self.description = desc
         self._observers = set()
         self.__tag_parsed = list()
+        self.tcp_source_address = tcp_source_address
+        self.node_namespace = node_namespace
 
     def set_value(self, value):
 
@@ -27,6 +39,14 @@ class Tag:
     def set_max_value(self, value):
 
         self.value.set_max_value(value)
+
+    def set_tcp_source_address(self, tcp_source_address):
+
+        self.tcp_source_address = tcp_source_address
+
+    def set_node_namespace(self, node_namespace):
+
+        self.node_namespace = node_namespace
     
     def get_value(self):
         
@@ -64,6 +84,14 @@ class Tag:
 
         return self.description
 
+    def get_tcp_source_address(self):
+        
+        return self.tcp_source_address
+
+    def get_node_namespace(self):
+
+        return self.node_namespace
+
     def get_attributes(self):
 
         return {
@@ -73,7 +101,9 @@ class Tag:
             "data_type": self.get_data_type(),
             "description": self.get_description(),
             "min_value": self.get_min_value(),
-            "max_value": self.get_max_value()
+            "max_value": self.get_max_value(),
+            "tcp_source_address": self.get_tcp_source_address(),
+            "node_namespace": self.get_node_namespace()
         }
     
     def attach(self, observer):
@@ -102,7 +132,9 @@ class Tag:
             self.get_unit(),
             self.get_description(),
             self.value.get_min_value(),
-            self.value.get_max_value()
+            self.value.get_max_value(),
+            self.get_tcp_source_address(),
+            self.get_node_namespace()
         )
 
 class TagObserver(Observer):

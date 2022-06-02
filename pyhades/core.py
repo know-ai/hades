@@ -9,13 +9,12 @@ import logging
 import concurrent.futures
 from datetime import datetime
 import os
-import yaml
 
 from .alarms import Alarm, TriggerType
 
 from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
 
-from .utils import log_detailed
+from .utils import log_detailed, parse_config
 
 from ._singleton import Singleton
 
@@ -292,9 +291,7 @@ class PyHades(Singleton):
         r"""
         Documention here
         """
-        with open(config_file) as f:
-                
-                config = yaml.load(f, Loader=yaml.FullLoader)
+        config = parse_config(config_file)
 
         if 'db' in config:
 
@@ -312,16 +309,16 @@ class PyHades(Singleton):
                     logging.error(f"You must define dev_mode key in db configuration in your config file")
 
             else:
-
                 if 'prod_mode' in db_config:
                     prod_db_config = db_config['prod_mode']
                     DATABASE = {
                         'user': prod_db_config['db_user'],
                         'password': prod_db_config['db_password'],
                         'host': prod_db_config['db_host'],
-                        'port': prod_db_config['db_port']
+                        'port': prod_db_config['db_port'],
+                        'name': prod_db_config['db_name']
                         }
-                    self.set_db(dbtype=prod_db_config['db_type'], app=prod_db_config['db_name'], **DATABASE)
+                    self.set_db(dbtype=prod_db_config['db_type'], **DATABASE)
 
                 else:
 
@@ -329,7 +326,7 @@ class PyHades(Singleton):
             
             self.set_dbtags(self._engine.get_tags(), db_config['sample_time'], delay=db_config['delay'])
 
-    def set_db(self, dbtype=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
+    def set_db(self, dbtype:str=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
         """
         Sets the database, it supports SQLite and Postgres,
         in case of SQLite, the filename must be provided.
@@ -371,7 +368,7 @@ class PyHades(Singleton):
                 'synchronous': 0}
             )
 
-        elif dbtype == SQLITE:
+        elif dbtype.lower() == SQLITE:
 
             dbfile = kwargs.get("dbfile", ":memory:")
             
@@ -384,13 +381,13 @@ class PyHades(Singleton):
                 'synchronous': 0}
             )
 
-        elif dbtype == MYSQL:
+        elif dbtype.lower() == MYSQL:
             
             db_name = kwargs['name']
             del kwargs['name']
             self._db = MySQLDatabase(db_name, **kwargs)
 
-        elif dbtype == POSTGRESQL:
+        elif dbtype.lower() == POSTGRESQL:
             
             db_name = kwargs['name']
             del kwargs['name']
@@ -523,13 +520,11 @@ class PyHades(Singleton):
         r"""
         Documentation here
         """
-        with open(config_file) as f:
-                
-                config = yaml.load(f, Loader=yaml.FullLoader)
+        config = parse_config(config_file)
 
-        if 'alarms' in config:
+        if 'alarms' in config['modules']:
 
-            alarms = config['alarms']
+            alarms = config['modules']['alarms']
             self.__set_config_alarms(alarms)
 
         else:

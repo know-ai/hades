@@ -128,9 +128,9 @@ class TestLowAlarms(unittest.TestCase):
 
             self.assertEqual(self._alarm.state.state, AlarmState.OOSRV.state)
 
-        self._alarm.in_service()
+        self._alarm.return_to_service()
         
-        with self.subTest("Testing in service alarm"):
+        with self.subTest("Testing return to service alarm"):
 
             self.assertEqual(self._alarm.state.state, AlarmState.NORM.state)
 
