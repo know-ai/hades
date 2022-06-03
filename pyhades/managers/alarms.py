@@ -5,7 +5,7 @@ This module implements Alarm Manager.
 from datetime import datetime
 import queue
 from ..tags import CVTEngine, TagObserver
-from ..dbmodels import Alarms as AlarmModel
+from ..dbmodels import AlarmsLogging as AlarmModel
 from ..alarms import AlarmState
 
 

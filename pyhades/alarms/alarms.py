@@ -5,7 +5,7 @@ This module implements all Alarms class definitions and Alarm Handlers.
 """
 from datetime import datetime, timedelta
 from ..tags import CVTEngine
-from ..dbmodels import Alarms as AlarmModel
+from ..dbmodels import AlarmsLogging as AlarmModel
 from ..logger import DataLoggerEngine
 from .states import AlarmState, Status
 from .trigger import Trigger, TriggerType

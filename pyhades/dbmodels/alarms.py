@@ -5,7 +5,7 @@ from datetime import datetime
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-class Alarms(BaseModel):
+class AlarmsLogging(BaseModel):
     
     timestamp = DateTimeField(default=datetime.now)
     name = TextField()
@@ -52,7 +52,7 @@ class Alarms(BaseModel):
         return result
 
 
-class AlarmSummary(BaseModel):
+class AlarmsSummary(BaseModel):
     
     name = TextField()
     state = TextField()

@@ -152,7 +152,7 @@ class Units(BaseModel):
         """
         result = dict()
         data = dict()
-        name = name.lower()
+        name = name
         variable = variable.lower()
 
         if not cls.name_exist(name):
@@ -196,6 +196,27 @@ class Units(BaseModel):
             }
         )
         return result
+
+    @classmethod
+    def read_by_name(cls, name:str)->bool:
+        r"""
+        Get instance by its a name
+
+        **Parameters**
+
+        * **name:** (str) Variable name
+
+        **Returns**
+
+        * **bool:** If True, name exist into database 
+        """
+        query = cls.get_or_none(name=name)
+        
+        if query is not None:
+
+            return query.serialize()
+        
+        return None
 
     @classmethod
     def name_exist(cls, name:str)->bool:
@@ -346,7 +367,7 @@ class DataTypes(BaseModel):
 class Tags(BaseModel):
 
     name = CharField(unique=True)
-    unit_id = ForeignKeyField(Units, backref='tags', on_delete='CASCADE')
+    unit = ForeignKeyField(Units, backref='tags', on_delete='CASCADE')
     data_type = ForeignKeyField(DataTypes, backref='tags', on_delete='CASCADE')
     desc = CharField(max_length=250)
     min_value = FloatField(null=True)
@@ -367,15 +388,66 @@ class Tags(BaseModel):
         desc:str,
         min_value:float=None,
         max_value:float=None,
-        tcp_source:str=None,
+        tcp_source_address:str=None,
         node_namespace:str=None
         ):
+
+        result = dict()
+        data = dict()
         
         if not cls.name_exist(name):
-            trend = cls(name=name, start=start, period=period)
-            trend.save()
 
-            return trend
+            _unit = Units.read_by_name(name=unit)
+
+            _data_type = DataTypes.read_by_name(name=data_type.lower())
+
+            if _unit is not None:
+
+                if _data_type is not None:
+            
+                    query = cls(
+                        name=name, 
+                        start=start, 
+                        period=period,
+                        unit=_unit['id'],
+                        data_type=_data_type['id'],
+                        desc=desc,
+                        min_value=min_value,
+                        max_value=max_value,
+                        tcp_source_address=tcp_source_address,
+                        node_namespace=node_namespace
+                        )
+                    query.save()
+
+                    message = f"{name} tag created successfully"
+                    data.update(query.serialize())
+
+                    result.update(
+                        {
+                            'message': message, 
+                            'data': data
+                        }
+                    )
+
+                    return result
+
+                message = f"{data_type} data type not exist into database"
+                result.update(
+                    {
+                        'message': message, 
+                        'data': data
+                    }
+                )
+                return result
+
+            message = f"{unit} unit not exist into database"
+            result.update(
+                {
+                    'message': message, 
+                    'data': data
+                }
+            )
+            return result
 
     @classmethod
     def read_by_name(cls, name):
@@ -393,6 +465,24 @@ class Tags(BaseModel):
             return True
         
         return False
+
+    def serialize(self):
+        r"""
+        Documentation here
+        """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'start': self.start,
+            'period': self.period,
+            'unit': self.unit.name,
+            'data_type': self.data_type.name,
+            'desc': self.desc,
+            'min_value': self.min_value,
+            'max_value': self.max_value,
+            'tcp_source_address': self.tcp_source_address,
+            'node_namespace': self.node_namespace
+        }
 
 
 class TagValue(BaseModel):

@@ -1,6 +1,7 @@
 import unittest
 from pyhades import PyHades
-from pyhades.dbmodels import Units, Variables, DataTypes
+from pyhades.dbmodels import Units, Variables, DataTypes, Tags
+from datetime import datetime
 
 
 class TestDBModels(unittest.TestCase):
@@ -24,10 +25,6 @@ class TestDBModels(unittest.TestCase):
             'Mass_Flow'
         ]
 
-        for variable_name in self.__variables:
-
-            Variables.create(name=variable_name)
-
         self.__units = [
             ('Pa', 'Pressure'),
             ('Celsius', 'Temperature'),
@@ -39,6 +36,13 @@ class TestDBModels(unittest.TestCase):
             'int',
             'str',
             'bool'
+        ]
+
+        self.__tags = [
+            ('PT-01', datetime.now(), 0.5, 'Pa', 'float', 'Inlet Pressure'),
+            ('PT-02', datetime.now(), 0.5, 'Pa', 'float', 'Outlet Pressure'),
+            ('FT-01', datetime.now(), 0.5, 'kg/s', 'float', 'Inlet Mass Flow'),
+            ('FT-02', datetime.now(), 0.5, 'kg/s', 'float', 'Outlet Mass Flow')
         ]
 
         return super().setUp()
@@ -63,6 +67,10 @@ class TestDBModels(unittest.TestCase):
 
     def testCountUnitsAdded(self):
 
+        for variable_name in self.__variables:
+
+            Variables.create(name=variable_name)
+
         for name, variable in self.__units:
 
             Units.create(name=name, variable=variable)
@@ -80,6 +88,35 @@ class TestDBModels(unittest.TestCase):
         result = DataTypes.read_all()
 
         self.assertEqual(len(result['data']), len(self.__data_types))
+
+    def testCountTagsAdded(self):
+        
+        for variable_name in self.__variables:
+
+            Variables.create(name=variable_name)
+
+        for name, variable in self.__units:
+
+            Units.create(name=name, variable=variable)
+
+        for datatype_name in self.__data_types:
+
+            DataTypes.create(name=datatype_name)
+
+        for name, start, period, unit, data_type, desc in self.__tags:
+
+            Tags.create(
+                name=name, 
+                start=start, 
+                period=period, 
+                unit=unit, 
+                data_type=data_type,
+                desc=desc)
+
+        result = Tags.read_all()
+
+
+        self.assertEqual(len(result['data']), len(self.__tags))
 
 
 if __name__=='__main__':
