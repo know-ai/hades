@@ -451,8 +451,8 @@ class Tags(BaseModel):
 
     @classmethod
     def read_by_name(cls, name):
-        trend = cls.select().where(cls.name == name).get()
-        return trend
+        query = cls.get_or_none(name=name)
+        return query
 
     @classmethod
     def name_exist(cls, name):

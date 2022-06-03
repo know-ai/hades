@@ -5,7 +5,7 @@ This module implements Alarm Manager.
 from datetime import datetime
 import queue
 from ..tags import CVTEngine, TagObserver
-from ..dbmodels import AlarmsLogging as AlarmModel
+from ..dbmodels import AlarmLogging as AlarmModel
 from ..alarms import AlarmState
 
 
@@ -197,7 +197,6 @@ class AlarmManager:
                             timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             name=_alarm.name,
                             state=_alarm.state.state,
-                            description=_alarm.description,
                             priority=_alarm._priority,
                             value=_alarm._value
                         )

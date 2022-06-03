@@ -2,7 +2,9 @@ import unittest
 from pyhades.alarms import Alarm
 from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
+from pyhades.dbmodels.tags import Tags, Units, Variables, DataTypes
 from pyhades import PyHades
+from datetime import datetime
 
 
 class TestLowLowAlarms(unittest.TestCase):
@@ -17,9 +19,55 @@ class TestLowLowAlarms(unittest.TestCase):
         self.app.set_db(dbfile=self.dbfile)
         self.db_worker = self.app.init_db()
 
+        self.__variables = [
+            'Pressure',
+            'Temperature',
+            'Mass_Flow'
+        ]
+
+        self.__units = [
+            ('Pa', 'Pressure'),
+            ('Celsius', 'Temperature'),
+            ('kg/s', 'Mass_Flow')
+        ]
+
+        self.__data_types = [
+            'float',
+            'int',
+            'str',
+            'bool'
+        ]
+
+        self.__tags = [
+            ('PT-100', datetime.now(), 0.5, 'Pa', 'float', 'Inlet Pressure')
+        ]
+
+        for variable_name in self.__variables:
+
+            Variables.create(name=variable_name)
+
+        for name, variable in self.__units:
+
+            Units.create(name=name, variable=variable)
+
+        for datatype_name in self.__data_types:
+
+            DataTypes.create(name=datatype_name)
+
+        for name, start, period, unit, data_type, desc in self.__tags:
+
+            self._tag = name
+
+            Tags.create(
+                name=name, 
+                start=start, 
+                period=period, 
+                unit=unit, 
+                data_type=data_type,
+                desc=desc)
+
         # Default Alarm
         self._name = "Default Alarm"
-        self._tag = "PT-100"
         self._description = "Default Alarm for Pressure Transmissor 100"
         self._alarm = Alarm(
             name=self._name,

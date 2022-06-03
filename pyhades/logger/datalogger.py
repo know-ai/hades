@@ -7,7 +7,11 @@ will create a time-serie for each tag in a short memory data base.
 
 from datetime import datetime
 
-from ..dbmodels import Tags, TagValue
+from ..dbmodels import Tags, TagValue, AlarmTypes, AlarmPriorities, AlarmStates
+
+from ..alarms.trigger import TriggerType
+
+from ..alarms.states import AlarmState
 
 
 class DataLogger:
@@ -56,6 +60,40 @@ class DataLogger:
             return
         
         self._db.create_tables(tables, safe=True)
+        self.__init_default_alarms_schema()
+
+    def __init_default_alarms_schema(self):
+        r"""
+        Documentation here
+        """
+        # Init Default Databases
+
+        ## Alarm Types
+        for alarm_type in TriggerType:
+
+            AlarmTypes.create(name=alarm_type.value)
+
+        ## Alarm Priorities
+        alarm_priorities = [
+            (1, 'Low low priority'),
+            (2, 'Low priority'),
+            (3, 'Normal priority'),
+            (4, 'High priority'),
+            (5, 'High High priority')
+        ]
+        for value, desc in alarm_priorities:
+
+            AlarmPriorities.create(value=value, desc=desc)
+
+        ## Alarm States
+        # print(AlarmState._states)
+        for alarm_state in AlarmState._states:
+            name = alarm_state.state
+            mnemonic = alarm_state.mnemonic
+            condition = alarm_state.process_condition
+            status = alarm_state.alarm_status
+            
+            AlarmStates.create(name=name, mnemonic=mnemonic, condition=condition, status=status)
 
     def drop_tables(self, tables):
 

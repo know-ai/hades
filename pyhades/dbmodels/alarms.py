@@ -7,13 +7,12 @@ from .tags import Tags
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
-class AlarmsType(BaseModel):
+class AlarmTypes(BaseModel):
 
     name = CharField(unique=True)                       # high-high , high , bool , low , low-low
-    trigger = FloatField()
 
     @classmethod
-    def create(cls, name:str, trigger)-> dict:
+    def create(cls, name:str)-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
@@ -23,7 +22,7 @@ class AlarmsType(BaseModel):
         {
             'message': (str)
             'data': (dict) {
-                'name': 'high-high'
+                'name': 'HIGH-HIGH'
             }
         }
         ```
@@ -41,11 +40,11 @@ class AlarmsType(BaseModel):
         """
         result = dict()
         data = dict()
-        name = name.lower()
+        name = name.upper()
 
         if not cls.name_exist(name):
 
-            query = cls(name=name, trigger=trigger)
+            query = cls(name=name)
             query.save()
             
             message = f"Alarm type {name} created successfully"
@@ -81,7 +80,7 @@ class AlarmsType(BaseModel):
 
         * **bool:** If True, name exist into database 
         """
-        query = cls.get_or_none(name=name)
+        query = cls.get_or_none(name=name.upper())
         
         if query is not None:
 
@@ -102,7 +101,7 @@ class AlarmsType(BaseModel):
 
         * **bool:** If True, name exist into database 
         """
-        query = cls.get_or_none(name=name)
+        query = cls.get_or_none(name=name.upper())
         
         if query is not None:
 
@@ -114,15 +113,10 @@ class AlarmsType(BaseModel):
         r"""
         Serialize database record to a jsonable object
         """
-        trigger = self.trigger
-        if self.name.lower()=='bool':
-
-            trigger = bool(trigger)
 
         return {
             "id": self.id,
-            "name": self.name,
-            "trigger": trigger
+            "name": self.name
         }
 
 
@@ -131,10 +125,12 @@ class AlarmsDB(BaseModel):
     name = CharField(unique=True)
     tag = ForeignKeyField(Tags, backref='alarms', on_delete='CASCADE')
     desc = CharField()
-    alarm_type = ForeignKeyField(AlarmsType, backref='alarms', on_delete='CASCADE')
+    alarm_type = ForeignKeyField(AlarmTypes, backref='alarms', on_delete='CASCADE')
+    trigger = FloatField(null=True)
+
 
     @classmethod
-    def create(cls, name:str, tag:str, desc:str, alarm_type:str, trigger:float)-> dict:
+    def create(cls, name:str, tag:str, desc:str, alarm_type:str="NOT DEFINED")-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
@@ -165,37 +161,43 @@ class AlarmsDB(BaseModel):
         * **result:** (dict) --> {'message': (str), 'data': (dict) row serialized}
 
         """
-        result = dict()
-        data = dict()
-        name = name.lower()
 
         if not cls.name_exist(name):
-
-            query = cls(name=name, trigger=trigger)
-            query.save()
             
-            message = f"Alarm type {name} created successfully"
-            data.update(query.serialize())
+            _tag = Tags.read_by_name(name=tag)
 
-            result.update(
-                {
-                    'message': message, 
-                    'data': data
-                }
-            )
-            return result
+            if _tag:
 
-        message = f"Alarm type {name} is already into database"
-        result.update(
-            {
-                'message': message, 
-                'data': data
+                _alarm_type = AlarmTypes.read_by_name(name=alarm_type)
+
+                if _alarm_type is not None:
+
+                    alarm_type_id = _alarm_type['id']
+
+                    query = cls(name=name, tag=_tag.id, desc=desc, alarm_type=alarm_type_id)
+                    query.save()
+                    
+                    return query
+
+    def set_trigger(self, alarm_type:str, trigger:float):
+        r"""
+        Documentation here
+        """
+        _alarm_type = AlarmTypes.read_by_name(name=alarm_type)
+
+        if _alarm_type is not None:
+
+            alarm_type_id = _alarm_type['id']
+
+            _fields = {
+                'alarm_type': alarm_type_id,
+                'trigger': trigger
             }
-        )
-        return result
+
+            AlarmsDB.put(self.id, **_fields )
 
     @classmethod
-    def read_by_name(cls, name:str)->bool:
+    def read_by_name(cls, name:str):
         r"""
         Get instance by its a name
 
@@ -207,14 +209,8 @@ class AlarmsDB(BaseModel):
 
         * **bool:** If True, name exist into database 
         """
-        query = cls.get_or_none(name=name)
+        return cls.get_or_none(name=name)
         
-        if query is not None:
-
-            return query.serialize()
-        
-        return None
-
     @classmethod
     def name_exist(cls, name:str)->bool:
         r"""
@@ -241,13 +237,16 @@ class AlarmsDB(BaseModel):
         Serialize database record to a jsonable object
         """
         trigger = self.trigger
-        if self.name.lower()=='bool':
+        if self.alarm_type.name.upper()=='BOOL':
 
             trigger = bool(trigger)
 
         return {
             "id": self.id,
             "name": self.name,
+            "tag": self.tag.name,
+            "desc": self.desc,
+            "alarm_type": self.alarm_type.name,
             "trigger": trigger
         }
 
@@ -259,10 +258,11 @@ class AlarmStates(BaseModel):
 
     name = CharField(unique=True)
     mnemonic = CharField(max_length=20)
-    desc = CharField()
+    condition = CharField(max_length=20)
+    status = CharField(max_length=20)
 
     @classmethod
-    def create(cls, name:str, mnemonic:str, desc:str)-> dict:
+    def create(cls, name:str, mnemonic:str, condition:str, status:str)-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
@@ -291,34 +291,14 @@ class AlarmStates(BaseModel):
         * **result:** (dict) --> {'message': (str), 'data': (dict) row serialized}
 
         """
-        result = dict()
-        data = dict()
         name = name.lower()
 
         if not cls.name_exist(name):
 
-            query = cls(name=name, mnemonic=mnemonic, desc=desc)
+            query = cls(name=name, mnemonic=mnemonic, condition=condition, status=status)
             query.save()
             
-            message = f"Alarm state {name} created successfully"
-            data.update(query.serialize())
-
-            result.update(
-                {
-                    'message': message, 
-                    'data': data
-                }
-            )
-            return result
-
-        message = f"Alarm state {name} is already into database"
-        result.update(
-            {
-                'message': message, 
-                'data': data
-            }
-        )
-        return result
+            return query
 
     @classmethod
     def read_by_name(cls, name:str)->bool:
@@ -333,13 +313,7 @@ class AlarmStates(BaseModel):
 
         * **bool:** If True, name exist into database 
         """
-        query = cls.get_or_none(name=name)
-        
-        if query is not None:
-
-            return query.serialize()
-        
-        return None
+        return cls.get_or_none(name=name)
 
     @classmethod
     def name_exist(cls, name:str)->bool:
@@ -371,31 +345,32 @@ class AlarmStates(BaseModel):
             "id": self.id,
             "name": self.name,
             "mnemonic": self.mnemonic,
-            "desc": self.desc
+            "condition": self.condition,
+            "status": self.status
         }
 
 
-class AlarmsPriorities(BaseModel):
+class AlarmPriorities(BaseModel):
     r"""
     Based on ISA 18.2
     """
 
-    priority = IntegerField(unique=True)
+    value = IntegerField(unique=True)
     desc = CharField()
 
     @classmethod
-    def create(cls, priority:int, desc:str)-> dict:
+    def create(cls, value:int, desc:str)-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
 
         ```python
-        >>> AlarmsType.create(priority=1, desc='Low priority')
+        >>> AlarmsType.create(value=1, desc='Low priority')
         {
             'message': (str)
             'data': (dict) {
                 'id': 1,
-                'priority': 1,
+                'value': 1,
                 'desc': 'Low priority'
             }
         }
@@ -412,69 +387,43 @@ class AlarmsPriorities(BaseModel):
         * **result:** (dict) --> {'message': (str), 'data': (dict) row serialized}
 
         """
-        result = dict()
-        data = dict()
 
-        if not cls.priority_exist(priority):
+        if not cls.value_exist(value):
 
-            query = cls(priority=priority, desc=desc)
+            query = cls(value=value, desc=desc)
             query.save()
             
-            message = f"Alarm priority {priority} created successfully"
-            data.update(query.serialize())
-
-            result.update(
-                {
-                    'message': message, 
-                    'data': data
-                }
-            )
-            return result
-
-        message = f"Alarm priority {priority} is already into database"
-        result.update(
-            {
-                'message': message, 
-                'data': data
-            }
-        )
-        return result
+            return query
 
     @classmethod
-    def read_by_priority(cls, priority:int)->dict:
+    def read_by_value(cls, value:int)->dict:
         r"""
-        Get instance by its priority
+        Get instance by its value
 
         **Parameters**
 
-        * **priority:** (str) Alarm priority
+        * **value:** (str) Alarm priority value
 
         **Returns**
 
         * **bool:** If True, priority exist into database 
         """
-        query = cls.get_or_none(priority=priority)
-        
-        if query is not None:
-
-            return query.serialize()
-        
-        return None
+        return cls.get_or_none(value=value)
 
     @classmethod
-    def priority_exist(cls, priority:int)->bool:
+    def value_exist(cls, value:int)->bool:
         r"""
-        Verify is a priority exist into database
+        Verify is a priority value exist into database
 
         **Parameters**
 
-        * **priority:** (str) Alarm priority
+        * **value:** (str) Alarm priority value
 
         **Returns**
 
-        * **bool:** If True, priority exist into database 
+        * **bool:** If True, priority value exist into database 
         """
-        query = cls.get_or_none(priority=priority)
+        query = cls.get_or_none(value=value)
         
         if query is not None:
 
@@ -489,24 +438,38 @@ class AlarmsPriorities(BaseModel):
 
         return {
             "id": self.id,
-            "priority": self.priority,
+            "value": self.value,
             "desc": self.desc
         }
 
 
-class AlarmsLogging(BaseModel):
+class AlarmLogging(BaseModel):
     
     timestamp = DateTimeField(default=datetime.now)
-    name = TextField()
-    state = TextField()
-    description = TextField()
-    priority = IntegerField()
+    alarm = ForeignKeyField(AlarmsDB, backref='logging', on_delete='CASCADE')
+    state = ForeignKeyField(AlarmStates, backref='logging', on_delete='CASCADE')
+    priority = ForeignKeyField(AlarmPriorities, backref='logging', on_delete='CASCADE')
     value = FloatField()
 
     @classmethod
-    def create(cls, timestamp, name, state, description, priority, value):
-        alarm = cls(timestamp=timestamp, name=name, state=state, description=description, priority=priority, value=value)
-        alarm.save()
+    def create(cls, timestamp:datetime, name:str, state:str, priority:int, value:float):
+
+        alarm = AlarmsDB.read_by_name(name=name)
+
+        if alarm:
+
+            state = AlarmStates.read_by_name(name=state)
+
+            if state:
+
+                priority = AlarmPriorities.read_by_value(value=priority)
+
+                if priority:
+        
+                    query = cls(timestamp=timestamp, alarm=alarm.id, state=state.id, priority=priority.id, value=value)
+                    query.save()
+
+                    return query
 
     @classmethod
     def read(cls, lasts:int=1):
@@ -521,22 +484,35 @@ class AlarmsLogging(BaseModel):
         """
         result = {
             "timestamp": self.timestamp.strftime(DATETIME_FORMAT),
-            "name": self.name,
-            "state": self.state,
-            "description": self.description,
-            "priority": self.priority,
+            "name": self.alarm.name,
+            "state": self.state.name,
+            "description": self.alarm.desc,
+            "priority": self.priority.value,
             "value": self.value
         }
 
         return result
 
 
-class AlarmsSummary(BaseModel):
+class AlarmSummary(BaseModel):
     
-    name = TextField()
-    state = TextField()
-    alarm_time = DateTimeField()
+    name = ForeignKeyField(AlarmsDB, backref='summary', on_delete='CASCADE')
+    state = ForeignKeyField(AlarmStates, backref='summary', on_delete='CASCADE')
     ack_time = DateTimeField(null=True)
-    description = TextField()
-    classification = TextField()
-    priority = IntegerField(default=0)
+    classification = CharField()
+
+    @classmethod
+    def create(cls, name:str, state:str, classification:float):
+
+        pass
+
+    @classmethod
+    def read(cls, lasts:int=1):
+
+        pass
+
+    def serialize(self):
+        r"""
+        Documentation here
+        """
+        pass

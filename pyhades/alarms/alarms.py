@@ -5,10 +5,11 @@ This module implements all Alarms class definitions and Alarm Handlers.
 """
 from datetime import datetime, timedelta
 from ..tags import CVTEngine
-from ..dbmodels import AlarmsLogging as AlarmModel
+from ..dbmodels import AlarmLogging as AlarmModel
 from ..logger import DataLoggerEngine
 from .states import AlarmState, Status
 from .trigger import Trigger, TriggerType
+from ..dbmodels import AlarmsDB
 
 
 class Alarm:
@@ -49,6 +50,7 @@ class Alarm:
         }
         self._shelved_until = None
         self.__default_operations()
+        AlarmsDB.create(name=name, tag=tag, desc=description)
 
     def __default_operations(self):
         r"""
@@ -91,6 +93,8 @@ class Alarm:
         """
         self._trigger.value = value
         self._trigger.type = _type
+        alarm = AlarmsDB.read_by_name(self.name)
+        alarm.set_trigger(alarm_type=_type, trigger=float(value))
 
     @property
     def value(self):
@@ -165,7 +169,6 @@ class Alarm:
             timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             name=self.name,
             state=self.state.state,
-            description=self.description,
             priority=self._priority,
             value=self._value
         )

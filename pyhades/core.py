@@ -729,6 +729,7 @@ class PyHades(Singleton):
 
         db_worker = LoggerWorker(self._db_manager)
         db_worker.init_database()
+
         try:
 
             db_worker.daemon = True
