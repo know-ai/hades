@@ -92,7 +92,7 @@ class CVT:
         tags (list):
             List of (tag, _type).
         """
-
+        print(f"CVT: {tags}")
         for name, data_type in tags:
             
             self.set_tag(name, data_type)
@@ -101,7 +101,8 @@ class CVT:
         """Returns a list of the defined tags names.
         """
 
-        return self._tags.keys()
+        # return self._tags.keys()
+        return self._tags
 
     def get_tag_by_node_namespace(self, node_namespace):
         r"""
@@ -336,7 +337,7 @@ class CVTEngine(Singleton):
 
             __tags = self.__set_config_tags(_tags)
             
-            self.set_group(group, __tags)
+            self.set_group(group, *__tags)
 
     def __set_config_tags(self, tags):
         r"""
@@ -495,7 +496,7 @@ class CVTEngine(Singleton):
 
                 self.set_tag(*tag_attrs)
 
-    def set_group(self, group, tags):
+    def set_group(self, group, *tags):
         """
         Sets new tags group, which can be retrieved
         by group name.
@@ -522,7 +523,6 @@ class CVTEngine(Singleton):
         self._groups[group] = list()
 
         for attrs in tags:
-
             name = attrs[0]
             self._groups[group].append(name)
 

@@ -83,17 +83,58 @@ class DBManager:
 
         self._tables = []
 
-    def add_tag(self, tag, period):
+    def add_tag(
+        self,
+        tag, 
+        unit, 
+        data_type, 
+        desc, 
+        min_value, 
+        max_value, 
+        tcp_source_address, 
+        node_namespace, 
+        period
+    ):
         
-        self._logging_tags.add_tag(tag, period)
+        self._logging_tags.add_tag(
+            tag, 
+            unit, 
+            data_type, 
+            desc, 
+            min_value, 
+            max_value, 
+            tcp_source_address, 
+            node_namespace, 
+            period
+        )
 
     def get_tags(self):
 
         return self._logging_tags.get_all_tags()
 
-    def set_tag(self, tag, period):
+    def set_tag(
+        self, 
+        tag, 
+        period, 
+        unit:str, 
+        data_type:str, 
+        desc:str, 
+        min_value:float=None, 
+        max_value:float=None, 
+        tcp_source_address:str=None, 
+        node_namespace:str=None):
 
-        self._logger.set_tag(tag, period)
+        self._logger.set_tag(
+            tag=tag,  
+            period=period,
+            unit=unit,
+            data_type=data_type,
+            desc=desc,
+            min_value=min_value,
+            max_value=max_value,
+            tcp_source_address=tcp_source_address,
+            node_namespace=node_namespace
+        )
 
     def set_tags(self):
 
@@ -101,9 +142,18 @@ class DBManager:
             
             tags = self._logging_tags.get_tags(period)
         
-            for tag in tags:
+            for tag, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace in tags:
 
-                self.set_tag(tag, period)
+                self.set_tag(
+                    tag=tag,
+                    period=period, 
+                    unit=unit, 
+                    data_type=data_type, 
+                    desc=desc, 
+                    min_value=min_value, 
+                    max_value=max_value, 
+                    tcp_source_address=tcp_source_address, 
+                    node_namespace=node_namespace)
 
     def get_table(self):
 

@@ -73,7 +73,17 @@ class DataLoggerEngine(Singleton):
         """
         self._logger.drop_tables(tables)
 
-    def set_tag(self, tag, period):
+    def set_tag(
+        self, 
+        tag, 
+        period, 
+        unit:str, 
+        data_type:str, 
+        desc:str, 
+        min_value:float=None, 
+        max_value:float=None, 
+        tcp_source_address:str=None, 
+        node_namespace:str=None):
         r"""
         Define tag names you want log in database, these tags must be defined in CVTEngine
 
@@ -84,7 +94,17 @@ class DataLoggerEngine(Singleton):
 
         **Returns** `None`
         """
-        self._logger.set_tag(tag, period)
+        self._logger.set_tag(
+            tag=tag,  
+            period=period,
+            unit=unit,
+            data_type=data_type,
+            desc=desc,
+            min_value=min_value,
+            max_value=max_value,
+            tcp_source_address=tcp_source_address,
+            node_namespace=node_namespace
+        )
 
     def write_tag(self, tag, value):
         r"""

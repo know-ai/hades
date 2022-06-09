@@ -128,8 +128,8 @@ class Tag:
         """
         return (
             self.name,
-            self.get_data_type(),
             self.get_unit(),
+            self.get_data_type(),
             self.get_description(),
             self.value.get_min_value(),
             self.value.get_max_value(),

@@ -7,7 +7,15 @@ will create a time-serie for each tag in a short memory data base.
 
 from datetime import datetime
 
-from ..dbmodels import Tags, TagValue, AlarmTypes, AlarmPriorities, AlarmStates
+from ..dbmodels import (
+    Tags, 
+    TagValue, 
+    AlarmTypes, 
+    AlarmPriorities, 
+    AlarmStates, 
+    Variables, 
+    Units,
+    DataTypes)
 
 from ..alarms.trigger import TriggerType
 
@@ -42,10 +50,30 @@ class DataLogger:
         
         return self._db
 
-    def set_tag(self, tag, period):
+    def set_tag(
+        self, 
+        tag, 
+        period, 
+        unit:str, 
+        data_type:str, 
+        desc:str, 
+        min_value:float=None, 
+        max_value:float=None, 
+        tcp_source_address:str=None, 
+        node_namespace:str=None):
 
         now = datetime.now()
-        Tags.create(name=tag, start=now, period=period)
+        Tags.create(
+            name=tag, 
+            start=now, 
+            period=period,
+            unit=unit,
+            data_type=data_type,
+            desc=desc,
+            min_value=min_value,
+            max_value=max_value,
+            tcp_source_address=tcp_source_address,
+            node_namespace=node_namespace)
 
     def set_tags(self, tags, period):
         
@@ -61,6 +89,49 @@ class DataLogger:
         
         self._db.create_tables(tables, safe=True)
         self.__init_default_alarms_schema()
+        self.__init_default_variables_schema()
+        self.__init_default_datatypes_schema()
+
+    def __init_default_variables_schema(self):
+        r"""
+        Documentation here
+        """
+        variables = {
+            "Pressure": ("Pa", "kPa", "mmHg", "Psi", "Atm", "Bar"),
+            "Temperature": ("C", "F", "K", "R"),
+            "Time": ("ms", "s", "min", "h", "days", "weeks", "months", "years"),
+            "MolarFlow": ("kmole/s", "kmole/min", "kmole/h"),
+            "MassFlow": ("kg/s", "kg/min", "kg/h", "g/s", "g/min", "g/h"),
+            "VolumetricFlow": ("l/s", "l/min", "l/h", "m3/s", "m3/min", "m3/h"),
+            "MassDensity": ("kg/m3",),
+            "MolarDensity": ("kmole/m3",),
+            "Velocity": ("m/s", "km/h"),
+            "Length": ("mm", "cm", "m", "km", "in", "ft")
+        }
+
+        ## Alarm Types
+        for variable, units in variables.items():
+
+            Variables.create(name=variable)
+            
+            for unit in units:
+
+                Units.create(name=unit, variable=variable)
+
+    def __init_default_datatypes_schema(self):
+        r"""
+        Documentation here
+        """
+        datatypes = [
+            "float",
+            "int",
+            "bool",
+            "str"
+        ]
+        ## Alarm Types
+        for datatype in datatypes:
+
+            DataTypes.create(name=datatype)
 
     def __init_default_alarms_schema(self):
         r"""

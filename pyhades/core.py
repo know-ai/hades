@@ -420,8 +420,26 @@ class PyHades(Singleton):
         self._db_manager.set_period(period)
         self._db_manager.set_delay(delay)
 
-        for _tag in tags:
-            self._db_manager.add_tag(_tag, period)
+        for tag_name, tag_object in tags.items():
+            
+            unit = tag_object.get_unit()
+            data_type = tag_object.get_data_type()
+            desc = tag_object.get_description()
+            min_value = tag_object.get_min_value()
+            max_value = tag_object.get_max_value()
+            tcp_source_address = tag_object.get_tcp_source_address()
+            node_namespace = tag_object.get_node_namespace()
+
+            self._db_manager.add_tag(
+                tag_name, 
+                unit, 
+                data_type, 
+                desc, 
+                min_value, 
+                max_value, 
+                tcp_source_address, 
+                node_namespace, 
+                period)
 
     def get_dbtags(self):
         """
