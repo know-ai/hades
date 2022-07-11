@@ -94,7 +94,8 @@ class CVT:
                 data_type=data_type,
                 desc=desc)
 
-        self._tags[name] = tag.get_attributes()
+        # self._tags[name] = tag.get_attributes()ç
+        self._tags[name] = tag
 
     def set_tags(self, tags):
         """Initialize a list of new Tags object in the _tags dictionary.
@@ -112,7 +113,13 @@ class CVT:
         """
 
         # return self._tags.keys()
-        return self._tags
+        # result = {key: value.get_attributes() for key, value in self._tags.items()}
+        # for key, value in self._tags.items():
+
+        #     result[key] = value.get_attributes()
+
+        # # return self._tags
+        return {key: value.get_attributes() for key, value in self._tags.items()}
 
     def get_tag_by_node_namespace(self, node_namespace):
         r"""
@@ -165,7 +172,8 @@ class CVT:
             self._tags[name].notify()
 
         else:
-            self._tags[name]['value']['value'] = value
+            # self._tags[name]['value']['value'] = value
+            self._tags[name].set_value(value)
         
         self.logger.write_tag(tag_name, value)
 
@@ -183,7 +191,8 @@ class CVT:
             _property = values[1]
             _new_object = copy.copy(getattr(self._tags[name].value, _property))
         else:
-            _new_object = copy.copy(self._tags[name]['value']['value'])
+            # _new_object = copy.copy(self._tags[name]['value']['value'])
+            _new_object = copy.copy(self._tags[name].get_value())
         
         return _new_object
 

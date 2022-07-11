@@ -374,6 +374,7 @@ class Tags(BaseModel):
     max_value = FloatField(null=True)
     tcp_source_address = CharField(null=True)
     node_namespace = CharField(null=True)
+    start = DateTimeField(default=datetime.now())
 
     @classmethod
     def create(
