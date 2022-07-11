@@ -108,11 +108,6 @@ class DAS(PyHadesStateMachine):
         # Writing to Data Acquisition system Database (SQLite) for this demo
         self.triangle_var = response["Value"]
 
-        print(f"High-High Alarm State: {self.hh_alarm.state.state} - Value: {self.hh_alarm.value} - Trigger Value: {self.hh_alarm.get_trigger().value}")
-        print(f"High Alarm State: {self.h_alarm.state.state} - Value: {self.h_alarm.value} - Trigger Value: {self.h_alarm.get_trigger().value}")
-        print(f"Low Alarm State: {self.l_alarm.state.state} - Value: {self.l_alarm.value} - Trigger Value: {self.l_alarm.get_trigger().value}")
-        print(f"Low-Low Alarm State: {self.ll_alarm.state.state} - Value: {self.ll_alarm.value} - Trigger Value: {self.ll_alarm.get_trigger().value}")
-
     def disconnect_opc_client(self):
 
         try:

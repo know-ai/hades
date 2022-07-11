@@ -1,0 +1,54 @@
+version: '3'
+
+modules:
+  tags:
+
+    groups:
+
+      cvt:
+
+        PT-01:
+          name: 'PT-01'
+          unit: 'Pa'
+          data_type: 'float'
+          desc: 'Inlet Pressure'
+          min_value: 0.00
+          max_value: 100.00
+          tcp_source_address: ''
+          node_namespace: ''
+
+        PT-02:
+          name: 'PT-02'
+          unit: 'Pa'
+          data_type: 'float'
+          desc: 'Outlet Pressure'
+          min_value: 0.00
+          max_value: 100.00
+          tcp_source_address: ''
+          node_namespace: ''
+
+  alarms:
+
+    alarm_PT_01:
+
+      name: "alarm_PT_01"
+      tag: "PT-01"
+      desc: "alarm for Inlet Pressure"
+      type: "HIGH-HIGH"
+      trigger: 55.5
+
+db:
+
+  dev_mode:
+    db_file: "app.db"
+  
+  prod_mode:
+    db_type: "POSTGRESQL"
+    db_name: ${DB_NAME}
+    db_user: ${DB_USER}
+    db_password: ${DB_PASSWORD}
+    db_host: ${DB_HOST}
+    db_port: ${DB_PORT}
+
+  sample_time: 1.0
+  delay: 0.5

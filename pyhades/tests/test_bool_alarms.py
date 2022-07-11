@@ -39,7 +39,7 @@ class TestBoolAlarms(unittest.TestCase):
         ]
 
         self.__tags = [
-            ('PT-100', datetime.now(), 0.5, 'Pa', 'float', 'Inlet Pressure')
+            ('PT-100', 'Pa', 'float', 'Inlet Pressure')
         ]
 
         for variable_name in self.__variables:
@@ -54,14 +54,12 @@ class TestBoolAlarms(unittest.TestCase):
 
             DataTypes.create(name=datatype_name)
 
-        for name, start, period, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, desc in self.__tags:
 
             self._tag = name
 
             Tags.create(
-                name=name, 
-                start=start, 
-                period=period, 
+                name=name,  
                 unit=unit, 
                 data_type=data_type,
                 desc=desc)

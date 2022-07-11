@@ -1,6 +1,5 @@
-from time import time
 from .core import BaseModel
-from peewee import DateTimeField, TextField, IntegerField, FloatField, CharField, ForeignKeyField
+from peewee import DateTimeField, IntegerField, FloatField, CharField, ForeignKeyField
 from datetime import datetime
 from .tags import Tags
 

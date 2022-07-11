@@ -1,6 +1,7 @@
 import unittest
 from pyhades import PyHades
-from pyhades.dbmodels import Units, Variables, DataTypes, Tags
+from pyhades.dbmodels import Units, Variables, DataTypes, Tags, AlarmsDB
+from pyhades.alarms import Alarm
 from datetime import datetime
 
 
@@ -19,30 +20,11 @@ class TestDBModels(unittest.TestCase):
         self.app.set_db(dbfile=self.dbfile)
         self.db_worker = self.app.init_db()
 
-        self.__variables = [
-            'Pressure',
-            'Temperature',
-            'Mass_Flow'
-        ]
-
-        self.__units = [
-            ('Pa', 'Pressure'),
-            ('Celsius', 'Temperature'),
-            ('kg/s', 'Mass_Flow')
-        ]
-
-        self.__data_types = [
-            'float',
-            'int',
-            'str',
-            'bool'
-        ]
-
         self.__tags = [
-            ('PT-01', datetime.now(), 0.5, 'Pa', 'float', 'Inlet Pressure'),
-            ('PT-02', datetime.now(), 0.5, 'Pa', 'float', 'Outlet Pressure'),
-            ('FT-01', datetime.now(), 0.5, 'kg/s', 'float', 'Inlet Mass Flow'),
-            ('FT-02', datetime.now(), 0.5, 'kg/s', 'float', 'Outlet Mass Flow')
+            ('PT-01', 'Pa', 'float', 'Inlet Pressure'),
+            ('PT-02', 'Pa', 'float', 'Outlet Pressure'),
+            ('FT-01', 'kg/s', 'float', 'Inlet Mass Flow'),
+            ('FT-02', 'kg/s', 'float', 'Outlet Mass Flow')
         ]
 
         return super().setUp()
@@ -57,66 +39,76 @@ class TestDBModels(unittest.TestCase):
 
     def testCountVariablesAdded(self):
 
-        for variable_name in self.__variables:
-
-            Variables.create(name=variable_name)
-
         result = Variables.read_all()
 
-        self.assertEqual(len(result['data']), len(self.__variables))
+        self.assertEqual(len(result['data']), 11)
 
     def testCountUnitsAdded(self):
 
-        for variable_name in self.__variables:
-
-            Variables.create(name=variable_name)
-
-        for name, variable in self.__units:
-
-            Units.create(name=name, variable=variable)
-
         result = Units.read_all()
 
-        self.assertEqual(len(result['data']), len(self.__units))
+        self.assertEqual(len(result['data']), 45)
 
     def testCountDataTypesAdded(self):
 
-        for datatype_name in self.__data_types:
-
-            DataTypes.create(name=datatype_name)
-
         result = DataTypes.read_all()
 
-        self.assertEqual(len(result['data']), len(self.__data_types))
+        self.assertEqual(len(result['data']), 4)
 
     def testCountTagsAdded(self):
-        
-        for variable_name in self.__variables:
 
-            Variables.create(name=variable_name)
-
-        for name, variable in self.__units:
-
-            Units.create(name=name, variable=variable)
-
-        for datatype_name in self.__data_types:
-
-            DataTypes.create(name=datatype_name)
-
-        for name, start, period, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, desc in self.__tags:
 
             Tags.create(
                 name=name, 
-                start=start, 
-                period=period, 
                 unit=unit, 
                 data_type=data_type,
                 desc=desc)
 
         result = Tags.read_all()
 
-
         self.assertEqual(len(result['data']), len(self.__tags))
+
+    def testDefineAlarm(self):
+        r"""
+        Documentation here
+        """
+
+        for name, unit, data_type, desc in self.__tags:
+
+            Tags.create(
+                name=name,  
+                unit=unit, 
+                data_type=data_type,
+                desc=desc)
+
+        alarm_name, tag, desc, alarm_type, alarm_trigger = (
+            "alarm_PT_01", 
+            "PT-01", 
+            "Ejemplo High-High",
+            "HIGH-HIGH",
+            55.5
+        )
+
+        alarm = Alarm(name=alarm_name, tag=tag, description=desc)
+        alarm.set_trigger(value=alarm_trigger, _type=alarm_type)
+        _alarm = AlarmsDB.read_by_name(name=alarm_name)
+
+        expected_result = {
+            'id': 1, 
+            'name': alarm_name, 
+            'tag': tag, 
+            'desc': desc, 
+            'alarm_type': alarm_type, 
+            'trigger': alarm_trigger
+        }
+
+        self.assertEqual(_alarm.serialize(), expected_result)
+
+    def testFromConfigFile(self):
+        r"""
+        Documentation here
+        """
 
 
 if __name__=='__main__':

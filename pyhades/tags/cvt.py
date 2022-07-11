@@ -7,9 +7,12 @@ Database logging, Math operations and others real time processes.
 """
 import threading
 import copy
+from datetime import datetime
 import yaml
 from .._singleton import Singleton
 from .tag import Tag
+from ..logger import DataLoggerEngine
+from ..dbmodels import Tags
 import yaml
 from ..utils import log_detailed
 
@@ -29,6 +32,8 @@ class CVT:
     ```
 
     """
+
+    logger = DataLoggerEngine()
 
     def __init__(self):
 
@@ -83,7 +88,13 @@ class CVT:
 
         tag = Tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
-        self._tags[name] = tag
+        Tags.create(
+                name=name, 
+                unit=unit, 
+                data_type=data_type,
+                desc=desc)
+
+        self._tags[name] = tag.get_attributes()
 
     def set_tags(self, tags):
         """Initialize a list of new Tags object in the _tags dictionary.
@@ -92,7 +103,6 @@ class CVT:
         tags (list):
             List of (tag, _type).
         """
-        print(f"CVT: {tags}")
         for name, data_type in tags:
             
             self.set_tag(name, data_type)
@@ -155,8 +165,9 @@ class CVT:
             self._tags[name].notify()
 
         else:
-
-            self._tags[name].set_value(value)
+            self._tags[name]['value']['value'] = value
+        
+        self.logger.write_tag(tag_name, value)
 
     def get_value(self, name):
         """Returns a tag value defined by name.
@@ -172,7 +183,7 @@ class CVT:
             _property = values[1]
             _new_object = copy.copy(getattr(self._tags[name].value, _property))
         else:
-            _new_object = copy.copy(self._tags[name].get_value())
+            _new_object = copy.copy(self._tags[name]['value']['value'])
         
         return _new_object
 
@@ -468,7 +479,7 @@ class CVTEngine(Singleton):
         """
         
         if not self.tag_defined(name):
-
+            
             self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags):
@@ -1006,6 +1017,7 @@ class CVTEngine(Singleton):
                 self._response = {
                     "result": True
                 }
+
             except Exception as e:
                 message = "Error in CVTEngine"
                 log_detailed(e, message)

@@ -374,15 +374,11 @@ class Tags(BaseModel):
     max_value = FloatField(null=True)
     tcp_source_address = CharField(null=True)
     node_namespace = CharField(null=True)
-    start = DateTimeField()
-    period = FloatField()
 
     @classmethod
     def create(
         cls, 
         name:str, 
-        start, 
-        period:float,
         unit:str,
         data_type:str,
         desc:str,
@@ -407,8 +403,6 @@ class Tags(BaseModel):
             
                     query = cls(
                         name=name, 
-                        start=start, 
-                        period=period,
                         unit=_unit['id'],
                         data_type=_data_type['id'],
                         desc=desc,
@@ -473,8 +467,6 @@ class Tags(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'start': self.start,
-            'period': self.period,
             'unit': self.unit.name,
             'data_type': self.data_type.name,
             'desc': self.desc,

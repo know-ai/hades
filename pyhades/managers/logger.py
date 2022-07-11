@@ -5,6 +5,7 @@ This module implements Logger Manager.
 """
 import logging
 from ..logger import DataLoggerEngine, LogTable
+from ..tags import CVTEngine
 from ..dbmodels import (
     Tags, 
     TagValue, 
@@ -28,6 +29,7 @@ class DBManager:
         self._period = period
         self._delay = delay
         self._drop_tables = drop_tables
+        self.engine = CVTEngine()
 
         self._logging_tags = LogTable()
         self._logger = DataLoggerEngine()
@@ -110,12 +112,12 @@ class DBManager:
 
     def get_tags(self):
 
-        return self._logging_tags.get_all_tags()
+        return self.engine.get_tags()
 
     def set_tag(
         self, 
         tag, 
-        period, 
+        # period, 
         unit:str, 
         data_type:str, 
         desc:str, 
@@ -126,7 +128,7 @@ class DBManager:
 
         self._logger.set_tag(
             tag=tag,  
-            period=period,
+            # period=period,
             unit=unit,
             data_type=data_type,
             desc=desc,
@@ -146,7 +148,7 @@ class DBManager:
 
                 self.set_tag(
                     tag=tag,
-                    period=period, 
+                    # period=period, 
                     unit=unit, 
                     data_type=data_type, 
                     desc=desc, 

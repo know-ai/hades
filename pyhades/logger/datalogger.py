@@ -53,7 +53,6 @@ class DataLogger:
     def set_tag(
         self, 
         tag, 
-        period, 
         unit:str, 
         data_type:str, 
         desc:str, 
@@ -62,11 +61,8 @@ class DataLogger:
         tcp_source_address:str=None, 
         node_namespace:str=None):
 
-        now = datetime.now()
         Tags.create(
             name=tag, 
-            start=now, 
-            period=period,
             unit=unit,
             data_type=data_type,
             desc=desc,
@@ -75,14 +71,14 @@ class DataLogger:
             tcp_source_address=tcp_source_address,
             node_namespace=node_namespace)
 
-    def set_tags(self, tags, period):
+    def set_tags(self, tags):
         
         for tag in tags:
 
-            self.set_tag(tag, period)
+            self.set_tag(tag)
+            # self.set_tag(tag, period)
     
     def create_tables(self, tables):
-
         if not self._db:
             
             return
@@ -106,7 +102,8 @@ class DataLogger:
             "MassDensity": ("kg/m3",),
             "MolarDensity": ("kmole/m3",),
             "Velocity": ("m/s", "km/h"),
-            "Length": ("mm", "cm", "m", "km", "in", "ft")
+            "Length": ("mm", "cm", "m", "km", "in", "ft"),
+            "Undefined": ("Adim", "")
         }
 
         ## Alarm Types
@@ -157,7 +154,6 @@ class DataLogger:
             AlarmPriorities.create(value=value, desc=desc)
 
         ## Alarm States
-        # print(AlarmState._states)
         for alarm_state in AlarmState._states:
             name = alarm_state.state
             mnemonic = alarm_state.mnemonic

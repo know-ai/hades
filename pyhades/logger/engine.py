@@ -76,7 +76,7 @@ class DataLoggerEngine(Singleton):
     def set_tag(
         self, 
         tag, 
-        period, 
+        # period, 
         unit:str, 
         data_type:str, 
         desc:str, 
@@ -96,7 +96,7 @@ class DataLoggerEngine(Singleton):
         """
         self._logger.set_tag(
             tag=tag,  
-            period=period,
+            # period=period,
             unit=unit,
             data_type=data_type,
             desc=desc,

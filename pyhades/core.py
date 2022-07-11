@@ -325,6 +325,8 @@ class PyHades(Singleton):
                     logging.error(f"You must define prod_mode key in db configuration in your config file")
             
             self.set_dbtags(self._engine.get_tags(), db_config['sample_time'], delay=db_config['delay'])
+            self._db_manager.create_tables()
+            self.init_db()
 
     def set_db(self, dbtype:str=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
         """
@@ -421,14 +423,21 @@ class PyHades(Singleton):
         self._db_manager.set_delay(delay)
 
         for tag_name, tag_object in tags.items():
-            
-            unit = tag_object.get_unit()
-            data_type = tag_object.get_data_type()
-            desc = tag_object.get_description()
-            min_value = tag_object.get_min_value()
-            max_value = tag_object.get_max_value()
-            tcp_source_address = tag_object.get_tcp_source_address()
-            node_namespace = tag_object.get_node_namespace()
+            # print(f"Tag Object in core 426: {tag_object}")
+            unit = tag_object['unit']
+            data_type = tag_object['data_type']
+            desc = tag_object['description']
+            min_value = tag_object['min_value']
+            max_value = tag_object['max_value']
+            tcp_source_address = tag_object['tcp_source_address']
+            node_namespace = tag_object['node_namespace']
+            # unit = tag_object.get_unit()
+            # data_type = tag_object.get_data_type()
+            # desc = tag_object.get_description()
+            # min_value = tag_object.get_min_value()
+            # max_value = tag_object.get_max_value()
+            # tcp_source_address = tag_object.get_tcp_source_address()
+            # node_namespace = tag_object.get_node_namespace()
 
             self._db_manager.add_tag(
                 tag_name, 

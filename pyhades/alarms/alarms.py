@@ -368,7 +368,7 @@ class Alarm:
         if self.state in (AlarmState.NORM, AlarmState.RTNUN):
 
             if (_type == TriggerType.H) or (_type == TriggerType.HH):
-                
+
                 if value >= self._trigger.value:
                 
                     self.trigger_alarm()
