@@ -6,7 +6,9 @@ from datetime import datetime
 import queue
 from ..tags import CVTEngine, TagObserver
 from ..dbmodels import AlarmLogging as AlarmModel
+from ..dbmodels import AlarmsDB
 from ..alarms import AlarmState
+from ..alarms.alarms import Alarm
 
 
 class AlarmManager:
@@ -36,6 +38,30 @@ class AlarmManager:
         **Returns** `None`
         """
         self._alarms.append(alarm)
+
+    def load_alarms_from_db(self):
+        r"""
+        Documentation here
+        """
+        manager_alarms = [alarm.name for alarm in self.get_alarms()]
+        db_alarms = AlarmsDB.read_all()
+
+        for db_alarm in db_alarms['data']:
+
+            if db_alarm['name'] not in manager_alarms:
+                
+                db_alarm.pop('id')
+                description = db_alarm.pop('desc')
+                db_alarm.update(
+                    {'description': description}
+                )
+                alarm_trigger = {
+                    'value': db_alarm.pop('trigger'),
+                    '_type': db_alarm.pop('alarm_type')
+                }
+                alarm = Alarm(**db_alarm)
+                alarm.set_trigger(**alarm_trigger)
+                self.append_alarm(alarm)
 
     def get_alarm(self, name:str):
         r"""

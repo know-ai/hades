@@ -546,6 +546,7 @@ class PyHades(Singleton):
 
             alarms = config['modules']['alarms']
             self.__set_config_alarms(alarms)
+            self._alarm_manager.load_alarms_from_db()
 
         else:
 
