@@ -39,6 +39,19 @@ class AlarmManager:
         """
         self._alarms.append(alarm)
 
+    def delete_alarm(self, name):
+        r"""
+        Documentation here
+        """
+        alarm = AlarmsDB.read_by_name(name)
+        if alarm:
+
+            AlarmsDB.delete(alarm.id)
+
+            for _alarm in self._alarms:
+                if name == _alarm.name:
+                    self._alarms.remove(_alarm)
+
     def load_alarms_from_db(self):
         r"""
         Documentation here

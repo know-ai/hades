@@ -112,6 +112,14 @@ class CVT:
             
             self.set_tag(name, data_type)
 
+    def delete_tag(self, name):
+        r"""
+        Documentation here
+        """
+        tag = Tags.read_by_name(name=name)
+        Tags.delete(tag.id)                         # remove from database
+        self._tags.pop(name)                        # remove from manager
+
     def get_tags(self):
         """Returns a list of the defined tags names.
         """
@@ -398,7 +406,6 @@ class CVTEngine(Singleton):
                 db_tag.pop('id')
                 self.set_tag(**db_tag)
             
-
     def get_data_type(self, name):
         """
         Gets a tag data type as string format.
@@ -559,6 +566,14 @@ class CVTEngine(Singleton):
             self._groups[group].append(name)
 
         self.set_tags(tags)
+
+    def delete_tag(self, name):
+        r"""
+        Documentation here
+        """
+        if self.tag_defined(name):
+
+            self._cvt.delete_tag(name)
 
     def get_group(self, group):
         """
@@ -1045,7 +1060,7 @@ class CVTEngine(Singleton):
                 self._response = {
                     "result": False
                 }
-        
+
         elif action in ("attach", "detach"):
 
             try:

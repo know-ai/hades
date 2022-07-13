@@ -4,9 +4,6 @@
 This module implements a database logger for the CVT instance, 
 will create a time-serie for each tag in a short memory data base.
 """
-
-from datetime import datetime
-
 from ..dbmodels import (
     Tags, 
     TagValue, 
