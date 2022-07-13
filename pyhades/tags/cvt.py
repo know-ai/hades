@@ -99,7 +99,6 @@ class CVT:
                 node_namespace=node_namespace
             )
 
-        print(f"Tags created: {tags}")
         self._tags[name] = tag
 
     def set_tags(self, tags):
@@ -385,6 +384,21 @@ class CVTEngine(Singleton):
         if data_type not in self._cvt.get_data_types():
             self._cvt.set_data_type(data_type)
 
+    def load_tag_from_db_to_cvt(self):
+        r"""
+        Documentation here
+        """
+        db_tags = Tags.read_all()
+        cvt_tags = self.get_tags()
+
+        for db_tag in db_tags['data']:
+
+            if db_tag not in list(cvt_tags.keys()):
+                
+                db_tag.pop('id')
+                self.set_tag(**db_tag)
+            
+
     def get_data_type(self, name):
         """
         Gets a tag data type as string format.
@@ -486,7 +500,7 @@ class CVTEngine(Singleton):
         """
         
         if not self.tag_defined(name):
-            print(f"Adding tag: {name}")
+
             self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags):
