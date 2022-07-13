@@ -440,7 +440,8 @@ class PyHades(Singleton):
                 max_value, 
                 tcp_source_address, 
                 node_namespace, 
-                period)
+                period
+            )
 
     def get_dbtags(self):
         """

@@ -117,7 +117,6 @@ class DBManager:
     def set_tag(
         self, 
         tag, 
-        # period, 
         unit:str, 
         data_type:str, 
         desc:str, 
@@ -128,7 +127,6 @@ class DBManager:
 
         self._logger.set_tag(
             tag=tag,  
-            # period=period,
             unit=unit,
             data_type=data_type,
             desc=desc,

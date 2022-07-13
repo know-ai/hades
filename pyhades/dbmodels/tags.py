@@ -390,6 +390,7 @@ class Tags(BaseModel):
         ):
 
         result = dict()
+        message = f"{name} already exist into database"
         data = dict()
         
         if not cls.name_exist(name):
@@ -443,6 +444,14 @@ class Tags(BaseModel):
                 }
             )
             return result
+
+        result.update(
+            {
+                'message': message, 
+                'data': data
+            }
+        )
+        return result
 
     @classmethod
     def read_by_name(cls, name):

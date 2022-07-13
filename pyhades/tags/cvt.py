@@ -88,13 +88,18 @@ class CVT:
 
         tag = Tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
-        Tags.create(
+        tags = Tags.create(
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                desc=desc)
+                desc=desc,
+                min_value=min_value,
+                max_value=max_value,
+                tcp_source_address=tcp_source_address,
+                node_namespace=node_namespace
+            )
 
-        # self._tags[name] = tag.get_attributes()ç
+        print(f"Tags created: {tags}")
         self._tags[name] = tag
 
     def set_tags(self, tags):
@@ -111,14 +116,7 @@ class CVT:
     def get_tags(self):
         """Returns a list of the defined tags names.
         """
-
-        # return self._tags.keys()
-        # result = {key: value.get_attributes() for key, value in self._tags.items()}
-        # for key, value in self._tags.items():
-
-        #     result[key] = value.get_attributes()
-
-        # # return self._tags
+        
         return {key: value.get_attributes() for key, value in self._tags.items()}
 
     def get_tag_by_node_namespace(self, node_namespace):
@@ -488,7 +486,7 @@ class CVTEngine(Singleton):
         """
         
         if not self.tag_defined(name):
-            
+            print(f"Adding tag: {name}")
             self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags):
