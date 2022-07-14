@@ -39,11 +39,11 @@ APP_MODES = [DEVELOPMENT_MODE, PRODUCTION_MODE]
 
 class PyHades(Singleton):
     r"""
-    PyHades is a [singleton](https://en.wikipedia.org/wiki/Singleton_pattern) class to develop multi threads web application 
+    PyHades is a [singleton](https://en.wikipedia.org/wiki/Singleton_pattern) class to develop multi threads web application
     for general purposes .
 
     Usage:
-    
+
     ```python
     >>> from pyhades import PyHades
     >>> app = PyHades()
@@ -109,7 +109,7 @@ class PyHades(Singleton):
         Gets app mode
 
         **Returns**
-        
+
         * **mode** (str)
 
         ```python
@@ -233,7 +233,7 @@ class PyHades(Singleton):
     def append_table(self, table):
         """
         Append a database model class definition.
-        
+
         **Parameters:**
 
         * **table** (BaseModel): A Base Model Inheritance.
@@ -254,9 +254,9 @@ class PyHades(Singleton):
     def set_log(self, level=logging.INFO, file:str="app.log"):
         r"""
         Sets the log file and level.
-        
+
         **Parameters:**
-        
+
         * **level** (str): `logging.LEVEL` (default: logging.INFO).
         * **file** (str): log filename (default: 'app.log').
 
@@ -270,7 +270,7 @@ class PyHades(Singleton):
         """
 
         self._logging_level = level
-        
+
         if file:
 
             self._log_file = file
@@ -284,7 +284,7 @@ class PyHades(Singleton):
         for file in files:
 
             if os.path.exists(file):
-                
+
                 os.remove(file)
 
     def set_db_from_config_file(self, config_file):
@@ -323,7 +323,7 @@ class PyHades(Singleton):
                 else:
 
                     logging.error(f"You must define prod_mode key in db configuration in your config file")
-            
+
             self.set_dbtags(self._engine._cvt._tags, db_config['sample_time'], delay=db_config['delay'])
             self._db_manager.create_tables()
             self.init_db()
@@ -334,7 +334,7 @@ class PyHades(Singleton):
         in case of SQLite, the filename must be provided.
 
         if app mode is "Development" you must use SQLite Databse
-        
+
         **Parameters:**
 
         * **dbfile** (str): a path to database file.
@@ -373,7 +373,7 @@ class PyHades(Singleton):
         elif dbtype.lower() == SQLITE:
 
             dbfile = kwargs.get("dbfile", ":memory:")
-            
+
             self._db = SqliteDatabase(dbfile, pragmas={
                 'journal_mode': 'wal',
                 'journal_size_limit': 1024,
@@ -384,17 +384,17 @@ class PyHades(Singleton):
             )
 
         elif dbtype.lower() == MYSQL:
-            
+
             db_name = kwargs['name']
             del kwargs['name']
             self._db = MySQLDatabase(db_name, **kwargs)
 
         elif dbtype.lower() == POSTGRESQL:
-            
+
             db_name = kwargs['name']
             del kwargs['name']
             self._db = PostgresqlDatabase(db_name, **kwargs)
-        
+
         proxy.initialize(self._db)
         self._db_manager.set_db(self._db)
         self._db_manager.set_dropped(drop_table)
@@ -404,7 +404,7 @@ class PyHades(Singleton):
         Sets the database tags for logging.
 
         If you want to log any tag defined in CVTengine, you must define it here
-        
+
         **Parameters:**
 
         * **tags** (list): A list of the tags.
@@ -432,14 +432,14 @@ class PyHades(Singleton):
             node_namespace = tag_object.get_node_namespace()
 
             self._db_manager.add_tag(
-                tag_name, 
-                unit, 
-                data_type, 
-                desc, 
-                min_value, 
-                max_value, 
-                tcp_source_address, 
-                node_namespace, 
+                tag_name,
+                unit,
+                data_type,
+                desc,
+                min_value,
+                max_value,
+                tcp_source_address,
+                node_namespace,
                 period
             )
 
@@ -471,7 +471,7 @@ class PyHades(Singleton):
     def _append_machine(self, machine, interval=1, mode="sync"):
         """
         Append a state machine to the state machine manager.
-        
+
         **Parameters:**
 
         * **machine** (`PyHadesStateMachine`): a state machine object.
@@ -483,9 +483,9 @@ class PyHades(Singleton):
     def get_machine(self, name):
         """
         Returns a PyHades State Machine defined by its name.
-        
+
         **Parameters:**
-        
+
         * **name** (str): a pyhades state machine name.
 
         Usage
@@ -545,7 +545,7 @@ class PyHades(Singleton):
         if 'alarms' in config['modules']:
 
             alarms = config['modules']['alarms']
-            self._alarm_manager.load_alarms_from_db()
+            # self._alarm_manager.load_alarms_from_db()
             self.__set_config_alarms(alarms)
 
         else:
@@ -588,7 +588,7 @@ class PyHades(Singleton):
     def append_alarm(self, alarm):
         """
         Append an alarm to the alarm manager.
-        
+
         **Parameters:**
 
         * **alarm** (`Alarm`): an alarm object.
@@ -599,7 +599,7 @@ class PyHades(Singleton):
     def get_alarm(self, name):
         """
         Returns a Alarm defined by its name.
-        
+
         **Parameters:**
 
         * **name** (str): an alarm name.
@@ -625,9 +625,9 @@ class PyHades(Singleton):
     def get_manager(self, name:str='state'):
         """
         Returns a specified application manager.
-        
+
         **Parameters:**
-        
+
         * **name** (str): a manager name.
         """
         if name == "alarm":
@@ -643,12 +643,12 @@ class PyHades(Singleton):
         """
         Append a state machine to the state machine manager
         by decoration.
-        
+
         **Parameters:**
-        
+
         * **name** (str): State machine name
         * **interval** (int): Interval execution time in seconds.
-        * **mode** (str): Syncronic or Asyncronic thread mode - allowed values ['sync', 'async'] 
+        * **mode** (str): Syncronic or Asyncronic thread mode - allowed values ['sync', 'async']
 
         **Returns** Class (cls)
 
@@ -665,7 +665,7 @@ class PyHades(Singleton):
         def decorator(cls):
 
             machine = cls(name, **kwargs)
-            
+
             self._append_machine(machine, interval=interval, mode=mode)
 
             return cls
@@ -675,18 +675,18 @@ class PyHades(Singleton):
     def thread(self, function=None, **kwargs):
         r"""
         Decorator method to register functions plugins.
-        
+
         This method will register into the PyHades application
         a new function to be executed by the Thread Pool Executor
 
         **Parameters:**
 
         * **period** (float): Value of the default loop execution time.
-        
+
         **Returns:** `None`
 
         Usage:
-    
+
         ```python
         @app.thread(period=0.5)
         def hello():
@@ -718,7 +718,7 @@ class PyHades(Singleton):
         if not log_file:
             logging.basicConfig(level=level, format=log_format)
             return
-        
+
         logging.basicConfig(filename=log_file, level=level, format=log_format)
 
     def _start_threads(self):
@@ -749,7 +749,7 @@ class PyHades(Singleton):
             except Exception as e:
                 message = "Error on wokers stop"
                 log_detailed(e, message)
-    
+
     def init_db(self):
 
         db_worker = LoggerWorker(self._db_manager)
@@ -796,7 +796,7 @@ class PyHades(Singleton):
             self.workers.append(state_worker)
 
         try:
-            
+
             for worker in self.workers:
                 worker.daemon = True
                 worker.start()
@@ -826,9 +826,9 @@ class PyHades(Singleton):
         self._start_workers()
         self._start_threads()
 
-        logging.info("Hades started")  
+        logging.info("Hades started")
         self._status = RUNNING
-        logging.info(self.info()) 
+        logging.info(self.info())
 
     def safe_stop(self):
         r"""
@@ -853,14 +853,13 @@ class PyHades(Singleton):
         ```
         """
         self.safe_start()
-        
-        try: 
-            
+
+        try:
+
             while True:
 
                 time.sleep(1)
 
         except (KeyboardInterrupt, SystemExit):
-            
+
             self.safe_stop()
-            
