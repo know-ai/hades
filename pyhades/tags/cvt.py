@@ -47,7 +47,13 @@ class CVT:
 
     def tag_defined(self, name):
 
-        return name in self._tags.keys()
+        for id, value in self._tags.items():
+            
+            if name == value.name:
+
+                return True
+
+        return False
 
     def set_tag(
         self, 
@@ -88,7 +94,7 @@ class CVT:
 
         tag = Tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
 
-        tags = Tags.create(
+        Tags.create(
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
@@ -99,7 +105,11 @@ class CVT:
                 node_namespace=node_namespace
             )
 
-        self._tags[name] = tag
+        _tag = Tags.read_by_name(name)
+
+        if _tag:
+
+            self._tags[str(_tag.id)] = tag
 
     def set_tags(self, tags):
         """Initialize a list of new Tags object in the _tags dictionary.
@@ -118,7 +128,19 @@ class CVT:
         """
         tag = Tags.read_by_name(name=name)
         Tags.delete(tag.id)                         # remove from database
-        self._tags.pop(name)                        # remove from manager
+        self._tags.pop(str(tag.id))                        # remove from manager
+
+    def update_tag(self, id, **kwargs):
+        r"""
+        Documentation here
+        """
+        tag = self._tags[id]
+        Tags.put(id, **kwargs)
+        tag.update(**kwargs)
+
+        self._tags[id] = tag
+
+        return Tags.read(id)
 
     def get_tags(self):
         """Returns a list of the defined tags names.
@@ -142,9 +164,10 @@ class CVT:
         r"""
         Documentation here
         """
+        tag = Tags.read_by_name(name)
         for tag_name, tag in self._tags.items():
 
-            if tag_name==name:
+            if self._tags[str(tag.id)]['name']==name:
 
                 return tag.get_node_namespace()
 
@@ -159,27 +182,27 @@ class CVT:
         value (float, int, bool): 
             Tag value ("int", "float", "bool")
         """
-
         if "." in name:
             values = name.split(".")
             tag_name = values[0]
         else:
             tag_name = name
         
-        if tag_name not in self._tags:
+        tag = Tags.read_by_name(tag_name)
+
+        if str(tag.id) not in self._tags:
             raise KeyError
 
         if "." in name:
             values = name.split(".")
             name = values[0]
             _property = values[1]
-            setattr(self._tags[name].value, _property, value)
-            self._tags[name].notify()
+            setattr(self._tags[str(tag.id)].value, _property, value)
+            self._tags[str(tag.id)].notify()
 
         else:
-            # self._tags[name]['value']['value'] = value
-            self._tags[name].set_value(value)
-        
+            self._tags[str(tag.id)].set_value(value)
+    
         self.logger.write_tag(tag_name, value)
 
     def get_value(self, name):
@@ -189,15 +212,15 @@ class CVT:
         name (str):
             Tag name.
         """
+        tag = Tags.read_by_name(name)
         
         if "." in name:
             values = name.split(".")
             name = values[0]
             _property = values[1]
-            _new_object = copy.copy(getattr(self._tags[name].value, _property))
+            _new_object = copy.copy(getattr(self._tags[str(tag.id)].value, _property))
         else:
-            # _new_object = copy.copy(self._tags[name]['value']['value'])
-            _new_object = copy.copy(self._tags[name].get_value())
+            _new_object = copy.copy(self._tags[str(tag.id)].get_value())
         
         return _new_object
 
@@ -208,10 +231,10 @@ class CVT:
         name (str):
             Tag name.
         """
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_data_type()
 
-        return self._tags[name].get_data_type()
-
-    def get_attributes(self, name):
+    def get_attributes(self, id):
         """Returns a tag type defined by name.
         
         # Parameters
@@ -219,7 +242,7 @@ class CVT:
             Tag name.
         """
 
-        return self._tags[name].get_attributes()
+        return self._tags[id].get_attributes()
 
     def get_unit(self, name):
 
@@ -229,8 +252,8 @@ class CVT:
         name (str):
             Tag name.
         """
-
-        return self._tags[name].get_unit()
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_unit()
 
     def get_description(self, name):
 
@@ -240,8 +263,8 @@ class CVT:
         name (str):
             Tag name.
         """
-
-        return self._tags[name].get_description()
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_description()
 
     def get_min_value(self, name):
 
@@ -251,8 +274,8 @@ class CVT:
         name (str):
             Tag name.
         """
-
-        return self._tags[name].get_min_value()
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_min_value()
 
     def get_max_value(self, name):
 
@@ -262,8 +285,8 @@ class CVT:
         name (str):
             Tag name.
         """
-
-        return self._tags[name].get_max_value()
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_max_value()
 
     def get_data_types(self):
         """Returns all tag types.
@@ -282,8 +305,8 @@ class CVT:
         observer (TagObserver): 
             Tag observer object, will update once a tag object is changed.
         """
-
-        self._tags[name].attach(observer)
+        tag = Tags.read_by_name(name)
+        self._tags[str(tag.id)].attach(observer)
 
     def detach_observer(self, name, observer):
         """Detaches an observer from a tag object defined by name.
@@ -294,7 +317,8 @@ class CVT:
         observer (TagObserver): 
             Tag observer object.
         """
-        self._tags[name].attach(observer)
+        tag = Tags.read_by_name(name)
+        self._tags[str(tag.id)].detach(observer)
 
 
 class CVTEngine(Singleton):
@@ -477,6 +501,13 @@ class CVTEngine(Singleton):
 
         return self._cvt.tag_defined(name)
 
+    def update_tag(self, id, **kwargs):
+        r"""
+        Documentation here
+        """
+
+        return self._cvt.update_tag(id, **kwargs)
+
     def set_tag(
         self, 
         name:str, 
@@ -571,9 +602,20 @@ class CVTEngine(Singleton):
         r"""
         Documentation here
         """
+
         if self.tag_defined(name):
 
             self._cvt.delete_tag(name)
+
+            message = f"You deleted {name} tag successfully"
+
+        else:
+
+            message = f"{id} is not into database"
+
+        return {
+            'message': message
+        }
 
     def get_group(self, group):
         """
@@ -1049,6 +1091,7 @@ class CVTEngine(Singleton):
 
                 name = parameters["name"]
                 value = parameters["value"]
+
                 self._cvt.set_value(name, value)
                 self._response = {
                     "result": True

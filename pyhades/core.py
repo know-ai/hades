@@ -545,8 +545,8 @@ class PyHades(Singleton):
         if 'alarms' in config['modules']:
 
             alarms = config['modules']['alarms']
-            self.__set_config_alarms(alarms)
             self._alarm_manager.load_alarms_from_db()
+            self.__set_config_alarms(alarms)
 
         else:
 
@@ -556,6 +556,8 @@ class PyHades(Singleton):
         r"""
         Documentaion here
         """
+        _alarms = self._alarm_manager.get_alarms()
+        manager_alarms = [alarm.name for id, alarm in _alarms.items()]
         for _, attrs in alarms.items():
 
             name = attrs['name']
@@ -564,10 +566,12 @@ class PyHades(Singleton):
             _type = attrs['type']
             trigger = attrs['trigger']
 
-            alarm = Alarm(name, tag, desc)
-            _trigger = TriggerType(_type.upper())
-            alarm.set_trigger(value=trigger, _type=_trigger.value)
-            self.append_alarm(alarm)
+            if name not in manager_alarms:
+
+                alarm = Alarm(name, tag, desc)
+                _trigger = TriggerType(_type.upper())
+                alarm.set_trigger(value=trigger, _type=_trigger.value)
+                self.append_alarm(alarm)
 
     def get_alarm_manager(self):
         r"""

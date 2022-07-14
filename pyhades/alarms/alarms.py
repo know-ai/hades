@@ -9,7 +9,7 @@ from ..dbmodels import AlarmLogging as AlarmModel
 from ..logger import DataLoggerEngine
 from .states import AlarmState, Status
 from .trigger import Trigger, TriggerType
-from ..dbmodels import AlarmsDB
+from ..dbmodels import AlarmsDB, Tags
 
 
 class Alarm:
@@ -20,7 +20,7 @@ class Alarm:
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
 
-    def __init__(self, name:str, tag:str, description:str):
+    def __init__(self, name:str, tag:str, description:str, load=False):
 
         self._name = name
         self._tag = tag
@@ -50,7 +50,18 @@ class Alarm:
         }
         self._shelved_until = None
         self.__default_operations()
-        AlarmsDB.create(name=name, tag=tag, desc=description)
+        self._id = None
+        if load:
+            
+            alarm = AlarmsDB.read_by_name(name)
+        
+        else:
+
+            alarm = AlarmsDB.create(name=name, tag=tag, desc=description)
+
+        if alarm:
+        
+            self._id = alarm.id
 
     def __default_operations(self):
         r"""
@@ -74,6 +85,42 @@ class Alarm:
         Documentation here
         """
         return self._operations
+
+    def update_alarm_definition(self, **kwargs):
+        r"""
+        Documentation here
+        """
+
+        if 'type' in kwargs.keys():
+
+            _type = kwargs.pop('type')
+            if _type.upper() in ["HIGH-HIGH", "HIGH", "LOW", "LOW-LOW", "BOOL"]:
+
+                self._trigger.type = _type
+
+        if 'trigger_value' in kwargs.keys():
+            trigger_value = kwargs.pop('trigger_value')
+            self._trigger.value = trigger_value
+
+        for key, value in kwargs.items():
+
+            setattr(self, f"_{key}", value)
+        
+        if kwargs:
+            
+            if 'tag' in kwargs.keys():
+
+                tag = kwargs.pop('tag')
+                _tag = Tags.read_by_name(name=tag)
+                kwargs['tag_id'] = _tag.id
+
+            AlarmsDB.put(self._id, **kwargs )
+        
+        alarm = AlarmsDB.read_by_name(self.name)
+
+        alarm.set_trigger(alarm_type=self._trigger.type.value, trigger=float(self._trigger.value))
+        
+        return self
 
     def get_trigger(self):
         r"""
@@ -368,7 +415,7 @@ class Alarm:
         if self.state in (AlarmState.NORM, AlarmState.RTNUN):
 
             if (_type == TriggerType.H) or (_type == TriggerType.HH):
-
+               
                 if value >= self._trigger.value:
                 
                     self.trigger_alarm()
@@ -434,6 +481,7 @@ class Alarm:
         * **alarm_info**: (dict) A jsonable dictionary
         """
         return {
+            "id": self._id,
             "timestamp": self._timestamp,
             "name": self.name,
             "tag": self.tag,
@@ -451,5 +499,4 @@ class Alarm:
             "audible": self.state.audible,
             "description": self.description,
             "operations": self.get_operations()
-            
         }

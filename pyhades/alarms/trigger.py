@@ -46,6 +46,10 @@ class Trigger:
 
                 self.__value = value
 
+            else:
+
+                self.__value = bool(value)
+
         else:
 
             if isinstance(value, (float, int)):

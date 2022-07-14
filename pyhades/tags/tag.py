@@ -23,7 +23,6 @@ class Tag:
         self.data_type = data_type
         self.description = desc
         self._observers = set()
-        self.__tag_parsed = list()
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace
 
@@ -136,6 +135,15 @@ class Tag:
             self.get_tcp_source_address(),
             self.get_node_namespace()
         )
+
+    def update(self, **kwargs):
+        r"""
+        Documentation here
+        """
+        for key, value in kwargs.items():
+
+            setattr(self, key, value)
+
 
 class TagObserver(Observer):
     """

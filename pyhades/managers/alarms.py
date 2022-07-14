@@ -18,7 +18,7 @@ class AlarmManager:
 
     def __init__(self):
 
-        self._alarms = list()
+        self._alarms = dict()
         self._tag_queue = queue.Queue()
 
     def get_queue(self):
@@ -37,26 +37,33 @@ class AlarmManager:
 
         **Returns** `None`
         """
-        self._alarms.append(alarm)
+        self._alarms[f'{alarm._id}'] = alarm
 
-    def delete_alarm(self, name):
+    def update_alarm(self, id, **kwargs):
         r"""
         Documentation here
         """
-        alarm = AlarmsDB.read_by_name(name)
+        alarm = self._alarms[str(id)]
+        alarm = alarm.update_alarm_definition(**kwargs)
+        self._alarms[str(id)] = alarm
+        return alarm.serialize()
+
+    def delete_alarm(self, id:int):
+        r"""
+        Documentation here
+        """
+        alarm = AlarmsDB.read(id)
+        
         if alarm:
 
-            AlarmsDB.delete(alarm.id)
-
-            for _alarm in self._alarms:
-                if name == _alarm.name:
-                    self._alarms.remove(_alarm)
+            AlarmsDB.delete(alarm['data']['id'])    
+            self._alarms.pop(id)
 
     def load_alarms_from_db(self):
         r"""
         Documentation here
         """
-        manager_alarms = [alarm.name for alarm in self.get_alarms()]
+        manager_alarms = [alarm.name for id, alarm in self.get_alarms().items()]
         db_alarms = AlarmsDB.read_all()
 
         for db_alarm in db_alarms['data']:
@@ -72,13 +79,14 @@ class AlarmManager:
                     'value': db_alarm.pop('trigger'),
                     '_type': db_alarm.pop('alarm_type')
                 }
-                alarm = Alarm(**db_alarm)
+                alarm = Alarm(**db_alarm, load=True)
                 alarm.set_trigger(**alarm_trigger)
+                    
                 self.append_alarm(alarm)
 
-    def get_alarm(self, name:str):
+    def get_alarm(self, id:int):
         r"""
-        Gets alarm from the Alarm Manager by the alarm name
+        Gets alarm from the Alarm Manager by id
 
         **Paramters**
 
@@ -88,11 +96,10 @@ class AlarmManager:
 
         * **alarm** (Alarm Object)
         """
-        for _alarm in self._alarms:
-            
-            if name == _alarm.name:
-                
-                return _alarm
+        
+        if str(id) in self._alarms.keys():
+
+            return self._alarms[str(id)]
 
         return
 
@@ -108,12 +115,12 @@ class AlarmManager:
 
         * **alarm** (list) of alarm objects
         """
-        alarms = list()
-        for alarm in self._alarms:
+        alarms = dict()
+        for id, alarm in self._alarms.items():
             
             if tag == alarm.tag:
                 
-                alarms.append(alarm)
+                alarms[id] = alarm
 
         return alarms
 
@@ -129,11 +136,13 @@ class AlarmManager:
 
         * **alarm** (list) of alarm objects
         """
-        for alarm in self._alarms:
+        for id, alarm in self._alarms.items():
             
             if tag == alarm.tag:
                 
-                return alarm
+                return {
+                    id: alarm
+                }
 
     def get_alarms(self):
         r"""
@@ -153,7 +162,7 @@ class AlarmManager:
 
         * **tags_alarms**: (list) alarm tags
         """
-        result = [_alarm.tag_alarm for _alarm in self.get_alarms()]
+        result = [_alarm.tag_alarm for id, _alarm in self.get_alarms().items()]
 
         return result
 
@@ -165,7 +174,7 @@ class AlarmManager:
 
         * **tags**: (list)
         """
-        result = set([_alarm.tag for _alarm in self.get_alarms()])
+        result = set([_alarm.tag for id, _alarm in self.get_alarms().items()])
 
         return list(result)
 
@@ -178,9 +187,7 @@ class AlarmManager:
         * **summary**: (dict)
         """
         result = dict()
-
-        alarms = [_alarm.name for _alarm in self.get_alarms()]
-        
+        alarms = [_alarm.name for id, _alarm in self.get_alarms().items()]
         result["length"] = len(alarms)
         result["alarms"] = alarms
         result["alarm_tags"] = self.get_tag_alarms()
@@ -206,7 +213,7 @@ class AlarmManager:
             _cvt.request(query)
             _cvt.response()
 
-        for _alarm in self._alarms:
+        for id, _alarm in self._alarms.items():
 
             attach_observers(_alarm)
 
@@ -222,7 +229,7 @@ class AlarmManager:
         _cvt = CVTEngine()
         value = _cvt.read_tag(tag)
 
-        for _alarm in self._alarms:
+        for id, _alarm in self._alarms.items():
 
             if _alarm.state == AlarmState.SHLVD:
 

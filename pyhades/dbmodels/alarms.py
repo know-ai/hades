@@ -177,6 +177,7 @@ class AlarmsDB(BaseModel):
                     query.save()
                     
                     return query
+                    
 
     def set_trigger(self, alarm_type:str, trigger:float):
         r"""
