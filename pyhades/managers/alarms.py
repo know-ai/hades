@@ -56,7 +56,7 @@ class AlarmManager:
         
         if alarm:
 
-            AlarmsDB.delete(alarm['data']['id'])    
+            AlarmsDB.delete(id)    
             self._alarms.pop(id)
 
     def load_alarms_from_db(self):

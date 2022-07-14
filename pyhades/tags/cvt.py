@@ -7,7 +7,6 @@ Database logging, Math operations and others real time processes.
 """
 import threading
 import copy
-from datetime import datetime
 import yaml
 from .._singleton import Singleton
 from .tag import Tag
@@ -34,6 +33,7 @@ class CVT:
     """
 
     logger = DataLoggerEngine()
+    
 
     def __init__(self):
 
@@ -126,9 +126,19 @@ class CVT:
         r"""
         Documentation here
         """
+        from pyhades import PyHades
+        app = PyHades()
+        alarm_manager = app.get_alarm_manager()
         tag = Tags.read_by_name(name=name)
         Tags.delete(tag.id)                         # remove from database
-        self._tags.pop(str(tag.id))                        # remove from manager
+        self._tags.pop(str(tag.id))                 # remove from manager
+
+        # Remove alarm related with tag
+        alarms = alarm_manager.get_alarms_by_tag(name)
+
+        for id, _ in alarms.items():
+
+            alarm_manager.delete_alarm(id)
 
     def update_tag(self, id, **kwargs):
         r"""
