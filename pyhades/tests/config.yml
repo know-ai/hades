@@ -11,7 +11,7 @@ modules:
           name: 'PT-01'
           unit: 'Pa'
           data_type: 'float'
-          desc: 'Inlet Pressure'
+          description: 'Inlet Pressure'
           min_value: 0.00
           max_value: 100.00
           tcp_source_address: ''
@@ -21,7 +21,7 @@ modules:
           name: 'PT-02'
           unit: 'Pa'
           data_type: 'float'
-          desc: 'Outlet Pressure'
+          description: 'Outlet Pressure'
           min_value: 0.00
           max_value: 100.00
           tcp_source_address: ''
@@ -33,7 +33,7 @@ modules:
 
       name: "alarm_PT_01"
       tag: "PT-01"
-      desc: "alarm for Inlet Pressure"
+      description: "alarm for Inlet Pressure"
       type: "HIGH-HIGH"
       trigger: 55.5
 

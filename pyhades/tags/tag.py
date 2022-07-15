@@ -10,7 +10,7 @@ class Tag:
         name, 
         unit, 
         data_type, 
-        desc="", 
+        description="", 
         min_value=None, 
         max_value=None, 
         tcp_source_address=None, 
@@ -21,7 +21,7 @@ class Tag:
         self.value = TagValue(min_value=min_value, max_value=max_value)
         self.unit = unit
         self.data_type = data_type
-        self.description = desc
+        self.description = description
         self._observers = set()
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace

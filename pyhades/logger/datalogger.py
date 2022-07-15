@@ -52,7 +52,7 @@ class DataLogger:
         tag, 
         unit:str, 
         data_type:str, 
-        desc:str, 
+        description:str, 
         min_value:float=None, 
         max_value:float=None, 
         tcp_source_address:str=None, 
@@ -62,7 +62,7 @@ class DataLogger:
             name=tag, 
             unit=unit,
             data_type=data_type,
-            desc=desc,
+            description=description,
             min_value=min_value,
             max_value=max_value,
             tcp_source_address=tcp_source_address,
@@ -146,9 +146,9 @@ class DataLogger:
             (4, 'High priority'),
             (5, 'High High priority')
         ]
-        for value, desc in alarm_priorities:
+        for value, description in alarm_priorities:
 
-            AlarmPriorities.create(value=value, desc=desc)
+            AlarmPriorities.create(value=value, description=description)
 
         ## Alarm States
         for alarm_state in AlarmState._states:

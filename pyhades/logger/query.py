@@ -21,7 +21,7 @@ class QueryLogger:
 
     def get_values(self, tag):
 
-        query = Tags.select().order_by(Tags.start.desc())
+        query = Tags.select().order_by(Tags.start.description())
         trend = query.where(Tags.name == tag).get()
         values = trend.values
         
@@ -29,7 +29,7 @@ class QueryLogger:
 
     def get_period(self, tag):
 
-        query = Tags.select().order_by(Tags.start.desc())
+        query = Tags.select().order_by(Tags.start.description())
         trend = query.where(Tags.name == tag).get()
         
         return float(trend.period)
@@ -42,7 +42,7 @@ class QueryLogger:
 
     def get_start(self, tag):
 
-        query = Tags.select().order_by(Tags.start.desc())
+        query = Tags.select().order_by(Tags.start.description())
         trend = query.where(Tags.name == tag).get()
         
         return trend.start

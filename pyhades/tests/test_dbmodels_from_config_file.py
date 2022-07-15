@@ -37,7 +37,7 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
         r"""
         Documentation here
         """
-        alarm_name, tag, desc, alarm_type, alarm_trigger = (
+        alarm_name, tag, description, alarm_type, alarm_trigger = (
             "alarm_PT_01", 
             "PT-01", 
             "alarm for Inlet Pressure",
@@ -51,7 +51,7 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
             'id': 1, 
             'name': alarm_name, 
             'tag': tag, 
-            'desc': desc, 
+            'description': description, 
             'alarm_type': alarm_type, 
             'trigger': alarm_trigger
         }

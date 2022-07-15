@@ -71,10 +71,6 @@ class AlarmManager:
             if db_alarm['name'] not in manager_alarms:
                 
                 db_alarm.pop('id')
-                description = db_alarm.pop('desc')
-                db_alarm.update(
-                    {'description': description}
-                )
                 alarm_trigger = {
                     'value': db_alarm.pop('trigger'),
                     '_type': db_alarm.pop('alarm_type')

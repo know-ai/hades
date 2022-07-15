@@ -27,7 +27,7 @@ class LogTable(dict):
         tag, 
         unit, 
         data_type, 
-        desc, 
+        description, 
         min_value, 
         max_value, 
         tcp_source_address, 
@@ -45,11 +45,11 @@ class LogTable(dict):
 
         if period in self.keys():
 
-            self[period].append((tag, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace))
+            self[period].append((tag, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace))
 
         else:
 
-            self[period] = [(tag, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)]
+            self[period] = [(tag, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace)]
 
     def get_groups(self):
 

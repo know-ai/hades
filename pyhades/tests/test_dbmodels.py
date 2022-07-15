@@ -57,13 +57,13 @@ class TestDBModels(unittest.TestCase):
 
     def testCountTagsAdded(self):
 
-        for name, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, description in self.__tags:
 
             Tags.create(
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                desc=desc)
+                description=description)
 
         result = Tags.read_all()
 
@@ -74,15 +74,15 @@ class TestDBModels(unittest.TestCase):
         Documentation here
         """
 
-        for name, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, description in self.__tags:
 
             Tags.create(
                 name=name,  
                 unit=unit, 
                 data_type=data_type,
-                desc=desc)
+                description=description)
 
-        alarm_name, tag, desc, alarm_type, alarm_trigger = (
+        alarm_name, tag, description, alarm_type, alarm_trigger = (
             "alarm_PT_01", 
             "PT-01", 
             "Ejemplo High-High",
@@ -90,7 +90,7 @@ class TestDBModels(unittest.TestCase):
             55.5
         )
 
-        alarm = Alarm(name=alarm_name, tag=tag, description=desc)
+        alarm = Alarm(name=alarm_name, tag=tag, description=description)
         alarm.set_trigger(value=alarm_trigger, _type=alarm_type)
         _alarm = AlarmsDB.read_by_name(name=alarm_name)
 
@@ -98,7 +98,7 @@ class TestDBModels(unittest.TestCase):
             'id': 1, 
             'name': alarm_name, 
             'tag': tag, 
-            'desc': desc, 
+            'description': description, 
             'alarm_type': alarm_type, 
             'trigger': alarm_trigger
         }

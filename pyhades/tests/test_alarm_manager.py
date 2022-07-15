@@ -30,7 +30,7 @@ class TestAlarmManager(unittest.TestCase):
         ]
         self.tag_engine.set_tags(self.__tags)
 
-        for name, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, description in self.__tags:
 
             self._tag = name
 
@@ -38,7 +38,7 @@ class TestAlarmManager(unittest.TestCase):
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                desc=desc)
+                description=description)
 
         self._alarms = dict()
         self._tag_alarms = list()

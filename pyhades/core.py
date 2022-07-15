@@ -425,7 +425,7 @@ class PyHades(Singleton):
         for tag_name, tag_object in tags.items():
             unit = tag_object.get_unit()
             data_type = tag_object.get_data_type()
-            desc = tag_object.get_description()
+            description = tag_object.get_description()
             min_value = tag_object.get_min_value()
             max_value = tag_object.get_max_value()
             tcp_source_address = tag_object.get_tcp_source_address()
@@ -435,7 +435,7 @@ class PyHades(Singleton):
                 tag_name,
                 unit,
                 data_type,
-                desc,
+                description,
                 min_value,
                 max_value,
                 tcp_source_address,
@@ -562,13 +562,13 @@ class PyHades(Singleton):
 
             name = attrs['name']
             tag = attrs['tag']
-            desc = attrs['desc']
+            description = attrs['description']
             _type = attrs['type']
             trigger = attrs['trigger']
 
             if name not in manager_alarms:
 
-                alarm = Alarm(name, tag, desc)
+                alarm = Alarm(name, tag, description)
                 _trigger = TriggerType(_type.upper())
                 alarm.set_trigger(value=trigger, _type=_trigger.value)
                 self.append_alarm(alarm)

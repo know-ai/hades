@@ -123,26 +123,26 @@ class AlarmsDB(BaseModel):
 
     name = CharField(unique=True)
     tag = ForeignKeyField(Tags, backref='alarms', on_delete='CASCADE')
-    desc = CharField()
+    description = CharField()
     alarm_type = ForeignKeyField(AlarmTypes, backref='alarms', on_delete='CASCADE')
     trigger = FloatField(null=True)
 
 
     @classmethod
-    def create(cls, name:str, tag:str, desc:str, alarm_type:str="NOT DEFINED")-> dict:
+    def create(cls, name:str, tag:str, description:str, alarm_type:str="NOT DEFINED")-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
 
         ```python
-        >>> AlarmsDB.create(name='alarm_PT_01_H', tag='PT-01', desc='Inlet Pressure Alarm', alarm_type='High-High', trigger=250.0)
+        >>> AlarmsDB.create(name='alarm_PT_01_H', tag='PT-01', description='Inlet Pressure Alarm', alarm_type='High-High', trigger=250.0)
         {
             'message': (str)
             'data': (dict) {
                 'id': 1,
                 'name': 'alarm_PT_01_H',
                 'tag': 'PT-01',
-                'desc': 'Inlet Pressure Alarm',
+                'description': 'Inlet Pressure Alarm',
                 'alarm_type': 'high-high',
                 'trigger': 250.0
             }
@@ -173,7 +173,7 @@ class AlarmsDB(BaseModel):
 
                     alarm_type_id = _alarm_type['id']
 
-                    query = cls(name=name, tag=_tag.id, desc=desc, alarm_type=alarm_type_id)
+                    query = cls(name=name, tag=_tag.id, description=description, alarm_type=alarm_type_id)
                     query.save()
                     
                     return query
@@ -245,7 +245,7 @@ class AlarmsDB(BaseModel):
             "id": self.id,
             "name": self.name,
             "tag": self.tag.name,
-            "desc": self.desc,
+            "description": self.description,
             "alarm_type": self.alarm_type.name,
             "trigger": trigger
         }
@@ -268,14 +268,14 @@ class AlarmStates(BaseModel):
         to the names of the model's fields. A new instance is returned and a row is added to the table.
 
         ```python
-        >>> AlarmsType.create(name='Unacknowledged', mnemonic='UNACKED', desc='Alarm unacknowledged')
+        >>> AlarmsType.create(name='Unacknowledged', mnemonic='UNACKED', description='Alarm unacknowledged')
         {
             'message': (str)
             'data': (dict) {
                 'id': 1,
                 'name': 'unacknowledged',
                 'mnemonic': 'UNACKED',
-                'desc': 'Alarm unacknowledged'
+                'description': 'Alarm unacknowledged'
             }
         }
         ```
@@ -356,22 +356,22 @@ class AlarmPriorities(BaseModel):
     """
 
     value = IntegerField(unique=True)
-    desc = CharField()
+    description = CharField()
 
     @classmethod
-    def create(cls, value:int, desc:str)-> dict:
+    def create(cls, value:int, description:str)-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
 
         ```python
-        >>> AlarmsType.create(value=1, desc='Low priority')
+        >>> AlarmsType.create(value=1, description='Low priority')
         {
             'message': (str)
             'data': (dict) {
                 'id': 1,
                 'value': 1,
-                'desc': 'Low priority'
+                'description': 'Low priority'
             }
         }
         ```
@@ -390,7 +390,7 @@ class AlarmPriorities(BaseModel):
 
         if not cls.value_exist(value):
 
-            query = cls(value=value, desc=desc)
+            query = cls(value=value, description=description)
             query.save()
             
             return query
@@ -439,7 +439,7 @@ class AlarmPriorities(BaseModel):
         return {
             "id": self.id,
             "value": self.value,
-            "desc": self.desc
+            "description": self.description
         }
 
 
@@ -474,7 +474,7 @@ class AlarmLogging(BaseModel):
     @classmethod
     def read(cls, lasts:int=1):
 
-        alarms = cls.select().order_by(cls.id.desc())[0:lasts]
+        alarms = cls.select().order_by(cls.id.description())[0:lasts]
     
         return alarms
 
@@ -486,7 +486,7 @@ class AlarmLogging(BaseModel):
             "timestamp": self.timestamp.strftime(DATETIME_FORMAT),
             "name": self.alarm.name,
             "state": self.state.name,
-            "description": self.alarm.desc,
+            "description": self.alarm.description,
             "priority": self.priority.value,
             "value": self.value
         }

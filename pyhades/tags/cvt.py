@@ -60,7 +60,7 @@ class CVT:
         name:str, 
         unit:str, 
         data_type:str, 
-        desc:str="", 
+        description:str="", 
         min_value:float=None, 
         max_value:float=None,
         tcp_source_address:str=None,
@@ -92,13 +92,13 @@ class CVT:
             data_type = data_type.__name__
             self.set_data_type(data_type)
 
-        tag = Tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
+        tag = Tag(name, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace)
 
         Tags.create(
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                desc=desc,
+                description=description,
                 min_value=min_value,
                 max_value=max_value,
                 tcp_source_address=tcp_source_address,
@@ -523,7 +523,7 @@ class CVTEngine(Singleton):
         name:str, 
         unit:str, 
         data_type:str, 
-        desc="", 
+        description="", 
         min_value=None, 
         max_value=None,
         tcp_source_address=None,
@@ -536,7 +536,7 @@ class CVTEngine(Singleton):
         * **name** (str): Tag name.
         * **unit** (str): Engineering units.
         * **data_type** (float, int, bool): Tag value ("int", "float", "bool")
-        * **desc** (str): Tag description
+        * **description** (str): Tag description
         * **min_value** (int - float): Field instrument lower value
         * **max_value** (int - float): Field instrument higher value
 
@@ -549,7 +549,7 @@ class CVTEngine(Singleton):
         
         if not self.tag_defined(name):
 
-            self._cvt.set_tag(name, unit, data_type, desc, min_value, max_value, tcp_source_address, node_namespace)
+            self._cvt.set_tag(name, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags):
         """

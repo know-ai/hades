@@ -54,7 +54,7 @@ class TestBoolAlarms(unittest.TestCase):
 
             DataTypes.create(name=datatype_name)
 
-        for name, unit, data_type, desc in self.__tags:
+        for name, unit, data_type, description in self.__tags:
 
             self._tag = name
 
@@ -62,7 +62,7 @@ class TestBoolAlarms(unittest.TestCase):
                 name=name,  
                 unit=unit, 
                 data_type=data_type,
-                desc=desc)
+                description=description)
 
 
         # Default Alarm

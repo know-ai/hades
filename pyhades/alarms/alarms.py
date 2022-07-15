@@ -57,7 +57,7 @@ class Alarm:
         
         else:
 
-            alarm = AlarmsDB.create(name=name, tag=tag, desc=description)
+            alarm = AlarmsDB.create(name=name, tag=tag, description=description)
 
         if alarm:
         
