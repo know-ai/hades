@@ -291,7 +291,6 @@ class AlarmStates(BaseModel):
         * **result:** (dict) --> {'message': (str), 'data': (dict) row serialized}
 
         """
-        name = name.lower()
 
         if not cls.name_exist(name):
 
@@ -457,7 +456,7 @@ class AlarmLogging(BaseModel):
         alarm = AlarmsDB.read_by_name(name=name)
 
         if alarm:
-
+            
             state = AlarmStates.read_by_name(name=state)
 
             if state:
@@ -472,11 +471,21 @@ class AlarmLogging(BaseModel):
                     return query
 
     @classmethod
-    def read(cls, lasts:int=1):
+    def read_lasts(cls, lasts:int=1):
+        r"""
+        Documentation here
+        """
+        result = list()
 
-        alarms = cls.select().order_by(cls.id.description())[0:lasts]
+        # alarms = cls.select().where(cls.state.mnemonic.in_(["UNACK", "ACKED"])).order_by(cls.id.desc()).limit(lasts)
+        alarms = cls.select()
+        # print(f"Alarms: {alarms}")
+        for alarm in alarms:
+
+            # print(alarm.serialize())
+            result.append(alarm.serialize())
     
-        return alarms
+        return result
 
     def serialize(self):
         r"""

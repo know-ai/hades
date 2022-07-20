@@ -98,6 +98,28 @@ class AlarmManager:
             return self._alarms[str(id)]
 
         return
+    
+    def get_alarm_by_name(self, name:str):
+        r"""
+        Gets alarm from the Alarm Manager by name
+
+        **Paramters**
+
+        * **name**: (str) Alarm name
+
+        **Returns**
+
+        * **alarm** (Alarm Object)
+        """
+        
+        for id, alarm in self._alarms.items():
+
+            if name == alarm.name:
+
+                return self._alarms[str(id)]
+
+        return
+        
 
     def get_alarms_by_tag(self, tag:str):
         r"""

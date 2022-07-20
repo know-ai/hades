@@ -229,215 +229,429 @@ class TestAlarmManager(unittest.TestCase):
         alarm_manager = self.app.get_alarm_manager()
 
         # Iteration 1 Normal Operation
-        self.tag_engine.write_tag('PT-100', 75.0)
-        self.tag_engine.write_tag('C-100', False)
+        value = 75.0
+        surge_value = False
+        self.tag_engine.write_tag('PT-100', value)
+        self.tag_engine.write_tag('C-100', surge_value)
         for tag, *args in self.__tags:
             
             alarm_manager.execute(tag)
         
         ## HIGH - HIGH Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing HIGH-HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Normal')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-HH')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'NORM')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH-HIGH')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'active', 
+                'suppress by design': 'active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertDictEqual(alarm['operations'], expected_operations)
 
         ## HIGH Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-H')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing HIGH alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Normal')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-H')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'NORM')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'active', 
+                'suppress by design': 'active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertDictEqual(alarm['operations'], expected_operations)
 
         ## Surge Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-Surge-C-100')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Surge alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Normal')
+            self.assertEqual(alarm['name'], 'Alarm-Surge-C-100')
+            self.assertEqual(alarm['tag'], 'C-100')
+            self.assertEqual(alarm['mnemonic'], 'NORM')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], surge_value)
+            self.assertEqual(alarm['type'], 'BOOL')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'active', 
+                'suppress by design': 'active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertDictEqual(alarm['operations'], expected_operations)
 
         ## Low Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-L')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Low alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Normal')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-L')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'NORM')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'LOW')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'active', 
+                'suppress by design': 'active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertDictEqual(alarm['operations'], expected_operations)
 
         ## Low Low Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-LL')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Low-Low alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Normal')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-LL')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'NORM')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'LOW-LOW')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'active', 
+                'suppress by design': 'active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertDictEqual(alarm['operations'], expected_operations)
 
         # Iteration 2
-        self.tag_engine.write_tag('PT-100', 102.0)
-        self.tag_engine.write_tag('C-100', False)
+        value = 102.0
+        self.tag_engine.write_tag('PT-100', value)
         for tag, *args in self.__tags:
 
             alarm_manager.execute(tag)
-        
-        ## HIGH - HIGH Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing HIGH-HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
 
         ## HIGH Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-H')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
-
-        ## Surge Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-Surge-C-100')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Surge alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
-
-        ## Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-L')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
-
-        ## Low Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-LL')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low-Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-H')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'UNACK')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH')
+            self.assertEqual(alarm['audible'], True)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
         # Iteration 3
-        self.tag_engine.write_tag('PT-100', 112.0)
-        self.tag_engine.write_tag('C-100', False)
+        value = 112
+        self.tag_engine.write_tag('PT-100', value)
         for tag, *args in self.__tags:
 
             alarm_manager.execute(tag)
         
         ## HIGH - HIGH Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing HIGH-HIGH alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-HH')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'UNACK')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH-HIGH')
+            self.assertEqual(alarm['audible'], True)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
+        # ACKNOWLEDGE HIGH-HIGH ALARM
         ## HIGH Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-H')
+        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
         alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm.acknowledge()
+        alarm = alarm.serialize()
         with self.subTest("Testing HIGH alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
-
-        ## Surge Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-Surge-C-100')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Surge alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
-
-        ## Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-L')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
-
-        ## Low Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-LL')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low-Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNotNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Acknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-HH')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'ACKED')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], True)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH-HIGH')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'not active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
 
         # Iteration 4
-        self.tag_engine.write_tag('PT-100', 45.0)
-        self.tag_engine.write_tag('C-100', True)
+        value = 45.0
+        surge_value = True
+        self.tag_engine.write_tag('PT-100', value)
+        self.tag_engine.write_tag('C-100', surge_value)
         for tag, *args in self.__tags:
 
             alarm_manager.execute(tag)
         
-        ## HIGH - HIGH Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing HIGH-HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.RTNUN.state)
-
         ## HIGH Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-H')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing HIGH alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.RTNUN.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'RTN Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-H')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'RTNUN')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Normal')
+            self.assertEqual(alarm['triggered'], False)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'HIGH')
+            self.assertEqual(alarm['audible'], False)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
         ## Surge Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-Surge-C-100')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Surge alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-Surge-C-100')
+            self.assertEqual(alarm['tag'], 'C-100')
+            self.assertEqual(alarm['mnemonic'], 'UNACK')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], surge_value)
+            self.assertEqual(alarm['type'], 'BOOL')
+            self.assertEqual(alarm['audible'], True)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
         ## Low Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-L')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Low alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
-
-        ## Low Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-LL')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low-Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.NORM.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-L')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'UNACK')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'LOW')
+            self.assertEqual(alarm['audible'], True)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
         # Iteration 5
-        self.tag_engine.write_tag('PT-100', 15.0)
-        self.tag_engine.write_tag('C-100', True)
+        value = 15.0
+        self.tag_engine.write_tag('PT-100', value)
         for tag, *args in self.__tags:
 
             alarm_manager.execute(tag)
-        
-        ## HIGH - HIGH Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-HH')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing HIGH-HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.RTNUN.state)
-
-        ## HIGH Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-H')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing HIGH alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.RTNUN.state)
-
-        ## Surge Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-Surge-C-100')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Surge alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
-
-        ## Low Alarm
-        _alarm = AlarmsDB.read_by_name('Alarm-PT-100-L')
-        alarm = alarm_manager.get_alarm(_alarm.id)
-        with self.subTest("Testing Low alarm state"):
-            
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
 
         ## Low Low Alarm
         _alarm = AlarmsDB.read_by_name('Alarm-PT-100-LL')
-        alarm = alarm_manager.get_alarm(_alarm.id)
+        alarm = alarm_manager.get_alarm(_alarm.id).serialize()
         with self.subTest("Testing Low-Low alarm state"):
             
-            self.assertEqual(alarm.state.state, AlarmState.UNACK.state)
+            self.assertIsNotNone(alarm['timestamp'])
+            self.assertIsNone(alarm['acknowledged_timestamp'])
+            self.assertEqual(alarm['state'], 'Unacknowledged')
+            self.assertEqual(alarm['name'], 'Alarm-PT-100-LL')
+            self.assertEqual(alarm['tag'], 'PT-100')
+            self.assertEqual(alarm['mnemonic'], 'UNACK')
+            self.assertEqual(alarm['enabled'], True)
+            self.assertEqual(alarm['process'], 'Abnormal')
+            self.assertEqual(alarm['triggered'], True)
+            self.assertEqual(alarm['acknowledged'], False)
+            self.assertEqual(alarm['value'], value)
+            self.assertEqual(alarm['type'], 'LOW-LOW')
+            self.assertEqual(alarm['audible'], True)
+            expected_operations = {
+                'acknowledge': 'active', 
+                'enable': 'not active', 
+                'disable': 'active', 
+                'silence': 'not active', 
+                'shelve': 'not active', 
+                'suppress by design': 'not active', 
+                'unsuppressed': 'not active', 
+                'out of service': 'not active', 
+                'return to service': 'not active', 
+                'reset': 'active'
+            }
+            self.assertEqual(alarm['operations'], expected_operations)
 
 if __name__=='__main__':
 

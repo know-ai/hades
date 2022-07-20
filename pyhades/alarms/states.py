@@ -35,7 +35,7 @@ class AlarmAttrs:
         is_triggered: bool, 
         alarm_status: str, 
         annunciate_status: str, 
-        acknowledge_status: str, 
+        acknowledge_status: str,
         audible: bool, 
         color: bool, 
         symbol: bool, 

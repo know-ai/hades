@@ -275,7 +275,8 @@ class PyHades(Singleton):
 
             self._log_file = file
 
-    def drop_db(self, dbfile):
+    @classmethod
+    def drop_db(cls, dbfile):
 
         files = [dbfile]
         files.append(f"{dbfile}-shm")

@@ -140,6 +140,7 @@ class DataLogger:
 
         ## Alarm Priorities
         alarm_priorities = [
+            (0, 'Not priority'),
             (1, 'Low low priority'),
             (2, 'Low priority'),
             (3, 'Normal priority'),
@@ -156,7 +157,6 @@ class DataLogger:
             mnemonic = alarm_state.mnemonic
             condition = alarm_state.process_condition
             status = alarm_state.alarm_status
-            
             AlarmStates.create(name=name, mnemonic=mnemonic, condition=condition, status=status)
 
     def drop_tables(self, tables):

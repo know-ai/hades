@@ -1,6 +1,7 @@
 import unittest
 from pyhades import PyHades
 from pyhades.dbmodels import Units, Variables, DataTypes, Tags, AlarmsDB
+from pyhades.dbmodels import AlarmTypes, AlarmPriorities, AlarmStates
 from pyhades.alarms import Alarm
 from datetime import datetime
 
@@ -54,6 +55,24 @@ class TestDBModels(unittest.TestCase):
         result = DataTypes.read_all()
 
         self.assertEqual(len(result['data']), 4)
+
+    def testCountAlarmPrioritiesAdded(self):
+
+        result = AlarmPriorities.read_all()
+
+        self.assertEqual(len(result['data']), 6)
+
+    def testCountAlarmTypesAdded(self):
+
+        result = AlarmTypes.read_all()
+
+        self.assertEqual(len(result['data']), 6)
+
+    def testCountAlarmStatesAdded(self):
+
+        result = AlarmStates.read_all()
+
+        self.assertEqual(len(result['data']), 7)
 
     def testCountTagsAdded(self):
 

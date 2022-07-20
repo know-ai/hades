@@ -156,6 +156,18 @@ class Alarm:
         self._value = value
 
     @property
+    def priority(self):
+        r"""
+        Property Sets and Gets current priority of an alarm
+        """
+        return self._priority
+
+    @priority.setter
+    def priority(self, value):
+
+        self._priority = value
+
+    @property
     def tag_alarm(self):
         r"""
         Property (str) Sets and Gets tag of the alarm
@@ -498,5 +510,6 @@ class Alarm:
             "type": self._trigger.type.value,
             "audible": self.state.audible,
             "description": self.description,
-            "operations": self.get_operations()
+            "operations": self.get_operations(),
+            "priority": self.priority
         }
