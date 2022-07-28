@@ -476,13 +476,9 @@ class AlarmLogging(BaseModel):
         Documentation here
         """
         result = list()
-
-        # alarms = cls.select().where(cls.state.mnemonic.in_(["UNACK", "ACKED"])).order_by(cls.id.desc()).limit(lasts)
         alarms = cls.select()
-        # print(f"Alarms: {alarms}")
         for alarm in alarms:
 
-            # print(alarm.serialize())
             result.append(alarm.serialize())
     
         return result

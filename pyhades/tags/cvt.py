@@ -370,7 +370,7 @@ class CVTEngine(Singleton):
             
             self._config = yaml.load(f, Loader=yaml.FullLoader)
 
-            if self._config['modules'] is not None:
+            if ('modules' in self._config.keys()) and self._config['modules'] is not None:
 
                 if 'tags' in self._config['modules']:
 

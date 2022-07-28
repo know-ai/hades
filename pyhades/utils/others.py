@@ -65,3 +65,31 @@ def parse_config(config_file, tag='!ENV'):
     with open(config_file) as f:
                 
             return yaml.load(f, Loader=loader)
+
+def env_var_not_defined(target):
+    r"""
+    Documentation here
+    """
+    regexStr = r"(?<={)[^}]*(?=})"
+    mo = re.search(regexStr,target)
+    if not mo:
+        return False
+    else:
+        
+        return True
+
+def check_key_in_dict(_dict, key):
+    r"""
+    Documentation here
+    """
+    if key in _dict.keys():
+
+        value = _dict[key]
+
+        if env_var_not_defined(value):
+
+            return False
+
+        return True
+    
+    return False

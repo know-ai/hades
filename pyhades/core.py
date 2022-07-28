@@ -14,7 +14,7 @@ from .alarms import Alarm, TriggerType
 
 from peewee import SqliteDatabase, MySQLDatabase, PostgresqlDatabase
 
-from .utils import log_detailed, parse_config
+from .utils import log_detailed, parse_config, env_var_not_defined, check_key_in_dict
 
 from ._singleton import Singleton
 
@@ -303,15 +303,43 @@ class PyHades(Singleton):
 
                 if 'dev_mode' in db_config:
                     dev_db_config = db_config['dev_mode']
-                    self.set_db(dbtype=SQLITE, dbfile=dev_db_config['db_file'])
+                    
+                    if 'db_name' in dev_db_config.keys():
+
+                        db_name = dev_db_config['db_name']
+
+                        if env_var_not_defined(db_name):
+
+                            db_name = 'app.db'
+                        
+                        db_name, _ = os.path.splitext(db_name)
+                        ext = '.db'
+                        db_name = db_name + ext
+                            
+                    else:
+
+                        db_name = 'app.db'
+
+                    self.set_db(dbtype=SQLITE, dbfile=db_name)
 
                 else:
 
                     logging.error(f"You must define dev_mode key in db configuration in your config file")
 
             else:
+
                 if 'prod_mode' in db_config:
+
                     prod_db_config = db_config['prod_mode']
+
+                    keys_to_check = ['db_name', 'db_user', 'db_password', 'db_host', 'db_port']
+
+                    for key in keys_to_check:
+
+                        if not check_key_in_dict(prod_db_config, key):
+
+                            logging.error(f"You must define {key} key in db configuration in your production config file")
+
                     DATABASE = {
                         'user': prod_db_config['db_user'],
                         'password': prod_db_config['db_password'],
@@ -324,8 +352,38 @@ class PyHades(Singleton):
                 else:
 
                     logging.error(f"You must define prod_mode key in db configuration in your config file")
+            
+            period = 1.0
+            init_delay = 0.5
 
-            self.set_dbtags(self._engine._cvt._tags, db_config['sample_time'], delay=db_config['delay'])
+            if 'sample_time' in db_config.keys():
+
+                try:
+
+                    period = float(db_config['sample_time'])
+
+                except:
+
+                    pass
+
+            if 'init_delay' in db_config.keys():
+
+                try:
+
+                    init_delay = float(db_config['init_delay'])
+
+                except:
+
+                    pass
+            
+
+            self.set_dbtags(self._engine._cvt._tags, period=period, delay=init_delay)
+            self._db_manager.create_tables()
+            self.init_db()
+
+        else:
+            self.set_db(dbtype=SQLITE, dbfile='app.db')
+            self.set_dbtags(self._engine._cvt._tags)
             self._db_manager.create_tables()
             self.init_db()
 
@@ -419,7 +477,6 @@ class PyHades(Singleton):
         >>> app.set_dbtags(tags, period=1.0)
         ```
         """
-
         self._db_manager.set_period(period)
         self._db_manager.set_delay(delay)
 
@@ -543,15 +600,12 @@ class PyHades(Singleton):
         """
         config = parse_config(config_file)
 
-        if 'alarms' in config['modules']:
+        if ('modules' in config.keys()) and (config['modules'] is not None):
 
-            alarms = config['modules']['alarms']
-            # self._alarm_manager.load_alarms_from_db()
-            self.__set_config_alarms(alarms)
+            if 'alarms' in config['modules']:
 
-        else:
-
-            logging.warning(f"You must define alarms key in your config file")
+                alarms = config['modules']['alarms']
+                self.__set_config_alarms(alarms)
 
     def __set_config_alarms(self, alarms):
         r"""
