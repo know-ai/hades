@@ -1,5 +1,4 @@
 import logging
-import inspect
 
 def log_detailed(e, message):
     

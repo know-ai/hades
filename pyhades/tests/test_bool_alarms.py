@@ -4,7 +4,6 @@ from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
 from pyhades import PyHades
 from pyhades.dbmodels import Tags, Variables, Units, DataTypes
-from datetime import datetime
 
 
 class TestBoolAlarms(unittest.TestCase):
@@ -26,9 +25,9 @@ class TestBoolAlarms(unittest.TestCase):
         ]
 
         self.__units = [
-            ('Pa', 'Pressure'),
-            ('Celsius', 'Temperature'),
-            ('kg/s', 'Mass_Flow')
+            ('pascal', 'Pa', 'Pressure'),
+            ('degree_celsius', 'ªC', 'Temperature'),
+            ('kilogram_second', 'kg/s', 'Mass_Flow')
         ]
 
         self.__data_types = [
@@ -46,9 +45,9 @@ class TestBoolAlarms(unittest.TestCase):
 
             Variables.create(name=variable_name)
 
-        for name, variable in self.__units:
+        for name, unit, variable in self.__units:
 
-            Units.create(name=name, variable=variable)
+            Units.create(name=name, unit=unit, variable=variable)
 
         for datatype_name in self.__data_types:
 

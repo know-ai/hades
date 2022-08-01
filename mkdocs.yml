@@ -10,6 +10,9 @@ site_dir: _build/html
 
 nav:
     - Summary: 'index.md'
+    - Database Models:
+      - Tags: 'dbmodels_tags.md'
+      - Alarms: 'dbmodels_alarms.md'
     - User Guide:
       - State Machines: 'user_guide_state_machines.md'
       - Web Frameworks Integration: 'user_guide_context.md'

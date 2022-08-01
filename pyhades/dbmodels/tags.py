@@ -119,10 +119,11 @@ class Variables(BaseModel):
 class Units(BaseModel):
 
     name = CharField(unique=True)
+    unit = CharField(unique=True)
     variable_id = ForeignKeyField(Variables, backref='units', on_delete='CASCADE')
 
     @classmethod
-    def create(cls, name:str, variable:str)-> dict:
+    def create(cls, name:str, unit:str, variable:str)-> dict:
         r"""
         You can use Model.create() to create a new model instance. This method accepts keyword arguments, where the keys correspond 
         to the names of the model's fields. A new instance is returned and a row is added to the table.
@@ -163,7 +164,7 @@ class Units(BaseModel):
 
                 variable_id = query_variable['id']
 
-                query = cls(name=name, variable_id=variable_id)
+                query = cls(name=name, unit=unit, variable_id=variable_id)
                 query.save()
                 
                 message = f"{name} unit created successfully"
@@ -219,6 +220,27 @@ class Units(BaseModel):
         return None
 
     @classmethod
+    def read_by_unit(cls, unit:str)->bool:
+        r"""
+        Get instance by its a name
+
+        **Parameters**
+
+        * **name:** (str) Variable name
+
+        **Returns**
+
+        * **bool:** If True, name exist into database 
+        """
+        query = cls.get_or_none(unit=unit)
+        
+        if query is not None:
+
+            return query.serialize()
+        
+        return None
+
+    @classmethod
     def name_exist(cls, name:str)->bool:
         r"""
         Verify is a name exist into database
@@ -247,7 +269,8 @@ class Units(BaseModel):
         return {
             "id": self.id,
             "name": self.name,
-            "variable": self.variable_id.name
+            "variable": self.variable_id.name,
+            "unit": self.unit
         }
 
 
@@ -395,7 +418,7 @@ class Tags(BaseModel):
         
         if not cls.name_exist(name):
 
-            _unit = Units.read_by_name(name=unit)
+            _unit = Units.read_by_unit(unit=unit)
 
             _data_type = DataTypes.read_by_name(name=data_type.lower())
 
@@ -477,7 +500,7 @@ class Tags(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'unit': self.unit.name,
+            'unit': self.unit.unit,
             'data_type': self.data_type.name,
             'description': self.description,
             'min_value': self.min_value,

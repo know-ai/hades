@@ -48,7 +48,7 @@ class TestDBModels(unittest.TestCase):
 
         result = Units.read_all()
 
-        self.assertEqual(len(result['data']), 45)
+        self.assertEqual(len(result['data']), 58)
 
     def testCountDataTypesAdded(self):
 

@@ -90,17 +90,86 @@ class DataLogger:
         Documentation here
         """
         variables = {
-            "Pressure": ("Pa", "kPa", "mmHg", "Psi", "Atm", "Bar"),
-            "Temperature": ("C", "F", "K", "R"),
-            "Time": ("ms", "s", "min", "h", "days", "weeks", "months", "years"),
-            "MolarFlow": ("kmole/s", "kmole/min", "kmole/h"),
-            "MassFlow": ("kg/s", "kg/min", "kg/h", "g/s", "g/min", "g/h"),
-            "VolumetricFlow": ("l/s", "l/min", "l/h", "m3/s", "m3/min", "m3/h"),
-            "MassDensity": ("kg/m3",),
-            "MolarDensity": ("kmole/m3",),
-            "Velocity": ("m/s", "km/h"),
-            "Length": ("mm", "cm", "m", "km", "in", "ft"),
-            "Undefined": ("Adim", "")
+            "Pressure": [
+                ("pascal", "Pa"), 
+                ("kilopascal", "kPa"),
+                ("megapascal", "MPa"), 
+                ("milimeter_of_mercury", "mmHg"), 
+                ("pound_square_inch", "psi"), 
+                ("atmospheres", "atm"), 
+                ("bar", "bar"),
+                ("inches_of_water", 'inH2O'),
+                ("inches_of_mercury", "inHg"),
+                ("centimeter_of_mercury", "cmHg"),
+                ("foot_of_water", "ftH2O"),
+                ("meters_of_water", "mH2O"),
+                ("kilogram_force_centimeter_square", "kgf/cm2")
+            ],
+            "Temperature": [
+                ("degree_celsius", "ªC"),
+                ("degree_fahrenheit", "ªF"),
+                ("degree_kelvin", "K"), 
+                ("degree_rankine", "R")
+            ],
+            "Time": [
+                ("milisecond", "ms"), 
+                ("second", "s"), 
+                ("minute", "min"), 
+                ("hour", "h"), 
+                ("day", "day")
+            ],
+            "MolarFlow": [
+                ("kilomole_second", "kmole/s"), 
+                ("kilomole_minute", "kmole/min"), 
+                ("kilomole_hour", "kmole/h")
+            ],
+            "MassFlow": [
+                ("kilogram_second", "kg/s"), 
+                ("kilogram_minute", "kg/min"), 
+                ("kilogram_hour", "kg/h"), 
+                ("gram_second", "g/s"), 
+                ("gram_minute", "g/min"), 
+                ("gram_hour", "g/h")
+            ],
+            "VolumetricFlow": [
+                ("liter_second", "l/s"), 
+                ("liter_minute", "l/min"), 
+                ("liter_hour", "l/h"), 
+                ("meter_cube_second", "m3/s"), 
+                ("meter_cube_minute", "m3/min"), 
+                ("meter_cube_hour", "m3/h")
+            ],
+            "MassDensity": [
+                ("kilogram_meter_cube", "kg/m3"),
+                ("gram_mililiter", "g/ml"),
+                ("pound_foot_cube", "lb/ft3"),
+                ("pound_inch_cubre","lb/in3")
+            ],
+            "MolarDensity": [
+                ("kilomole_meter_cube", "kmole/m3")
+            ],
+            "Speed": [
+                ("meter_second", "m/s"), 
+                ("kilometer_hour", "km/h"),
+                ("meter_minute", "m/min"),
+                ("foot_second", "ft/s"),
+                ("foot_minute", "ft/min"),
+                ("miles_hour", "miles/h")
+            ],
+            "Length": [
+                ("milimeters", "mm"), 
+                ("centimeters", "cm"), 
+                ("meters","m"), 
+                ("kilometers", "km"), 
+                ("inches", "in"), 
+                ("feet", "ft"),
+                ("yards", "yd"),
+                ("miles", "miles")
+            ],
+            "Undefined": [
+                ("Adimensional", "Adim"), 
+                ("not_defined", "")
+            ]
         }
 
         ## Alarm Types
@@ -108,9 +177,9 @@ class DataLogger:
 
             Variables.create(name=variable)
             
-            for unit in units:
+            for name, unit in units:
 
-                Units.create(name=unit, variable=variable)
+                Units.create(name=name, unit=unit, variable=variable)
 
     def __init_default_datatypes_schema(self):
         r"""

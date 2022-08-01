@@ -1,4 +1,5 @@
 from .tag_value import TagValue
+from ..dbmodels.tags import Units
 from ..utils import Observer
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
@@ -19,17 +20,25 @@ class Tag:
 
         self.name = name
         self.value = TagValue(min_value=min_value, max_value=max_value)
-        self.unit = unit
         self.data_type = data_type
         self.description = description
         self._observers = set()
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace
+        _unit = Units.read_by_unit(unit)
+        self.unit = unit
+        self.__unit_name = _unit['name']
 
     def set_value(self, value):
 
         self.value.update(value)
         self.notify()
+
+    def to(self, unit:str):
+        r"""
+        Documentation here
+        """
+        pass
 
     def set_min_value(self, value):
 
