@@ -40,20 +40,20 @@ class TestUnitConversion(unittest.TestCase):
     def testAreaUnitConversion(self):
 
         value = 10
-        unit = 'meter_square'
-        to = 'inch_square'
+        unit = 'meter_squared'
+        to = 'inch_squared'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 15500.03, 5)
 
         value = 1
-        unit = 'inch_square'
-        to = 'meter_square'
+        unit = 'inch_squared'
+        to = 'meter_squared'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.000645, 5)
 
         value = 1
-        unit = 'yard_square'
-        to = 'foot_square'
+        unit = 'yard_squared'
+        to = 'foot_squared'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 9, 5)
 
@@ -182,7 +182,7 @@ class TestUnitConversion(unittest.TestCase):
 
         value = 1
         unit = 'megapascal'
-        to = 'pound_square_inch'
+        to = 'pound_squared_inch'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 145.03, 5)
 
@@ -247,13 +247,13 @@ class TestUnitConversion(unittest.TestCase):
     def testKinematicViscosityUnitConversion(self):
 
         value = 1
-        unit = 'foot_square_second'
+        unit = 'foot_squared_second'
         to = 'centistoke'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 92903, 3)
 
         value = 1
-        unit = 'meter_square_second'
+        unit = 'meter_squared_second'
         to = 'stoke'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 10000, 3)
@@ -321,6 +321,46 @@ class TestUnitConversion(unittest.TestCase):
         to = 'day'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 1, 3)
+
+    def testEnergyUnitConversion(self):
+
+        value = 1000000
+        unit = 'joule'
+        to = 'kilowatt_hour'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 0.277778, 3)
+
+        value = 1
+        unit = 'british_thermal_unit'
+        to = 'joule'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1055.06, 3)
+
+        value = 1
+        unit = 'calories'
+        to = 'feet_pound_force'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 3.08596, 3)
+
+    def testPowerUnitConversion(self):
+
+        value = 1
+        unit = 'watt'
+        to = 'horse_power'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 0.00134102, 3)
+
+        value = 1
+        unit = 'british_thermal_unit_second'
+        to = 'calories_second'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 252.1654, 3)
+
+        value = 1
+        unit = 'feet_pound_force_second'
+        to = 'watt'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.3557, 3)
 
 
 if __name__=='__main__':

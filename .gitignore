@@ -117,3 +117,5 @@ dmypy.json
 # Sqlite db extensions
 
 *.db
+*.db-wal
+*.db-shm

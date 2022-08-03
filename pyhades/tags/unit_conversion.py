@@ -4,24 +4,40 @@ class UnitConversion:
     """
     # Length Unit
     meters = {
-        'centimeters': 100,
-        'milimeters': 1000,
-        'kilometers': 0.001, 
+        'exameters': 10 ** -18,
+        'petameters': 10 ** -15,
+        'terameters': 10 ** -12,
+        'gigameters': 10 ** -9,
+        'megameters': 10 ** -6,
+        'kilometers': 10 ** -3, 
+        'hectometers': 10 ** -2,
+        'decameters': 10 ** -1,
+        'decimeters': 10 ** 1,
+        'centimeters': 10 ** 2,
+        'milimeters': 10 ** 3,
+        'micrometers': 10 ** 6,
+        'nanometers': 10 ** 9,
+        'picometers': 10 ** 12,
+        'femtometers': 10 ** 15,
+        'attometers': 10 ** 18,
         'inches': 39.37008,
         'feet': 3.28084,
         'yards': 1.093613,
         'miles': 0.000621
     }
     # Area Unit
-    meter_square = {
-        'inch_square': 1550.003,
-        'foot_square': 10.76391,
-        'yard_square': 1.19599,
-        'mile_square': 0.0000003861
+    meter_squared = {
+        'centimeter_squared': 10 ** (2 * 2),
+        'milimiter_squared': 10 ** (3 * 2),
+        'kilometer_squared': 10 ** (-3 * 2),
+        'inch_squared': 1550.003,
+        'foot_squared': 10.76391,
+        'yard_squared': 1.19599,
+        'mile_squared': 0.0000003861
     }
     # Volume Unit
     meter_cube = {
-        'liter': 1000,
+        'liter': 10 ** 3,
         'mililiter': 10 ** 6,
         'inch_cube': 61023.7,
         'foot_cube': 35.3147,
@@ -31,19 +47,38 @@ class UnitConversion:
     }
     # Mass Unit
     grams = {
-        'kilograms': 10 ** -3,
-        'metric_tonnes': 0.000001,
+        'exagrams': 10 ** -18,
+        'petagrams': 10 ** -15,
+        'teragrams': 10 ** -12,
+        'gigagrams': 10 ** -9,
+        'megagrams': 10 ** -6,
+        'kilograms': 10 ** -3, 
+        'hectograms': 10 ** -2,
+        'decagrams': 10 ** -1,
+        'decigrams': 10 ** 1,
+        'centigrams': 10 ** 2,
+        'miligrams': 10 ** 3,
+        'micrograms': 10 ** 6,
+        'nanograms': 10 ** 9,
+        'picograms': 10 ** 12,
+        'femtograms': 10 ** 15,
+        'attograms': 10 ** 18,
+        'metric_tonnes': 10 ** -6,
         'pounds': 0.00220462,
         'ounces': 0.035274
     }
     # Density Unit
     gram_mililiter = {
-        'kilogram_meter_cube': 1000,
+        'kilogram_meter_cube': 10 ** 3,
         'pound_foot_cube': 62.42197,
         'pound_inch_cube': 0.036127
     }
     # Volumetric Liquid Flow
-    liter_second = {
+    liter_second = { 
+        "liter_hour": 3600, 
+        "meter_cube_second": 10 ** -3, 
+        "meter_cube_minute": (10 ** -3) * 60, 
+        'foot_cube_second': 2.119093 / 60,
         'liter_minute': 60,
         'meter_cube_hour': 3.6,
         'foot_cube_minute': 2.119093,
@@ -58,22 +93,32 @@ class UnitConversion:
     }
     # Mass Flow
     kilogram_hour = {
+        "kilogram_second": 1 / (60 * 60), 
+        "kilogram_minute": 1 / 60,
+        "gram_second": (10 ** 3) / (60 * 60),
+        "gram_minute": (10 ** 3) / 60,
+        "gram_hour": 10 ** 3,
         'pound_hour': 2.204586,
         'kilogram_second': 0.0002777778,
         'ton_hour': 0.001
     }
+    # Molar Flow
+    kilomole_hour = {
+        "kilomole_minute": 1 / 60, 
+        "kilomole_second": 60
+    }
     # Pressure
     megapascal = {
-        'pascal': 1000000,
-        'inches_of_water': 0.0040144523761 * 1000000,
-        'inches_of_mercury': 0.000295333775 * 1000000,
-        'centimeter_of_mercury': 0.000750187 * 1000000,
-        'foot_of_water': 0.00033456 * 1000000,
-        'meters_of_water': 0.00010197838 * 1000000,
+        'pascal': 10 ** 6,
+        'inches_of_water': 0.0040144523761 * 10 ** 6,
+        'inches_of_mercury': 0.000295333775 * 10 ** 6,
+        'centimeter_of_mercury': 0.000750187 * 10 ** 6,
+        'foot_of_water': 0.00033456 * 10 ** 6,
+        'meters_of_water': 0.00010197838 * 10 ** 6,
         'kilopascal': 1000,
-        'pound_square_inch': 145.03,
+        'pound_squared_inch': 145.03,
         'bar': 10,
-        'kilogram_force_centimeter_square': 10.197,
+        'kilogram_force_centimeter_squared': 10.197,
         'milimeter_of_mercury': 7500.2,
         'atmospheres': 9.8717
     }
@@ -93,8 +138,8 @@ class UnitConversion:
     # Kinematic Viscosity
     stoke = {
         'centistoke': 100,
-        'foot_square_second': 0.001076391505118,
-        'meter_square_second': 0.0001
+        'foot_squared_second': 0.001076391505118,
+        'meter_squared_second': 0.0001
     }
     # Time
     day = {
@@ -102,21 +147,37 @@ class UnitConversion:
         'minute': 24 * 60,
         'second': 24 * 60 * 60,
         'milisecond': 24 * 60 * 60 * 1000,
-        'microsecond': 24 * 60 * 60 * 1000 * 1000
+        'microsecond': 24 * 60 * 60 * 10 ** 6
     }
     # Conductivity
+    watt_meter_kelvin = {
+        'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit': 6.93347126
+    }
 
     # Energy
     joule = {
         'newton_meter': 1,
-        'ergios': 10 ** -7,
-
+        'ergios': 10 ** 7,
+        'dynes_centimeter': 10 ** 7,
+        'kilowatt_hour': 2.778 * 10 ** -7,
+        'calories': 0.2390057361,
+        'feet_pound_force': 0.7375621493,
+        'british_thermal_unit': 9.478133944988911 * 10 ** -4
     }
-
+    # Power
+    watt = {
+        'joule_second': 1.0,
+        'calories_second': 0.2390057361,
+        'feet_pound_force_second': 0.7375621493,
+        'british_thermal_unit_second': 9.478133944988911 * 10 ** -4,
+        'horse_power': 1.341 * 10 ** -3
+    }
     # Acceleration
-
-    # Radiation
-
+    meter_second_squared = {
+        'inch_second_squared': 39.37,
+        'feet_second_squared': 3.281,
+        'mile_second_squared': 0.0006214
+    }
 
     @classmethod
     def convert(cls, value:float, from_unit:str, to_unit:str):

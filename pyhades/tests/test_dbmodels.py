@@ -42,13 +42,13 @@ class TestDBModels(unittest.TestCase):
 
         result = Variables.read_all()
 
-        self.assertEqual(len(result['data']), 11)
+        self.assertEqual(len(result['data']), 19)
 
     def testCountUnitsAdded(self):
 
         result = Units.read_all()
 
-        self.assertEqual(len(result['data']), 58)
+        self.assertEqual(len(result['data']), 140)
 
     def testCountDataTypesAdded(self):
 

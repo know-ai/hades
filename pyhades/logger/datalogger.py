@@ -129,7 +129,9 @@ class DataLogger:
                 ("kilogram_hour", "kg/h"), 
                 ("gram_second", "g/s"), 
                 ("gram_minute", "g/min"), 
-                ("gram_hour", "g/h")
+                ("gram_hour", "g/h"),
+                ("pound_hour", "lb/h"),
+                ("ton_hour", "tonne/h")
             ],
             "VolumetricFlow": [
                 ("liter_second", "l/s"), 
@@ -137,7 +139,15 @@ class DataLogger:
                 ("liter_hour", "l/h"), 
                 ("meter_cube_second", "m3/s"), 
                 ("meter_cube_minute", "m3/min"), 
-                ("meter_cube_hour", "m3/h")
+                ("meter_cube_hour", "m3/h"),
+                ('foot_cube_second', 'ft3/s'),
+                ('foot_cube_minute', 'ft3/min'),
+                ('foot_cube_hour', 'ft3/h'),
+                ('us_gallons_minute', 'US gal/min'),
+                ('us_barrels_oil_day', 'US brl/d'),
+                ('normal_meter_cube_hour', 'Nm3/h'),
+                ('standard_cubic_feet_hour', 'Std. ft3/h'),
+                ('standard_cubic_feet_minute', 'Std. ft3/min')
             ],
             "MassDensity": [
                 ("kilogram_meter_cube", "kg/m3"),
@@ -157,14 +167,102 @@ class DataLogger:
                 ("miles_hour", "miles/h")
             ],
             "Length": [
-                ("milimeters", "mm"), 
-                ("centimeters", "cm"), 
-                ("meters","m"), 
-                ("kilometers", "km"), 
+                ('exameters', 'Em'),
+                ('petameters', 'Pm'),
+                ('terameters', 'Tm'),
+                ('gigameters', 'Gm'),
+                ('megameters', 'Mm'),
+                ('kilometers', 'km'), 
+                ('hectometers', 'hm'),
+                ('decameters', 'dam'),
+                ("meters","m"),
+                ('decimeters', 'dm'),
+                ('centimeters', 'cm'),
+                ('milimeters', 'mm'),
+                ('micrometers', 'um'),
+                ('nanometers', 'nm'),
+                ('picometers', 'pm'),
+                ('femtometers', 'fm'),
+                ('attometers', 'am'),
                 ("inches", "in"), 
                 ("feet", "ft"),
                 ("yards", "yd"),
                 ("miles", "miles")
+            ],
+            "Area": [
+                ('meter_squared', 'm2'),
+                ('centimeter_squared', 'cm2'),
+                ('milimiter_squared', 'mm2'),
+                ('kilometer_squared', 'km2'),
+                ('inch_squared', 'in2'),
+                ('foot_squared', 'ft2'),
+                ('yard_squared', 'yd2'),
+                ('mile_squared', 'mi2')
+            ],
+            "Volume": [
+                ('meter_cube', 'm3'),
+                ('liter', 'l'),
+                ('mililiter', 'ml'),
+                ('inch_cube', 'in3'),
+                ('foot_cube', 'ft3'),
+                ('us_gallons', 'US gal'),
+                ('imperial_gallons', 'Imp gal'),
+                ('us_barrel_oil', 'US brl')
+            ],
+            "Mass": [
+                ('exagrams', 'Eg'),
+                ('petagrams', 'Pg'),
+                ('teragrams', 'Tg'),
+                ('gigagrams', 'Gg'),
+                ('megagrams', 'Mg'),
+                ('kilograms', 'kg'), 
+                ('hectograms', 'hg'),
+                ('decagrams', 'dag'),
+                ('grams', 'g'),
+                ('decigrams', 'dg'),
+                ('centigrams', 'cg'),
+                ('miligrams', 'mg'),
+                ('micrograms', 'ug'),
+                ('nanograms', 'ng'),
+                ('picograms', 'pg'),
+                ('femtograms', 'fg'),
+                ('attograms', 'ag'),
+                ('metric_tonnes', 'tonne'),
+                ('pounds', 'lb'),
+                ('ounces', 'oz')
+            ],
+            "DynamicViscosity": [
+                ('centipoise', 'cp'),
+                ('poise', 'poise'),
+                ('pound_foot_second', 'lb/(ft.s)')
+            ],
+            "KinematicViscosity": [
+                ('centistoke', 'cs'),
+                ('stoke', 'St'),
+                ('foot_squared_second', 'ft2/s'),
+                ('meter_squared_second', 'm2/s')
+            ],
+            "Conductivity": [
+                ('british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit', 'BTU.in/(h.ft2.ªF)'),
+                ('watt_meter_kelvin', 'W/(m.K')
+            ],
+            "Energy": [
+                ('joule', 'J'),
+                ('newton_meter', 'N.m'),
+                ('ergios', 'erg'),
+                ('dynes_centimeter', 'dyn.cm'),
+                ('kilowatt_hour', 'kWh'),
+                ('calories', 'cal'),
+                ('feet_pound_force', 'ft/lbf'),
+                ('british_thermal_unit', 'BTU')
+            ],
+            "Power": [
+                ('watt', 'W'),
+                ('joule_second', 'J/s'),
+                ('calories_second', 'cal/s'),
+                ('feet_pound_force_second', 'ft/(lbf.s)'),
+                ('british_thermal_unit_second', 'BTU/s'),
+                ('horse_power', 'hp')
             ],
             "Undefined": [
                 ("Adimensional", "Adim"), 
