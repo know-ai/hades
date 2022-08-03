@@ -105,7 +105,7 @@ class UnitConversion:
     # Molar Flow
     kilomole_hour = {
         "kilomole_minute": 1 / 60, 
-        "kilomole_second": 60
+        "kilomole_second": 1 / 3600
     }
     # Pressure
     megapascal = {
@@ -151,7 +151,7 @@ class UnitConversion:
     }
     # Conductivity
     watt_meter_kelvin = {
-        'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit': 6.93347126
+        'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit': 6.9381117888
     }
 
     # Energy
@@ -174,9 +174,9 @@ class UnitConversion:
     }
     # Acceleration
     meter_second_squared = {
-        'inch_second_squared': 39.37,
-        'feet_second_squared': 3.281,
-        'mile_second_squared': 0.0006214
+        'inch_second_squared': 39.37008,
+        'feet_second_squared': 3.280839895,
+        'mile_second_squared': 0.00062137119
     }
 
     @classmethod
@@ -200,6 +200,12 @@ class UnitConversion:
                     if _to in _value.keys():
 
                         multiplier = _value[f'{_to}']
+
+                        break
+
+                    if _to==key:
+
+                        multiplier = 1
 
                         break
 
@@ -232,6 +238,10 @@ class UnitConversion:
         """
         if _from=='degree_celsius':
 
+            if _to=='degree_celsius':
+
+                return value
+
             if _to=='degree_fahrenheit':
 
                 return (value * 9 / 5) + 32.0
@@ -245,6 +255,10 @@ class UnitConversion:
                 return ((value * 9 / 5) + 32.0) + 459.67
 
         if _from=='degree_fahrenheit':
+
+            if _to=='degree_fahrenheit':
+
+                return value
 
             if _to=='degree_celsius':
 
@@ -260,6 +274,10 @@ class UnitConversion:
 
         if _from=='degree_rankine':
 
+            if _to=='degree_rankine':
+
+                return value
+
             if _to=='degree_fahrenheit':
 
                 return value - 459.67
@@ -273,6 +291,10 @@ class UnitConversion:
                 return ((value - 459.67) - 32) * (5 / 9) + 273.15
 
         if _from=='degree_kelvin':
+
+            if _to=='degree_kelvin':
+
+                return value
 
             if _to=='degree_fahrenheit':
 

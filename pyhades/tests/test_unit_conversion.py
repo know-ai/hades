@@ -13,6 +13,14 @@ class TestUnitConversion(unittest.TestCase):
         return super().tearDown()
 
     def testLengthUnitConversion(self):
+
+        # Test 0
+        value = 10
+        unit = 'meters'
+        to = 'meters'
+
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 10, 5)
         
         # Test 1
         value = 10
@@ -57,6 +65,12 @@ class TestUnitConversion(unittest.TestCase):
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 9, 5)
 
+        value = 100
+        unit = 'centimeter_squared'
+        to = 'meter_squared'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 0.01, 5)
+
 
     def testVolumeUnitConversion(self):
 
@@ -87,6 +101,12 @@ class TestUnitConversion(unittest.TestCase):
         self.assertAlmostEqual(new_value, 0.002205, 5)
 
         value = 1
+        unit = 'grams'
+        to = 'grams'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.0, 5)
+
+        value = 1
         unit = 'ounces'
         to = 'grams'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
@@ -97,6 +117,18 @@ class TestUnitConversion(unittest.TestCase):
         to = 'ounces'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 16, 3)
+
+        value = 10 ** -9
+        unit = 'gigagrams'
+        to = 'grams'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.0, 3)
+
+        value = 10 ** 9
+        unit = 'nanograms'
+        to = 'grams'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.0, 3)
 
     def testDensityUnitConversion(self):
 
@@ -177,6 +209,26 @@ class TestUnitConversion(unittest.TestCase):
         to = 'ton_hour'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.000454, 3)
+
+    def testMolarFlowUnitConversion(self):
+
+        value = 1
+        unit = 'kilomole_hour'
+        to = 'kilomole_hour'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.0, 5)
+
+        value = 1
+        unit = 'kilomole_second'
+        to = 'kilomole_hour'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 3600, 3)
+
+        value = 1
+        unit = 'kilomole_minute'
+        to = 'kilomole_second'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1 / 60, 3)
 
     def testPressuresUnitConversion(self):
 
@@ -302,7 +354,13 @@ class TestUnitConversion(unittest.TestCase):
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 26.85, 3)
 
-    def testTemperatureUnitConversion(self):
+        value = 25
+        unit = 'degree_celsius'
+        to = 'degree_celsius'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 25.0, 3)
+
+    def testTimeUnitConversion(self):
 
         value = 1
         unit = 'day'
@@ -321,6 +379,20 @@ class TestUnitConversion(unittest.TestCase):
         to = 'day'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 1, 3)
+
+    def testConductivityUnitConversion(self):
+
+        value = 1
+        unit = 'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit'
+        to = 'watt_meter_kelvin'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 0.14413, 3)
+
+        value = 1
+        unit = 'watt_meter_kelvin'
+        to = 'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 6.938, 3)
 
     def testEnergyUnitConversion(self):
 
@@ -361,6 +433,32 @@ class TestUnitConversion(unittest.TestCase):
         to = 'watt'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 1.3557, 3)
+
+    def testAccelerationUnitConversion(self):
+
+        value = 1
+        unit = 'meter_second_squared'
+        to = 'mile_second_squared'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 0.0006214, 3)
+
+        value = 1
+        unit = 'mile_second_squared'
+        to = 'meter_second_squared'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1609.344, 3)
+
+        value = 1
+        unit = 'meter_second_squared'
+        to = 'meter_second_squared'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 1.00, 3)
+
+        value = 1
+        unit = 'feet_second_squared'
+        to = 'inch_second_squared'
+        new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
+        self.assertAlmostEqual(new_value, 12, 3)
 
 
 if __name__=='__main__':
