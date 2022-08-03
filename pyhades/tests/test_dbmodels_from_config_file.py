@@ -5,7 +5,6 @@ from pyhades.dbmodels import AlarmsDB
 from pyhades.tags import CVTEngine
 
 
-
 class TestDBModelsFromConfigFile(unittest.TestCase):
     r"""
     Documentation here
@@ -27,10 +26,6 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
 
     def tearDown(self) -> None:
 
-        # # Drop DB
-        # self.app.stop_db(self.db_worker)
-        # self.app.drop_db(dbfile=self.dbfile)
-        # del self.app
         return super().tearDown()
 
     def testDefineAlarm(self):
@@ -57,8 +52,3 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
         }
 
         self.assertEqual(_alarm.serialize(), expected_result)
-
-
-if __name__=='__main__':
-
-    unittest.main()

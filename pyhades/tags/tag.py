@@ -1,6 +1,7 @@
 from .tag_value import TagValue
 from ..dbmodels.tags import Units
 from ..utils import Observer
+from .unit_conversion import UnitConversion
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
@@ -28,6 +29,7 @@ class Tag:
         _unit = Units.read_by_unit(unit)
         self.unit = unit
         self.__unit_name = _unit['name']
+        self.__unit_converter = UnitConversion
 
     def set_value(self, value):
 
@@ -56,9 +58,22 @@ class Tag:
 
         self.node_namespace = node_namespace
     
-    def get_value(self):
+    def get_value(self, unit:str=None):
         
-        return self.value.get_value()
+        value = self.value.get_value()
+
+        if unit is None:
+            
+            return value
+
+        _unit = Units.read_by_unit(unit)
+        if _unit:
+
+            to_unit = _unit['name']
+
+            return self.__unit_converter.convert(value, from_unit=self.__unit_name, to_unit=to_unit)
+
+        raise KeyError(f"{unit} not found")
 
     def get_value_attributes(self):
 

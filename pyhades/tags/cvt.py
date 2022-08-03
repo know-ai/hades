@@ -215,7 +215,7 @@ class CVT:
     
         self.logger.write_tag(tag_name, value)
 
-    def get_value(self, name):
+    def get_value(self, name, unit:str=None):
         """Returns a tag value defined by name.
         
         # Parameters
@@ -230,7 +230,7 @@ class CVT:
             _property = values[1]
             _new_object = copy.copy(getattr(self._tags[str(tag.id)].value, _property))
         else:
-            _new_object = copy.copy(self._tags[str(tag.id)].get_value())
+            _new_object = copy.copy(self._tags[str(tag.id)].get_value(unit=unit))
         
         return _new_object
 
@@ -683,7 +683,7 @@ class CVTEngine(Singleton):
 
         return result
 
-    def read_tag(self, name):
+    def read_tag(self, name, unit:str=None):
         """
         Returns a tag value defined by name, in thread-safe mechanism.
         
@@ -702,6 +702,7 @@ class CVTEngine(Singleton):
 
         _query["parameters"] = dict()
         _query["parameters"]["name"] = name
+        _query["parameters"]["unit"] = unit
 
         self.request(_query)
         result = self.response()
@@ -953,7 +954,8 @@ class CVTEngine(Singleton):
                 parameters = _query["parameters"]
 
                 name = parameters["name"]
-                value = self._cvt.get_value(name)
+                unit = parameters["unit"]
+                value = self._cvt.get_value(name, unit=unit)
 
                 self._response = {
                     "result": True,

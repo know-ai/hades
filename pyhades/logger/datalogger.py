@@ -116,7 +116,7 @@ class DataLogger:
                 ("second", "s"), 
                 ("minute", "min"), 
                 ("hour", "h"), 
-                ("day", "day")
+                ("day", "d")
             ],
             "MolarFlow": [
                 ("kilomole_second", "kmole/s"), 
@@ -134,9 +134,9 @@ class DataLogger:
                 ("ton_hour", "tonne/h")
             ],
             "VolumetricFlow": [
-                ("liter_second", "l/s"), 
-                ("liter_minute", "l/min"), 
-                ("liter_hour", "l/h"), 
+                ("liter_second", "lt/s"), 
+                ("liter_minute", "lt/min"), 
+                ("liter_hour", "lt/h"), 
                 ("meter_cube_second", "m3/s"), 
                 ("meter_cube_minute", "m3/min"), 
                 ("meter_cube_hour", "m3/h"),
@@ -153,7 +153,7 @@ class DataLogger:
                 ("kilogram_meter_cube", "kg/m3"),
                 ("gram_mililiter", "g/ml"),
                 ("pound_foot_cube", "lb/ft3"),
-                ("pound_inch_cubre","lb/in3")
+                ("pound_inch_cube","lb/in3")
             ],
             "MolarDensity": [
                 ("kilomole_meter_cube", "kmole/m3")
@@ -164,7 +164,7 @@ class DataLogger:
                 ("meter_minute", "m/min"),
                 ("foot_second", "ft/s"),
                 ("foot_minute", "ft/min"),
-                ("miles_hour", "miles/h")
+                ("miles_hour", "mi/h")
             ],
             "Length": [
                 ('exameters', 'Em'),
@@ -187,7 +187,7 @@ class DataLogger:
                 ("inches", "in"), 
                 ("feet", "ft"),
                 ("yards", "yd"),
-                ("miles", "miles")
+                ("miles", "mi")
             ],
             "Area": [
                 ('meter_squared', 'm2'),
@@ -201,7 +201,7 @@ class DataLogger:
             ],
             "Volume": [
                 ('meter_cube', 'm3'),
-                ('liter', 'l'),
+                ('liter', 'lt'),
                 ('mililiter', 'ml'),
                 ('inch_cube', 'in3'),
                 ('foot_cube', 'ft3'),
@@ -243,8 +243,8 @@ class DataLogger:
                 ('meter_squared_second', 'm2/s')
             ],
             "Conductivity": [
-                ('british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit', 'BTU.in/(h.ft2.ªF)'),
-                ('watt_meter_kelvin', 'W/(m.K')
+                ('british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit', 'BTU.in/(h.ft2.ªF)'),
+                ('watt_meter_kelvin', 'W/(m.K)')
             ],
             "Energy": [
                 ('joule', 'J'),
@@ -263,6 +263,12 @@ class DataLogger:
                 ('feet_pound_force_second', 'ft/(lbf.s)'),
                 ('british_thermal_unit_second', 'BTU/s'),
                 ('horse_power', 'hp')
+            ],
+            "Acceleration": [
+                ('meter_second_squared', 'm/s2'),
+                ('inch_second_squared', 'in/s2'),
+                ('feet_second_squared', 'ft/s2'),
+                ('mile_second_squared', 'mi/s2')
             ],
             "Undefined": [
                 ("Adimensional", "Adim"), 

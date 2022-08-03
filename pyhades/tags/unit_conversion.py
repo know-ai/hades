@@ -99,7 +99,6 @@ class UnitConversion:
         "gram_minute": (10 ** 3) / 60,
         "gram_hour": 10 ** 3,
         'pound_hour': 2.204586,
-        'kilogram_second': 0.0002777778,
         'ton_hour': 0.001
     }
     # Molar Flow
@@ -151,7 +150,7 @@ class UnitConversion:
     }
     # Conductivity
     watt_meter_kelvin = {
-        'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit': 6.9381117888
+        'british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit': 6.9381117888
     }
 
     # Energy

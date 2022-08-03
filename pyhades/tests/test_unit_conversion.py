@@ -44,7 +44,6 @@ class TestUnitConversion(unittest.TestCase):
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 3.048, 5)
 
-
     def testAreaUnitConversion(self):
 
         value = 10
@@ -70,7 +69,6 @@ class TestUnitConversion(unittest.TestCase):
         to = 'meter_squared'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.01, 5)
-
 
     def testVolumeUnitConversion(self):
 
@@ -383,14 +381,14 @@ class TestUnitConversion(unittest.TestCase):
     def testConductivityUnitConversion(self):
 
         value = 1
-        unit = 'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit'
+        unit = 'british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit'
         to = 'watt_meter_kelvin'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.14413, 3)
 
         value = 1
         unit = 'watt_meter_kelvin'
-        to = 'british_thermal_unit_inch_hour_squared_foot_degree_fahrenheit'
+        to = 'british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 6.938, 3)
 
@@ -459,8 +457,3 @@ class TestUnitConversion(unittest.TestCase):
         to = 'inch_second_squared'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 12, 3)
-
-
-if __name__=='__main__':
-
-    unittest.main()

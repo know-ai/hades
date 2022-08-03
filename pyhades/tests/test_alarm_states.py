@@ -535,8 +535,3 @@ class TestAlarmState(unittest.TestCase):
             return True
         except:
             return False
-
-
-if __name__=='__main__':
-    
-    unittest.main()

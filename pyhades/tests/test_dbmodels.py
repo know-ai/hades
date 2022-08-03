@@ -3,7 +3,6 @@ from pyhades import PyHades
 from pyhades.dbmodels import Units, Variables, DataTypes, Tags, AlarmsDB
 from pyhades.dbmodels import AlarmTypes, AlarmPriorities, AlarmStates
 from pyhades.alarms import Alarm
-from datetime import datetime
 
 
 class TestDBModels(unittest.TestCase):
@@ -42,13 +41,13 @@ class TestDBModels(unittest.TestCase):
 
         result = Variables.read_all()
 
-        self.assertEqual(len(result['data']), 19)
+        self.assertEqual(len(result['data']), 20)
 
     def testCountUnitsAdded(self):
 
         result = Units.read_all()
 
-        self.assertEqual(len(result['data']), 140)
+        self.assertEqual(len(result['data']), 144)
 
     def testCountDataTypesAdded(self):
 
@@ -123,13 +122,3 @@ class TestDBModels(unittest.TestCase):
         }
 
         self.assertEqual(_alarm.serialize(), expected_result)
-
-    def testFromConfigFile(self):
-        r"""
-        Documentation here
-        """
-
-
-if __name__=='__main__':
-
-    unittest.main()

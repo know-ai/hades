@@ -1,10 +1,8 @@
 import unittest
 from pyhades.alarms import Alarm
-from pyhades.alarms.states import AlarmState
 from pyhades.dbmodels import Tags, AlarmsDB
 from pyhades.alarms.trigger import TriggerType
 from pyhades import PyHades
-from datetime import datetime
 from pyhades.tags import CVTEngine
 
 
@@ -652,7 +650,3 @@ class TestAlarmManager(unittest.TestCase):
                 'reset': 'active'
             }
             self.assertEqual(alarm['operations'], expected_operations)
-
-if __name__=='__main__':
-
-    unittest.main()

@@ -9,6 +9,7 @@ from pyhades.tests.test_alarm_manager import TestAlarmManager
 from pyhades.tests.test_dbmodels import TestDBModels
 from pyhades.tests.test_dbmodels_from_config_file import TestDBModelsFromConfigFile
 from pyhades.tests.test_unit_conversion import TestUnitConversion
+from pyhades.tests.test_unit_conversion_from_tags import TestUnitConversionFromTags
 
 
 def suite():
@@ -17,16 +18,17 @@ def suite():
     """
     tests = list()
     suite = TestSuite()
-    # tests.append(TestLoader().loadTestsFromTestCase(TestAlarmState))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestBoolAlarms))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestHighAlarms))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestHighHighAlarms))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestLowLowAlarms))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestLowAlarms))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestAlarmManager))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestDBModels))
-    # tests.append(TestLoader().loadTestsFromTestCase(TestDBModelsFromConfigFile))
+    tests.append(TestLoader().loadTestsFromTestCase(TestAlarmState))
+    tests.append(TestLoader().loadTestsFromTestCase(TestBoolAlarms))
+    tests.append(TestLoader().loadTestsFromTestCase(TestHighAlarms))
+    tests.append(TestLoader().loadTestsFromTestCase(TestHighHighAlarms))
+    tests.append(TestLoader().loadTestsFromTestCase(TestLowLowAlarms))
+    tests.append(TestLoader().loadTestsFromTestCase(TestLowAlarms))
+    tests.append(TestLoader().loadTestsFromTestCase(TestAlarmManager))
+    tests.append(TestLoader().loadTestsFromTestCase(TestDBModels))
+    tests.append(TestLoader().loadTestsFromTestCase(TestDBModelsFromConfigFile))
     tests.append(TestLoader().loadTestsFromTestCase(TestUnitConversion))
+    tests.append(TestLoader().loadTestsFromTestCase(TestUnitConversionFromTags))
     suite = TestSuite(tests)
     return suite
 

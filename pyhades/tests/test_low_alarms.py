@@ -4,7 +4,6 @@ from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
 from pyhades.dbmodels.tags import Tags, Units, Variables, DataTypes
 from pyhades import PyHades
-from datetime import datetime
 
 
 class TestLowAlarms(unittest.TestCase):
@@ -178,7 +177,3 @@ class TestLowAlarms(unittest.TestCase):
         with self.subTest("Testing return to service alarm"):
 
             self.assertEqual(self._alarm.state.state, AlarmState.NORM.state)
-
-if __name__=='__main__':
-
-    unittest.main()

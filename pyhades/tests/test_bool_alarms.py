@@ -181,7 +181,3 @@ class TestBoolAlarms(unittest.TestCase):
         with self.subTest("Testing return to service alarm"):
 
             self.assertEqual(self._alarm.state.state, AlarmState.NORM.state)
-
-if __name__=='__main__':
-
-    unittest.main()
