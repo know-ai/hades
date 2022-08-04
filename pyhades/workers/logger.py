@@ -6,8 +6,8 @@ This module implements Logger Worker.
 import time
 import logging
 
-from .worker import BaseWorker
 from ..logger.engine import DataLoggerEngine
+from .worker import BaseWorker
 from ..utils import chunks, log_detailed
 
 

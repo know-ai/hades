@@ -108,8 +108,8 @@ class DataLogger:
             "Temperature": [
                 ("degree_celsius", "ªC"),
                 ("degree_fahrenheit", "ªF"),
-                ("degree_kelvin", "K"), 
-                ("degree_rankine", "R")
+                ("kelvin", "K"), 
+                ("rankine", "R")
             ],
             "Time": [
                 ("milisecond", "ms"), 

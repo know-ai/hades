@@ -2,56 +2,47 @@ import unittest
 from pyhades.alarms import Alarm
 from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
-from pyhades import PyHades
-from pyhades.dbmodels import Tags, Variables, Units, DataTypes
+from pyhades.dbmodels import Tags
 
 
 class TestBoolAlarms(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        # Init DB
-        self.dbfile = "app.db"
-        self.app = PyHades()
-        self.app.set_mode('Development')
-        self.app.drop_db(dbfile=self.dbfile)
-        self.app.set_db(dbfile=self.dbfile)
-        self.db_worker = self.app.init_db()
+        # self.__variables = [
+        #     'Pressure',
+        #     'Temperature',
+        #     'Mass_Flow'
+        # ]
 
-        self.__variables = [
-            'Pressure',
-            'Temperature',
-            'Mass_Flow'
-        ]
+        # self.__units = [
+        #     ('pascal', 'Pa', 'Pressure'),
+        #     ('degree_celsius', 'ªC', 'Temperature'),
+        #     ('kilogram_second', 'kg/s', 'Mass_Flow')
+        # ]
 
-        self.__units = [
-            ('pascal', 'Pa', 'Pressure'),
-            ('degree_celsius', 'ªC', 'Temperature'),
-            ('kilogram_second', 'kg/s', 'Mass_Flow')
-        ]
-
-        self.__data_types = [
-            'float',
-            'int',
-            'str',
-            'bool'
-        ]
+        # self.__data_types = [
+        #     'float',
+        #     'int',
+        #     'str',
+        #     'bool'
+        # ]
 
         self.__tags = [
             ('PT-100', 'Pa', 'float', 'Inlet Pressure')
         ]
 
-        for variable_name in self.__variables:
+        # for variable_name in self.__variables:
 
-            Variables.create(name=variable_name)
+        #     Variables.create(name=variable_name)
 
-        for name, unit, variable in self.__units:
+        # for name, unit, variable in self.__units:
 
-            Units.create(name=name, unit=unit, variable=variable)
+        #     Units.create(name=name, unit=unit, variable=variable)
 
-        for datatype_name in self.__data_types:
+        # for datatype_name in self.__data_types:
 
-            DataTypes.create(name=datatype_name)
+        #     DataTypes.create(name=datatype_name)
 
         for name, unit, data_type, description in self.__tags:
 
@@ -81,9 +72,6 @@ class TestBoolAlarms(unittest.TestCase):
 
     def tearDown(self) -> None:
 
-        # Drop DB
-        self.app.stop_db(self.db_worker)
-        self.app.drop_db(dbfile=self.dbfile)
         return super().tearDown()
     
     def testAlarmClassType(self):

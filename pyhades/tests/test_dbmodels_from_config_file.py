@@ -1,26 +1,19 @@
 import os
 import unittest
-from pyhades import PyHades
 from pyhades.dbmodels import AlarmsDB
-from pyhades.tags import CVTEngine
-
+from pyhades.tests import app, tag_engine
 
 class TestDBModelsFromConfigFile(unittest.TestCase):
     r"""
     Documentation here
     """
-    engine = CVTEngine()
 
     def setUp(self) -> None:
 
-        # Init DB
-        self.dbfile = "app.db"
-        self.app = PyHades()
-        self.app.set_mode('Development')
         config_file = os.path.join('pyhades', 'tests', 'config.yml')
-        self.app.set_db_from_config_file(config_file)
-        self.engine.set_config(config_file)     
-        self.app.define_alarm_from_config_file(config_file)
+        app.set_db_from_config_file(config_file)
+        tag_engine.set_config(config_file)     
+        app.define_alarm_from_config_file(config_file)
 
         return super().setUp()
 
@@ -33,7 +26,7 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
         Documentation here
         """
         alarm_name, tag, description, alarm_type, alarm_trigger = (
-            "alarm_PT_01", 
+            "PT_01_HH", 
             "PT-01", 
             "alarm for Inlet Pressure",
             "HIGH-HIGH",
@@ -41,9 +34,10 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
         )
 
         _alarm = AlarmsDB.read_by_name(name=alarm_name)
+        _alarm_result = _alarm.serialize()
+        _alarm_result.pop('id')
 
         expected_result = {
-            'id': 1, 
             'name': alarm_name, 
             'tag': tag, 
             'description': description, 
@@ -51,4 +45,4 @@ class TestDBModelsFromConfigFile(unittest.TestCase):
             'trigger': alarm_trigger
         }
 
-        self.assertEqual(_alarm.serialize(), expected_result)
+        self.assertEqual(_alarm_result, expected_result)

@@ -1,5 +1,4 @@
 import unittest
-from pyhades import PyHades
 from pyhades.dbmodels import Units, Variables, DataTypes, Tags, AlarmsDB
 from pyhades.dbmodels import AlarmTypes, AlarmPriorities, AlarmStates
 from pyhades.alarms import Alarm
@@ -12,13 +11,6 @@ class TestDBModels(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        # Init DB
-        self.dbfile = "app.db"
-        self.app = PyHades()
-        self.app.set_mode('Development')
-        self.app.drop_db(dbfile=self.dbfile)
-        self.app.set_db(dbfile=self.dbfile)
-        self.db_worker = self.app.init_db()
 
         self.__tags = [
             ('PT-01', 'Pa', 'float', 'Inlet Pressure'),
@@ -31,61 +23,43 @@ class TestDBModels(unittest.TestCase):
 
     def tearDown(self) -> None:
 
-        # Drop DB
-        self.app.stop_db(self.db_worker)
-        self.app.drop_db(dbfile=self.dbfile)
-        del self.app
         return super().tearDown()
 
     def testCountVariablesAdded(self):
 
         result = Variables.read_all()
 
-        self.assertEqual(len(result['data']), 20)
+        self.assertEqual(len(result), 20)
 
     def testCountUnitsAdded(self):
 
         result = Units.read_all()
 
-        self.assertEqual(len(result['data']), 144)
+        self.assertEqual(len(result), 144)
 
     def testCountDataTypesAdded(self):
 
         result = DataTypes.read_all()
 
-        self.assertEqual(len(result['data']), 4)
+        self.assertEqual(len(result), 4)
 
     def testCountAlarmPrioritiesAdded(self):
 
         result = AlarmPriorities.read_all()
 
-        self.assertEqual(len(result['data']), 6)
+        self.assertEqual(len(result), 6)
 
     def testCountAlarmTypesAdded(self):
 
         result = AlarmTypes.read_all()
 
-        self.assertEqual(len(result['data']), 6)
+        self.assertEqual(len(result), 6)
 
     def testCountAlarmStatesAdded(self):
 
         result = AlarmStates.read_all()
 
-        self.assertEqual(len(result['data']), 7)
-
-    def testCountTagsAdded(self):
-
-        for name, unit, data_type, description in self.__tags:
-
-            Tags.create(
-                name=name, 
-                unit=unit, 
-                data_type=data_type,
-                description=description)
-
-        result = Tags.read_all()
-
-        self.assertEqual(len(result['data']), len(self.__tags))
+        self.assertEqual(len(result), 7)
 
     def testDefineAlarm(self):
         r"""
@@ -111,9 +85,10 @@ class TestDBModels(unittest.TestCase):
         alarm = Alarm(name=alarm_name, tag=tag, description=description)
         alarm.set_trigger(value=alarm_trigger, _type=alarm_type)
         _alarm = AlarmsDB.read_by_name(name=alarm_name)
+        _alarm_result = _alarm.serialize()
+        _alarm_result.pop('id')
 
         expected_result = {
-            'id': 1, 
             'name': alarm_name, 
             'tag': tag, 
             'description': description, 
@@ -121,4 +96,4 @@ class TestDBModels(unittest.TestCase):
             'trigger': alarm_trigger
         }
 
-        self.assertEqual(_alarm.serialize(), expected_result)
+        self.assertEqual(_alarm_result, expected_result)

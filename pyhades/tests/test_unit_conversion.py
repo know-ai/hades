@@ -323,31 +323,31 @@ class TestUnitConversion(unittest.TestCase):
         self.assertAlmostEqual(new_value, 10, 3)
 
         value = 273.15
-        unit = 'degree_kelvin'
+        unit = 'kelvin'
         to = 'degree_celsius'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.0, 3)
 
         value = 300
-        unit = 'degree_kelvin'
+        unit = 'kelvin'
         to = 'degree_fahrenheit'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 80.33, 3)
 
         value = 300
-        unit = 'degree_kelvin'
-        to = 'degree_rankine'
+        unit = 'kelvin'
+        to = 'rankine'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 540, 3)
 
         value = 540
-        unit = 'degree_rankine'
+        unit = 'rankine'
         to = 'degree_fahrenheit'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 80.33, 3)
 
         value = 540
-        unit = 'degree_rankine'
+        unit = 'rankine'
         to = 'degree_celsius'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 26.85, 3)

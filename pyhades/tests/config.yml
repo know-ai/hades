@@ -31,7 +31,7 @@ modules:
 
     alarm_PT_01:
 
-      name: "alarm_PT_01"
+      name: "PT_01_HH"
       tag: "PT-01"
       description: "alarm for Inlet Pressure"
       type: "HIGH-HIGH"

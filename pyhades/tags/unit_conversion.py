@@ -1,3 +1,138 @@
+from ..dbmodels import Units
+
+
+class TemperatureConverter:
+    r"""
+    Documentation here
+    """
+
+    def __init__(self):
+
+        self.__valid_units = ['degree_celsius', 'degree_fahrenheit', 'kelvin', 'rankine']
+        self.__value = 0
+
+    def convert(self, value:float, from_unit:str, to_unit:str):
+        r"""
+        Documentation here
+        """
+        if isinstance(value, (float, int)):
+
+            self.__value = value
+
+        else:
+
+            raise TypeError(f"{value} must be a float or int value")
+
+        if all(elem in self.__valid_units  for elem in [from_unit.lower(), to_unit.lower()]):
+
+            if from_unit.lower()==to_unit.lower():
+
+                return value
+
+            _convert = getattr(self, f"{from_unit}_to_{to_unit}")
+
+            return _convert()
+
+        else:
+
+            raise KeyError(f"{from_unit} or {to_unit} are not a temperature unit valid")
+
+    def degree_celsius_to_kelvin(self):
+        r"""
+        Documentation here
+        """
+        return self.__value + 273.15
+
+    def degree_celsius_to_degree_fahrenheit(self):
+        r"""
+        Documentation here
+        """
+        return (self.__value * 9 / 5) + 32.0
+
+    def degree_fahrenheit_to_rankine(self):
+        r"""
+        Documentation here
+        """
+        return self.__value + 459.67
+
+    def degree_fahrenheit_to_degree_celsius(self):
+        r"""
+        Documentation here
+        """
+        return (self.__value - 32) * (5 / 9)
+
+    def kelvin_to_degree_celsius(self):
+        r"""
+        Documentatio here
+        """
+        return self.__value - 273.15
+
+    def rankine_to_degree_fahrenheit(self):
+        r"""
+        Documentation here
+        """
+        return self.__value - 459.67
+
+    def degree_celsius_to_rankine(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.degree_celsius_to_degree_fahrenheit()
+        return self.degree_fahrenheit_to_rankine()
+
+    def rankine_to_degree_celsius(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.rankine_to_degree_fahrenheit()
+        return self.degree_fahrenheit_to_degree_celsius()
+
+    def degree_fahrenheit_to_kelvin(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.degree_fahrenheit_to_degree_celsius()
+        return self.degree_celsius_to_kelvin()
+
+    def kelvin_to_degree_fahrenheit(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.kelvin_to_degree_celsius()
+        return self.degree_celsius_to_degree_fahrenheit()
+
+    def kelvin_to_rankine(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.kelvin_to_degree_fahrenheit()
+        return self.degree_fahrenheit_to_rankine()
+
+    def rankine_to_kelvin(self):
+        r"""
+        Documentation here
+        """
+        self.__value = self.rankine_to_degree_celsius()
+        return self.degree_celsius_to_kelvin()
+
+
+class ConverterByMultiplier:
+    r"""
+    Documentation here
+    """
+    
+    def __init__(self):
+        self.__value = 0
+        
+
+    def convert(self, value:float, from_unit:str, to_unit:str):
+        r"""
+        Documentation here"""
+        print('Hi Converter')
+        self.__valid_units = [unit['name'] for unit in Units.read_all()]
+        # print(f'valid units:{self.__valid_units}')
+
+
 class UnitConversion:
     r"""
     Documentation
@@ -177,6 +312,8 @@ class UnitConversion:
         'feet_second_squared': 3.280839895,
         'mile_second_squared': 0.00062137119
     }
+    temperature_converter = TemperatureConverter()
+    converter = ConverterByMultiplier()
 
     @classmethod
     def convert(cls, value:float, from_unit:str, to_unit:str):
@@ -190,9 +327,14 @@ class UnitConversion:
 
             if isinstance(_value, dict):
 
-                if _from.startswith('degree'):
+                _unit = Units.read_by_name(from_unit)
+                _variable = _unit['variable'].lower()
 
-                    return UnitConversion.__temperature_converter(value, _from, _to)
+                if _variable=='temperature':
+
+                    return cls.temperature_converter.convert(value, _from, _to)
+                
+                # cls.converter.convert(value, _from, _unit)
                 
                 if _from==key:
 
@@ -229,80 +371,3 @@ class UnitConversion:
             raise KeyError(f"Unit {_from} or {_to} is not defined")
 
         return value * multiplier
-
-    @staticmethod
-    def __temperature_converter(value:float, _from:str, _to:str):
-        r"""
-        Documentation here
-        """
-        if _from=='degree_celsius':
-
-            if _to=='degree_celsius':
-
-                return value
-
-            if _to=='degree_fahrenheit':
-
-                return (value * 9 / 5) + 32.0
-
-            if _to=='degree_kelvin':
-
-                return value + 273.15
-
-            if _to=='degree_rankine':
-
-                return ((value * 9 / 5) + 32.0) + 459.67
-
-        if _from=='degree_fahrenheit':
-
-            if _to=='degree_fahrenheit':
-
-                return value
-
-            if _to=='degree_celsius':
-
-                return (value - 32) * (5 / 9)
-
-            if _to=='degree_kelvin':
-
-                return (value - 32) * (5 / 9) + 273.15
-
-            if _to=='degree_rankine':
-
-                return value + 459.67
-
-        if _from=='degree_rankine':
-
-            if _to=='degree_rankine':
-
-                return value
-
-            if _to=='degree_fahrenheit':
-
-                return value - 459.67
-
-            if _to=='degree_celsius':
-
-                return ((value - 459.67) - 32) * (5 / 9)
-
-            if _to=='degree_kelvin':
-
-                return ((value - 459.67) - 32) * (5 / 9) + 273.15
-
-        if _from=='degree_kelvin':
-
-            if _to=='degree_kelvin':
-
-                return value
-
-            if _to=='degree_fahrenheit':
-
-                return ((value - 273.15) * 9 / 5) + 32.0
-
-            if _to=='degree_celsius':
-
-                return value - 273.15
-
-            if _to=='degree_rankine':
-
-                return ((value - 273.15) * 9 / 5) + 32.0 + 459.67
