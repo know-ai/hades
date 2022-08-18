@@ -70,7 +70,7 @@ class PyHades(Singleton):
 
         self.db = None
 
-    def info(self):
+    def info(self)->str:
         r"""
         Shows a summary threads on execution
         """
@@ -86,15 +86,13 @@ class PyHades(Singleton):
         r"""
         Allows to you define "Development" or "Production" mode.
 
-        For Development mode you use Sqlitedatabase by default when you define it.
+        For Development mode you use SQLite database by default when you define it.
 
         For Production mode you can use Sqlite - Postgres - MySQL
 
         **Parameters**
 
         * **mode** (str): App mode ('Development' or 'Production')
-
-        **Return** `None`
 
         ```python
         >>> app = PyHades()
@@ -104,13 +102,13 @@ class PyHades(Singleton):
         if mode.capitalize() in APP_MODES:
             self._mode = mode
 
-    def get_mode(self):
+    def get_mode(self)->str:
         r"""
         Gets app mode
 
         **Returns**
 
-        * **mode** (str)
+        * **mode** (str) Application mode.
 
         ```python
         >>> app.get_mode()
@@ -120,14 +118,18 @@ class PyHades(Singleton):
         return self._mode
 
     def set_socketio(self, sio):
-
+        r"""
+        Sets a SocketIO Client Object defined from any web server
+        """
         self._sio = sio
 
     def get_socketio(self):
-
+        r"""
+        Gets SocketIO Client
+        """
         return self._sio
 
-    def threads_running(self):
+    def threads_running(self)->int:
         r"""
         Gets thread numbers defined in the app
 
@@ -141,7 +143,7 @@ class PyHades(Singleton):
         """
         return len(self._thread_functions)
 
-    def state_machines_running(self):
+    def state_machines_running(self)->int:
         r"""
         Gets state machines numbers defined in the app
 
@@ -155,7 +157,7 @@ class PyHades(Singleton):
         """
         return len(self.workers)
 
-    def threads_info(self):
+    def threads_info(self)->str:
         r"""
         Gets information of all defined threads
 
@@ -175,7 +177,7 @@ class PyHades(Singleton):
 
         return result
 
-    def state_machines_info(self):
+    def state_machines_info(self)->str:
         r"""
         Gets information of all defined state machines
 
@@ -213,7 +215,7 @@ class PyHades(Singleton):
         """
         self._start_up_datetime = date_time
 
-    def get_start_up_datetime(self):
+    def get_start_up_datetime(self)->datetime:
         r"""
         Gets the start up datetime of the application
 
@@ -243,8 +245,22 @@ class PyHades(Singleton):
 
     def define_table(self, cls):
         """
-        Append a database model class definition
-        by a class decoration.
+        Appends a database model class definition using a class decoration.
+
+        Example code
+
+        ```python
+        from peewee import CharField
+        from pyhades.dbmodels import BaseModel
+        from pyhades import PyHades
+
+        app = PyHades()
+
+        @app.define_table
+        class NewTable(BaseModel):
+            item1 = CharField()
+            item2 = CharField()
+        ```
         """
 
         self.append_table(cls)
@@ -276,8 +292,14 @@ class PyHades(Singleton):
             self._log_file = file
 
     @classmethod
-    def drop_db(cls, dbfile):
+    def drop_db(cls, dbfile:str):
+        r"""
+        Class method to remove SQLite database files
 
+        **Parameters**
+
+        * **dbfile** (str): DB file name, default for hades *app.db*
+        """
         files = [dbfile]
         files.append(f"{dbfile}-shm")
         files.append(f"{dbfile}-wal")
@@ -288,9 +310,36 @@ class PyHades(Singleton):
 
                 os.remove(file)
 
-    def set_db_from_config_file(self, config_file):
+    def set_db_from_config_file(self, config_file:str):
         r"""
-        Documention here
+        Defines the database configuration from a .yml configuration file
+
+        **Parameters**
+
+        * **config_file** (str) Url where the .yml configuration file is
+
+        ## Configuration File Structure For Database Definition
+
+        ```YaML
+        version: '3'
+
+        db:
+
+            dev_mode:
+                db_name: ${DB_NAME}
+            
+            prod_mode:
+                db_type: "POSTGRESQL"
+                db_name: ${DB_NAME}
+                db_user: ${DB_USER}
+                db_password: ${DB_PASSWORD}
+                db_host: ${DB_HOST}
+                db_port: ${DB_PORT}
+
+            sample_time: ${DB_SAMPLE_TIME}
+        ```
+
+        you can define your file based on environment variables or you can complete the file directly.
         """
         config = parse_config(config_file)
 
@@ -388,7 +437,7 @@ class PyHades(Singleton):
             self.init_db()
 
     def set_db(self, dbtype:str=SQLITE, drop_table=False, clear_default_tables=False, **kwargs):
-        """
+        r"""
         Sets the database, it supports SQLite and Postgres,
         in case of SQLite, the filename must be provided.
 
@@ -459,7 +508,7 @@ class PyHades(Singleton):
         self._db_manager.set_dropped(drop_table)
 
     def set_dbtags(self, tags, period=0.5, delay=1.0):
-        """
+        r"""
         Sets the database tags for logging.
 
         If you want to log any tag defined in CVTengine, you must define it here
@@ -501,7 +550,7 @@ class PyHades(Singleton):
                 period
             )
 
-    def get_dbtags(self):
+    def get_dbtags(self)->list:
         """
         Returns the database tags for logging.
         """
@@ -526,7 +575,7 @@ class PyHades(Singleton):
         """
         self._max_threads = max_threads
 
-    def _append_machine(self, machine, interval=1, mode="sync"):
+    def _append_machine(self, machine, interval:float=1, mode:str="sync"):
         """
         Append a state machine to the state machine manager.
 
@@ -538,7 +587,7 @@ class PyHades(Singleton):
         machine.set_interval(interval)
         self._machine_manager.append_machine(machine, interval=interval, mode=mode)
 
-    def get_machine(self, name):
+    def get_machine(self, name:str):
         """
         Returns a PyHades State Machine defined by its name.
 
@@ -555,7 +604,7 @@ class PyHades(Singleton):
 
         return self._machine_manager.get_machine(name)
 
-    def get_machines(self):
+    def get_machines(self)->list:
         """
         Returns all defined PyHades state machines.
 
@@ -570,33 +619,74 @@ class PyHades(Singleton):
 
         return self._machine_manager.get_machines()
 
-    def get_state_machine_manager(self):
+    def get_state_machine_manager(self)->StateMachineManager:
         r"""
         Gets state machine Manager
 
         **Returns:** StateMachineManager instance
 
         ```python
-        >>> app.get_state_machine_manager()
+        >>> state_manager = app.get_state_machine_manager()
         ```
         """
         return self._machine_manager
 
-    def get_db_manager(self):
+    def get_db_manager(self)->DBManager:
         r"""
-        Gets DB Manager
+        Gets Database Manager
 
         **Returns:** DBManager instance
 
         ```python
-        >>> app.db_manager()
+        >>> db_manager = app.db_manager()
         ```
         """
         return self._db_manager
 
-    def define_alarm_from_config_file(self, config_file):
+    def get_alarm_manager(self)->AlarmManager:
         r"""
-        Documentation here
+        Gets Alarm Manager
+
+        **Returns:** AlarmManager instance
+
+        ```python
+        >>> alarm_manager = app.alarm_manager()
+        ```
+        """
+        return self._alarm_manager
+
+    def define_alarm_from_config_file(self, config_file:str):
+        r"""
+        Defines alarms from a .yml configuration file
+
+        **Parameters**
+
+        * **config_file** (str) Url where the .yml configuration file is
+
+        ## Configuration File Structure For Alarms Definition
+
+        ```YaML
+        modules:
+                    
+            alarms:
+
+                alarm1:
+                    name: "alarm1_name"
+                    tag: "tag1_name"
+                    description: "alarm description"
+                    type: "bool"
+                    trigger: True
+                
+                alarm2:
+                    name: "alarm2_name"
+                    tag: "tag2_name"
+                    description: "alarm description"
+                    type: "high"
+                    trigger: 100.0
+        ```
+
+        You must have previously defined the tag to which you are going to bind the alarm, see (CVT set_config)[api_cvt.md] section
+        or (CVT User Guide)[user_guide_cvt.md]
         """
         config = parse_config(config_file)
 
@@ -607,9 +697,9 @@ class PyHades(Singleton):
                 alarms = config['modules']['alarms']
                 self.__set_config_alarms(alarms)
 
-    def __set_config_alarms(self, alarms):
+    def __set_config_alarms(self, alarms:dict):
         r"""
-        Documentaion here
+        Defines alarms
         """
         _alarms = self._alarm_manager.get_alarms()
         manager_alarms = [alarm.name for id, alarm in _alarms.items()]
@@ -628,49 +718,45 @@ class PyHades(Singleton):
                 alarm.set_trigger(value=trigger, _type=_trigger.value)
                 self.append_alarm(alarm)
 
-    def get_alarm_manager(self):
-        r"""
-        Gets DB Manager
-
-        **Returns:** AlarmManager instance
-
-        ```python
-        >>> app.alarm_manager()
-        ```
+    def append_alarm(self, alarm:Alarm):
         """
-        return self._alarm_manager
-
-    def append_alarm(self, alarm):
-        """
-        Append an alarm to the alarm manager.
+        Appends an alarm to the alarm manager.
 
         **Parameters:**
 
-        * **alarm** (`Alarm`): an alarm object.
+        * **alarm** (Alarm Object)
         """
 
         self._alarm_manager.append_alarm(alarm)
 
-    def get_alarm(self, name):
+    def get_alarm(self, name:str)->Alarm:
         """
-        Returns a Alarm defined by its name.
+        Returns an Alarm defined by its name.
 
         **Parameters:**
 
         * **name** (str): an alarm name.
+
+        **Returns**
+
+        * **alarm** (Alarm Object)
         """
 
         alarm = self._alarm_manager.get_alarm(name)
 
         return alarm
 
-    def get_alarm_by_tag(self, tag):
+    def get_alarm_by_tag(self, tag:str)->Alarm:
         """
-        Returns a Alarm defined by its tag.
+        Returns an Alarm binded to any tag name.
 
         **Parameters:**
 
-        * **tag** (str): an alarm tag.
+        * **tag** (str): Tag name binded to alarm.
+
+        **Returns**
+
+        * **alarm** (Alarm Object)
         """
 
         alarm = self._alarm_manager.get_alarm_by_tag(tag)
@@ -681,23 +767,28 @@ class PyHades(Singleton):
         """
         Returns a specified application manager.
 
+        ## Available Managers
+
+        * **Alarm Manager**: name='alarm'
+        * **State Machine Manager**: name='state'
+        * **Database Manager**: name='db'
+
         **Parameters:**
 
         * **name** (str): a manager name.
         """
-        if name == "alarm":
+        if name.lower() == "alarm":
             manager = self.get_alarm_manager()
-        elif name == "state":
+        elif name.lower() == "state":
             manager = self.get_state_machine_manager()
-        elif name == 'db':
+        elif name.lower() == 'db':
             manager = self.get_db_manager()
 
         return manager
 
     def define_machine(self, name="", interval=1, mode="sync", **kwargs):
         """
-        Append a state machine to the state machine manager
-        by decoration.
+        Append an state machine to the state machine manager by decoration.
 
         **Parameters:**
 
@@ -805,8 +896,14 @@ class PyHades(Singleton):
                 message = "Error on wokers stop"
                 log_detailed(e, message)
 
-    def init_db(self):
+    def init_db(self)->LoggerWorker:
+        r"""
+        Initialize Logger Worker
 
+        **Returns**
+
+        * **db_worker**: (LoggerWorker Object)
+        """
         db_worker = LoggerWorker(self._db_manager)
         db_worker.init_database()
 
@@ -821,7 +918,10 @@ class PyHades(Singleton):
 
         return db_worker
 
-    def stop_db(self, db_worker):
+    def stop_db(self, db_worker:LoggerWorker):
+        r"""
+        Stops Database Worker
+        """
         try:
             db_worker.stop()
         except Exception as e:
@@ -830,7 +930,11 @@ class PyHades(Singleton):
 
     def _start_workers(self):
         r"""
-        Starts defined workers like State Machines.
+        Starts all workers.
+
+        * LoggerWorker
+        * AlarmWorker
+        * StateMachineWorker
         """
         db_worker = LoggerWorker(self._db_manager)
         db_worker.init_database()
@@ -862,7 +966,7 @@ class PyHades(Singleton):
 
     def _stop_workers(self):
         r"""
-        Safe stop workers execution like State Machines
+        Safe stop workers execution
         """
         for worker in self.workers:
             try:
