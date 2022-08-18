@@ -1,0 +1,158 @@
+{
+    "meters" : {
+        "exameters": 1e-18,
+        "petameters": 1e-15,
+        "terameters": 1e-12,
+        "gigameters": 1e-9,
+        "megameters": 1e-6,
+        "kilometers": 1e-3, 
+        "hectometers": 1e-2,
+        "decameters": 1e-1,
+        "decimeters": 10,
+        "centimeters": 1e2,
+        "milimeters": 1e3,
+        "micrometers": 1e6,
+        "nanometers": 1e9,
+        "picometers": 1e12,
+        "femtometers": 1e15,
+        "attometers": 1e18,
+        "inches": 39.37008,
+        "feet": 3.28084,
+        "yards": 1.093613,
+        "miles": 0.000621
+    },
+    "meter_squared" : {
+        "centimeter_squared": 1e4,
+        "milimiter_squared": 1e6,
+        "kilometer_squared": 1e-6,
+        "inch_squared": 1550.003,
+        "foot_squared": 10.76391,
+        "yard_squared": 1.19599,
+        "mile_squared": 0.0000003861
+    },
+    "meter_cube" : {
+        "liter": 1e3,
+        "mililiter": 1e6,
+        "inch_cube": 61023.7,
+        "foot_cube": 35.3147,
+        "us_gallons": 264.172,
+        "imperial_gallons": 219.969,
+        "us_barrel_oil": 6.28981
+    },
+    "grams" : {
+        "exagrams": 1e-18,
+        "petagrams": 1e-15,
+        "teragrams": 1e-12,
+        "gigagrams": 1e-9,
+        "megagrams": 1e-6,
+        "kilograms": 1e-3, 
+        "hectograms": 1e-2,
+        "decagrams": 1e-1,
+        "decigrams": 10,
+        "centigrams": 1e2,
+        "miligrams": 1e3,
+        "micrograms": 1e6,
+        "nanograms": 1e9,
+        "picograms": 1e12,
+        "femtograms": 1e15,
+        "attograms": 1e18,
+        "metric_tonnes": 1e-6,
+        "pounds": 0.00220462,
+        "ounces": 0.035274
+    },
+    "gram_mililiter" : {
+        "kilogram_meter_cube": 1e3,
+        "pound_foot_cube": 62.42197,
+        "pound_inch_cube": 0.036127
+    },
+    "liter_second" : { 
+        "liter_hour": 3600, 
+        "meter_cube_second": 1e-3, 
+        "meter_cube_minute": 60e-3, 
+        "foot_cube_second": 0.0353182167,
+        "liter_minute": 60,
+        "meter_cube_hour": 3.6,
+        "foot_cube_minute": 2.119093,
+        "foot_cube_hour": 127.1197,
+        "us_gallons_minute": 15.85037,
+        "us_barrels_oil_day": 543.4783
+    },
+    "normal_meter_cube_hour" : {
+        "standard_cubic_feet_hour": 35.31073,
+        "standard_cubic_feet_minute": 0.588582
+    },
+    "kilogram_hour" : {
+        "kilogram_second": 0.000277777778, 
+        "kilogram_minute": 0.0166666667,
+        "gram_second": 0.277777778,
+        "gram_minute": 16.6666667,
+        "gram_hour": 1e3,
+        "pound_hour": 2.204586,
+        "ton_hour": 0.001
+    },
+    "kilomole_hour" : {
+        "kilomole_minute": 0.0166666667, 
+        "kilomole_second": 0.000277777778
+    },
+    "megapascal" : {
+        "pascal": 1e6,
+        "inches_of_water": 0.0040144523761e6,
+        "inches_of_mercury": 0.000295333775e6,
+        "centimeter_of_mercury": 0.000750187e6,
+        "foot_of_water": 0.00033456e6,
+        "meters_of_water": 0.00010197838e6,
+        "kilopascal": 1000,
+        "pound_squared_inch": 145.03,
+        "bar": 10,
+        "kilogram_force_centimeter_squared": 10.197,
+        "milimeter_of_mercury": 7500.2,
+        "atmospheres": 9.8717
+    },
+    "meter_second" : {
+        "meter_minute": 60,
+        "kilometer_hour": 3.6,
+        "foot_second": 3.28084,
+        "foot_minute": 196.8504,
+        "miles_hour": 2.2369356
+    },
+    "centipoise" : {
+        "poise": 0.01,
+        "pound_foot_second": 0.000672
+    },
+    "stoke" : {
+        "centistoke": 100,
+        "foot_squared_second": 0.001076391505118,
+        "meter_squared_second": 0.0001
+    },
+    "day" : {
+        "hour": 24,
+        "minute": 1440,
+        "second": 86400,
+        "milisecond": 86400e3,
+        "microsecond": 86400e6
+    },
+    "watt_meter_kelvin" : {
+        "british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit": 6.9381117888
+    },
+    "joule": {
+        "newton_meter": 1,
+        "ergios": 1e7,
+        "dynes_centimeter": 1e7,
+        "kilowatt_hour": 2.778e-7,
+        "calories": 0.2390057361,
+        "feet_pound_force": 0.7375621493,
+        "british_thermal_unit": 9.478133944988911e-4
+    },
+    "watt" : {
+        "joule_second": 1.0,
+        "calories_second": 0.2390057361,
+        "feet_pound_force_second": 0.7375621493,
+        "british_thermal_unit_second": 9.478133944988911e-4,
+        "horse_power": 1.341e-3
+    },
+    "meter_second_squared" : {
+        "inch_second_squared": 39.37008,
+        "feet_second_squared": 3.280839895,
+        "mile_second_squared": 0.00062137119
+    }
+}

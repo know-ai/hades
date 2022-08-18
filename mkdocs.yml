@@ -11,7 +11,6 @@ site_dir: _build/html
 nav:
     - Summary: 'index.md'
     - Database Models: 'dbmodels.md'
-    - CVT: 'cvt.md'
     - User Guide:
       - State Machines: 'user_guide_state_machines.md'
       - Web Frameworks Integration: 'user_guide_context.md'

@@ -1,7 +1,5 @@
 from .tag_value import TagValue
-from ..dbmodels.tags import Units
 from ..utils import Observer
-from .unit_conversion import UnitConversion
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
@@ -26,21 +24,12 @@ class Tag:
         self._observers = set()
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace
-        _unit = Units.read_by_unit(unit)
         self.unit = unit
-        self.__unit_name = _unit['name']
-        self.__unit_converter = UnitConversion
 
     def set_value(self, value):
 
         self.value.update(value)
         self.notify()
-
-    def to(self, unit:str):
-        r"""
-        Documentation here
-        """
-        pass
 
     def set_min_value(self, value):
 
@@ -65,13 +54,6 @@ class Tag:
         if unit is None:
             
             return value
-
-        _unit = Units.read_by_unit(unit)
-        if _unit:
-
-            to_unit = _unit['name']
-
-            return self.__unit_converter.convert(value, from_unit=self.__unit_name, to_unit=to_unit)
 
         raise KeyError(f"{unit} not found")
 
@@ -167,6 +149,12 @@ class Tag:
         for key, value in kwargs.items():
 
             setattr(self, key, value)
+
+    def add_custom_conversions(self, custom_conversions_path:str):
+        r"""
+        Documentation here
+        """
+        self.__unit_converter.add_custom_conversions(custom_conversions_path)
 
 
 class TagObserver(Observer):

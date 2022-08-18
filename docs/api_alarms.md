@@ -18,7 +18,7 @@
     :members: suppress_by_design
     :members: unsuppress_by_design
     :members: out_of_service
-    :members: in_service
+    :members: return_to_service
     :members: serialize
     :members: trigger_alarm
 

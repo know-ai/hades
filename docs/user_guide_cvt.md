@@ -25,17 +25,19 @@ A tag is an object representation of field measurement or a field device, for th
 
 So, the necessary attributes are:
 
-- name: (str) Tag name with which the object will be saved in the CVTEngine repository
-- unit: (str) Measurement unit of the field variable
-- data_type: (str) Data type of the field variable ['float', 'int', 'bool', 'str']
-- desc: (str) Field variable description
-- min_value: (float) Lower range of the field instrument.
-- max_value: (float) Higher range of the field instrument.
-
+- name: **(str)** Tag name with which the object will be saved in the CVTEngine repository
+- unit: **(str)** Measurement unit of the field variable
+- data_type: **(str)** Data type of the field variable ['float', 'int', 'bool', 'str']
+- description: **(str)** Field variable description
+- min_value: **(float)[optional]** Lower range of the field instrument.
+- max_value: **(float)[optional]** Higher range of the field instrument.
+- tcp_source_address: **(str)[optional]** Url for tcp communication with a server.
+- node_namespace: **(str)[Optional]** Node ID or Namespace (OPC UA) to get element value from server.
+ 
 Usage
 
 ```python
->>> tag_engine.set_tag('TAG1', 'ºC', 'float', 'Inlet temprerature', 0.0, 100.0)
+>>> tag_engine.set_tag('TAG1', 'ºC', 'float', 'Inlet temprerature', 0.0, 100.0, 'opc.tcp://localhost:53530/OPCUA/SimulationServer', 'ns=3;i=1001')
 ```
 
 It is important to respect the order of the variables.
@@ -48,8 +50,7 @@ You can also define a list of tags in the repository.
 >>> tags = [
         ("TAG1", 'ºC', 'float', 'Inlet temperature', 0.0, 100.0),
         ("TAG2", 'kPa', 'float', 'Inlet pressure', 100.0),
-        ("TAG3", 'm3/s', 'float', 'Inlet flow'),
-        ("TAG4", 'kg/s', 'float')
+        ("TAG3", 'm3/s', 'float', 'Inlet flow')
     ]
 >>> tag_engine.set_tags(tags)
 ```
@@ -78,6 +79,57 @@ In this way, in another part of the application you can obtain the tag names tha
 ['TAG3', 'TAG4']
 ```
 
+**Note:** If you want to define a tag with a unit different from those defined, you can define new variables and units, see the [database model](dbmodels.md) section
+
+## Unit Conversions
+
+Tags represent process variables, these tags have attributes, inside these attributes we have *unit*, it represents the tag's unit.
+
+For example, a tag can represent the pressure in a tank, so, this variable can be of different unit *250 kPa*.
+
+So, you can define different multiplier for unit conversions according [the International Society of Automation, ISA](https://www.isa.org/getmedia/192f7bda-c77c-480a-8925-1a39787ed098/CCST-Conversions-document.pdf) standard, preferable.
+
+Currently, PyHades offers some conversions by default, according to variables and units defined. see the [database model](dbmodels.md) section.
+
+If you want to add new conversions factor, you must define a json file with the following structure:
+
+```json
+{
+    "unit_name_1": {
+        "unit_name_2": factor_value
+    }
+}
+```
+
+*factor_value* is the multiplier to convert *unit_name_1* to *unit_name_2*
+
+For example:
+
+
+```json
+{
+    "meters": {
+        "inches": 39.37008
+    },
+    "meter_cube": {
+        "liter": 1000
+    }
+}
+```
+
+The example above define that 1 meters = 39.37008 inches, and 1 meter_cube = 1000 liter.
+
+**NOTE:** It's important that *unit_name* must be defined into dbmodel as it explained in [database model](dbmodels.md) section
+
+Once you define the json file, you can load it into the application with CVTEngine:
+
+```pythonn
+from pyhades.tags import CVTEngine
+
+tag_engine = CVTEngine()
+tag_engine.add_conversions("root_path/units.json")
+```
+
 ## Write and Read Values to the CVTEngine repository
 
 Once you have defined all your tags, the other important step is to write and read values to and from the CVTEngine repository with a safe-thread mechanism.
@@ -93,6 +145,12 @@ Once you have defined all your tags, the other important step is to write and re
 ```python
 >>> tag_engine.read_tag('TAG1')
 50.53
+```
+You can also read tag value with another unit.
+
+```python
+>>> tag_engine.read_tag('TAG1', unit='K')
+323.68
 ```
 
 ## Read attributes from CVTEngine repository
