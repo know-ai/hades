@@ -85,11 +85,16 @@ class PyHadesStateMachine(StateMachine):
         
     * **name** (str): state machine name.
 
+    **Attributes**
+
+    * **tag_engine** (CVTEngine Object)
+    * **logger_engine** (DataLoggerEngine Object) 
+
     """
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name:str, **kwargs):
         
         super(PyHadesStateMachine, self).__init__()
         self.name = name
@@ -136,7 +141,7 @@ class PyHadesStateMachine(StateMachine):
 
         self.attrs = attrs
 
-    def info(self):
+    def info(self)->str:
         r"""
         Gets general information of the state machine
 
@@ -153,9 +158,9 @@ class PyHadesStateMachine(StateMachine):
         """
         return f'''\nState Machine: {self.name} - Interval: {self.get_interval()} seconds - States: {self.get_states()} - Transitions: {self.get_transitions_name()}'''
     
-    def get_states(self):
+    def get_states(self)->list:
         r"""
-        Get a list of state names of the state machine
+        Gets a list of state machine's names
 
         **Returns**
 
@@ -167,11 +172,10 @@ class PyHadesStateMachine(StateMachine):
         >>> machine = app.get_machine(name)
         >>> states = machine.get_states()
         ```
-
         """
         return [state.identifier for state in self.states]
 
-    def get_state_interval(self):
+    def get_state_interval(self)->float:
         r"""
         Gets current state interval
 
@@ -189,7 +193,7 @@ class PyHadesStateMachine(StateMachine):
         """
         return self.current_state.interval
 
-    def get_interval(self):
+    def get_interval(self)->float:
         r"""
         Gets overall state machine interval
 
@@ -413,7 +417,7 @@ class PyHadesStateMachine(StateMachine):
         """
         self._loop()
     
-    def serialize(self):
+    def serialize(self)->dict:
         r"""
         Gets state machine attributes serialized
         """

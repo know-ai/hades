@@ -3,7 +3,7 @@
 
 This module implements Function Manager.
 """
-
+from ..state_machine import PyHadesStateMachine
 
 class StateMachineManager:
     r"""
@@ -16,7 +16,7 @@ class StateMachineManager:
 
         self._machines = list()
 
-    def append_machine(self, machine, interval=1, mode="async"):
+    def append_machine(self, machine:PyHadesStateMachine, interval:float=1, mode:str="async"):
         r"""
         Appends machines to the store
 
@@ -38,7 +38,7 @@ class StateMachineManager:
         
         self._machines.append((machine, interval, mode,))
 
-    def get_machines(self):
+    def get_machines(self)->list:
         r"""
         Gets state machines
 
@@ -58,7 +58,7 @@ class StateMachineManager:
         
         return result
 
-    def get_machine(self, name):
+    def get_machine(self, name:str)->PyHadesStateMachine:
         r"""
         Gets state machine by its name
 
@@ -83,7 +83,7 @@ class StateMachineManager:
 
                 return _machine
 
-    def summary(self):
+    def summary(self)->dict:
         r"""
         Get a summary of the state machine defined
 
@@ -100,7 +100,7 @@ class StateMachineManager:
 
         return result
 
-    def exist_machines(self):
+    def exist_machines(self)->bool:
         r"""
         Checks if exist state machines defined
 
