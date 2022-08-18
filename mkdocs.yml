@@ -23,6 +23,8 @@ nav:
       - PyHadesContext: 'api_context.md'
       - PyHadesStateMachine: 'api_state_machine.md'
       - StateMachineManager: 'api_state_machine_manager.md'
+      - AlarmManager: 'api_alarm_manager.md'
+      - DBManager: 'api_db_manager.md'
       - Models: 'api_models.md'
       - CVT: 'api_cvt.md'
       - Database: 'api_db.md'

@@ -120,7 +120,6 @@ class AlarmManager:
 
         return
         
-
     def get_alarms_by_tag(self, tag:str):
         r"""
         Gets all alarms associated to some tag
