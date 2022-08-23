@@ -21,13 +21,13 @@ class AlarmManager:
         self._alarms = dict()
         self._tag_queue = queue.Queue()
 
-    def get_queue(self):
+    def get_queue(self)->queue.Queue:
         r"""
         Documentation here
         """
         return self._tag_queue
     
-    def append_alarm(self, alarm):
+    def append_alarm(self, alarm:Alarm):
         r"""
         Append alarm to the Alarm Manager
 
@@ -35,13 +35,28 @@ class AlarmManager:
 
         * **alarm**: (Alarm Object)
 
-        **Returns** `None`
+        **Returns**
+
+        * **None**
         """
         self._alarms[f'{alarm._id}'] = alarm
 
-    def update_alarm(self, id, **kwargs):
+    def update_alarm(self, id:int, **kwargs)->dict:
         r"""
-        Documentation here
+        Updates alarm attributes
+
+        **Parameters**
+
+        * **id** (int).
+        * **name** (str)[Optional]:
+        * **tag** (str)[Optional]:
+        * **description** (str)[Optional]:
+        * **alarm_type** (str)[Optional]:
+        * **trigger** (float)[Optional]:
+
+        **Returns**
+
+        * **alarm** (dict) Alarm Object jsonable
         """
         alarm = self._alarms[str(id)]
         alarm = alarm.update_alarm_definition(**kwargs)
@@ -50,7 +65,11 @@ class AlarmManager:
 
     def delete_alarm(self, id:int):
         r"""
-        Documentation here
+        Removes alarm
+
+        **Paramters**
+
+        * **id** (int): Alarm ID
         """
         alarm = AlarmsDB.read(id)
         
@@ -61,7 +80,7 @@ class AlarmManager:
 
     def load_alarms_from_db(self):
         r"""
-        Documentation here
+        Load alarms into alarm manager from database
         """
         manager_alarms = [alarm.name for id, alarm in self.get_alarms().items()]
         db_alarms = AlarmsDB.read_all()
@@ -80,13 +99,13 @@ class AlarmManager:
                     
                 self.append_alarm(alarm)
 
-    def get_alarm(self, id:int):
+    def get_alarm(self, id:int)->Alarm:
         r"""
         Gets alarm from the Alarm Manager by id
 
         **Paramters**
 
-        * **name**: (str) Alarm name
+        * **id**: (int) Alarm ID
 
         **Returns**
 
@@ -96,10 +115,8 @@ class AlarmManager:
         if str(id) in self._alarms.keys():
 
             return self._alarms[str(id)]
-
-        return
     
-    def get_alarm_by_name(self, name:str):
+    def get_alarm_by_name(self, name:str)->Alarm:
         r"""
         Gets alarm from the Alarm Manager by name
 
@@ -111,26 +128,23 @@ class AlarmManager:
 
         * **alarm** (Alarm Object)
         """
-        
         for id, alarm in self._alarms.items():
 
             if name == alarm.name:
 
                 return self._alarms[str(id)]
-
-        return
         
-    def get_alarms_by_tag(self, tag:str):
+    def get_alarms_by_tag(self, tag:str)->dict:
         r"""
         Gets all alarms associated to some tag
 
         **Parameters**
 
-        * **tag**: (str) tag name defined in cvt associated to the alarm
+        * **tag**: (str) tag name binded to alarm
 
         **Returns**
 
-        * **alarm** (list) of alarm objects
+        * **alarm** (dict) of alarm objects
         """
         alarms = dict()
         for id, alarm in self._alarms.items():
@@ -141,13 +155,13 @@ class AlarmManager:
 
         return alarms
 
-    def get_alarm_by_tag(self, tag:str):
+    def get_alarm_by_tag(self, tag:str)->dict:
         r"""
         Gets alarm associated to some tag
 
         **Parameters**
 
-        * **tag**: (str) tag name defined in cvt associated to the alarm
+        * **tag**: (str) tag name binded to alarm
 
         **Returns**
 
@@ -161,17 +175,17 @@ class AlarmManager:
                     id: alarm
                 }
 
-    def get_alarms(self):
+    def get_alarms(self)->dict:
         r"""
-        Gets all alarms defined in the Alarm Manager
+        Gets all alarms
 
         **Returns**
 
-        * **alarms**: (list) Alarm objects
+        * **alarms**: (dict) Alarm objects
         """
         return self._alarms
 
-    def get_tag_alarms(self):
+    def get_tag_alarms(self)->list:
         r"""
         Gets all tag alarms defined
 
@@ -183,9 +197,9 @@ class AlarmManager:
 
         return result
 
-    def tags(self):
+    def tags(self)->list:
         r"""
-        Gets all tags variables subscribed into alarms
+        Gets all tags variables binded into alarms
 
         **Returns**
 
@@ -195,7 +209,7 @@ class AlarmManager:
 
         return list(result)
 
-    def summary(self):
+    def summary(self)->dict:
         r"""
         Summarizes all Alarm Manager
 
