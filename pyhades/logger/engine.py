@@ -62,21 +62,19 @@ class DataLoggerEngine(Singleton):
         """
         self._logger.create_tables(tables)
 
-    def drop_tables(self, tables):
+    def drop_tables(self, tables:list):
         r"""
         Drop tables if exist in database
 
         **Parameters**
 
         * **tables** (list): List of database model you want yo drop
-        * **cascade** (bool): If there are tables dependencies you must define true
         """
         self._logger.drop_tables(tables)
 
     def set_tag(
         self, 
         tag, 
-        # period, 
         unit:str, 
         data_type:str, 
         description:str, 
@@ -95,8 +93,7 @@ class DataLoggerEngine(Singleton):
         **Returns** `None`
         """
         self._logger.set_tag(
-            tag=tag,  
-            # period=period,
+            tag=tag,
             unit=unit,
             data_type=data_type,
             description=description,

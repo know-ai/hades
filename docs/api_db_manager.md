@@ -2,8 +2,8 @@
     :docstring:
     :members: set_db
     :members: get_db
-    :mebers: set_dropped
-    :memebrs: get_dropped
+    :members: set_dropped
+    :members: get_dropped
     :members: register_table
     :members: create_tables
     :members: drop_tables
@@ -14,7 +14,7 @@
     :members: set_tags
     :members: get_table
     :members: set_period
-    :memebrs: get_period
+    :members: get_period
     :members: set_delay
     :members: get_delay
     :members: init_database
