@@ -90,11 +90,11 @@ So, **this problem is solved with PyHades with its read/write methods in a safe-
 
 Let's take a look at what happened in closer detail. If we look at the following table, we'll see the ideal flow of execution for both Process A and Process B:
 
-![safe-thread mechanism](img/safe-thread-mechanism.png)
+![safe-thread mechanism](docs/img/safe-thread-mechanism.png)
 
 However, due to the fact we haven't implemented proper synchronization mechanisms to protect our account balance, Process A and Process B actually followed the following execution path and gave us an erroneous result:
 
-![unsafe-thread mechanism](img/unsafe-thread-mechanism.png)
+![unsafe-thread mechanism](docs/img/unsafe-thread-mechanism.png)
 
 ## Installation
 You can install PyHades from PyPi

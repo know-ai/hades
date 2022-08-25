@@ -7,6 +7,7 @@
     :members: description
     :members: value
     :members: tag_alarm
+    :members: update_alarm_definition
     :members: state
     :members: enabled
     :members: update
