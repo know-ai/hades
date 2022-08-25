@@ -21,6 +21,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license="GNU AFFERO GENERAL PUBLIC LICENSE",
     url="https://github.com/know-ai/hades",
+    package_data={'src': ['*.json']},
     include_package_data=True,
     packages=setuptools.find_packages(),
     install_requires=_requirements,

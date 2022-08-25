@@ -63,9 +63,13 @@ class Alarm:
         
             self._id = alarm.id
 
+        from ..core import PyHades
+
+        self.app = PyHades()
+
     def __default_operations(self):
         r"""
-        Documentation here
+        Sets default operations from alarms
         """
         self._operations = {
             'acknowledge': 'not active',
@@ -82,13 +86,22 @@ class Alarm:
 
     def get_operations(self):
         r"""
-        Documentation here
+        Get alarms operations
         """
         return self._operations
 
     def update_alarm_definition(self, **kwargs):
         r"""
-        Documentation here
+        Update alarm configuration
+
+        **Parameters**
+        
+        * **name** (str): Alarm name
+        * **tag** (str): Tag binded to alarm
+        * **description** (str): Alarm description
+        * **type** (str): Alarm type ['HIGH-HIGH', 'HIGH', 'LOW', 'LOW-LOW', 'BOOL']
+        * **trigger_value** (float): Alarm trigger value
+
         """
 
         if 'type' in kwargs.keys():
@@ -246,6 +259,12 @@ class Alarm:
         self._operations['shelve'] = 'not active'
         self._operations['suppress by design'] = 'not active'
         self._operations['out of service'] = 'not active'
+        
+        sio = self.app.get_socketio()
+
+        if sio is not None:
+            
+            sio.emit("Alarm Triggered", self.serialize())
 
     @property
     def enabled(self):

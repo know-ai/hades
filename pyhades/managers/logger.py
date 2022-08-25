@@ -279,7 +279,7 @@ class DBManager:
         r"""
         Get database manager summary
 
-        **Return**
+        **Returns**
 
         * **summary** (dict): Database summary
         """

@@ -15,7 +15,8 @@ from ..dbmodels import (
     DataTypes)
 
 from ..alarms.trigger import TriggerType
-import json
+import json, os
+from ..src import get_directory
 from ..alarms.states import AlarmState
 
 
@@ -87,7 +88,8 @@ class DataLogger:
         r"""
         Documentation here
         """
-        f = open("pyhades/tags/variables.json")
+        filename = os.path.join(get_directory('src'), 'variables.json')
+        f = open(filename)
         variables = json.load(f)
 
         for variable, units in variables.items():

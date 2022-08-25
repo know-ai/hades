@@ -1,5 +1,6 @@
 from ..dbmodels import Units
-import json
+import json, os
+from ..src import get_directory
 from ..utils import log_detailed
 from .._singleton import Singleton
 
@@ -126,7 +127,8 @@ class Converter(Singleton):
 
     def __init__(self):
         # Default Units
-        f = open('pyhades/tags/units.json')
+        filename = os.path.join(get_directory('src'), 'units.json')
+        f = open(filename)
         units = json.load(f)
         for unit, factors in units.items():
 

@@ -85,7 +85,7 @@ class AlarmManager:
         manager_alarms = [alarm.name for id, alarm in self.get_alarms().items()]
         db_alarms = AlarmsDB.read_all()
 
-        for db_alarm in db_alarms['data']:
+        for db_alarm in db_alarms:
 
             if db_alarm['name'] not in manager_alarms:
                 

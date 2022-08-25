@@ -165,11 +165,11 @@ class CVT:
         r"""
         Documentation here
         """
-        for tag_name, tag in self._tags.items():
+        for tag_id, tag in self._tags.items():
 
             if tag.get_node_namespace()==node_namespace:
-
-                return tag_name
+                
+                return tag.name
 
         return None
 
@@ -553,7 +553,7 @@ class CVTEngine(Singleton):
         db_tags = Tags.read_all()
         cvt_tags = self.get_tags()
 
-        for db_tag in db_tags['data']:
+        for db_tag in db_tags:
 
             if db_tag not in list(cvt_tags.keys()):
                 

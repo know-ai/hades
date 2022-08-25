@@ -76,25 +76,11 @@ class BaseModel(Model):
         
         try:
             data = [query.serialize() for query in cls.select()]
-            # message = f"You have got all records successfully"
 
-            # result.update(
-            #     {
-            #         'message': message, 
-            #         'data': data
-            #     }
-            # )
             return data
 
         except Exception as _err:
 
-            # message = f"{_err}"
-            # result.update(
-            #     {
-            #         'message': message, 
-            #         'data': data
-            #     }
-            # )
             return data
 
     @classmethod

@@ -1,5 +1,5 @@
 # PyHades
-A python library to develop continuous tasks using sync or async concurrent threads
+A python library to develop continuous tasks using sync or async concurrent threads, but not only that, the design intent for PyHades is create Automation Industrial Process Applications (AIPA); that's why, PyHades provides to you a Database model according to AIPA, currently, PyHades counts with Historian DataLogger and Alarm Management System (ISA 18.2).
 
 ## Description
 PyHades was born with the intention of solving synchronized or asynchronous concurrent tasks in an easy and declarative way.

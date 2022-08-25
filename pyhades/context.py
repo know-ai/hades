@@ -1,6 +1,4 @@
 from .core import PyHades
-import logging
-import sys
 
 class PyHadesContext(object):
     r"""
