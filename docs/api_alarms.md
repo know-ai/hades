@@ -22,14 +22,3 @@
     :members: return_to_service
     :members: serialize
     :members: trigger_alarm
-
-::: pyhades.managers.AlarmManager
-    :docstring:
-    :members: append_alarm
-    :members: get_alarm
-    :members: get_alarms_by_tag
-    :members: get_alarms
-    :members: get_tag_alarms
-    :members: tags
-    :members: summary
-    :members: execute
