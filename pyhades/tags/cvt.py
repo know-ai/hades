@@ -258,15 +258,14 @@ class CVT:
         tag = Tags.read_by_name(name)
         return self._tags[str(tag.id)].get_data_type()
 
-    def get_attributes(self, id):
+    def get_attributes(self, id:int):
         """Returns a tag type defined by name.
         
         # Parameters
         name (str):
             Tag name.
         """
-
-        return self._tags[id].get_attributes()
+        return self._tags[f"{id}"].get_attributes()
 
     def get_unit(self, name):
 
@@ -1277,25 +1276,25 @@ class CVTEngine(Singleton):
 
         return result
 
-    def serialize_tag(self, name:str)->dict:
+    def serialize_tag(self, id:int)->dict:
         r"""
         Serialize a Tag Object in a jsonable object.
 
         **Parameters**
 
-        * **name** (str) Tag name to serialize Tag Object
+        * **id** (id) Tag name to serialize Tag Object
 
         **Returns**
 
         * **tag** (dict): Tag attributes in a jsonable object
         """
-        attrs = self.read_attributes(name)
+        attrs = self.read_attributes(id)
 
         try:
             result = attrs
         except:
             result = {
-                'tag_name': name
+                'tag_name': id
             }
 
         return result
