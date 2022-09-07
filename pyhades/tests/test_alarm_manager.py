@@ -173,20 +173,6 @@ class TestAlarmManager(unittest.TestCase):
 
         summary = alarm_manager.summary()
 
-        # with self.subTest("Testing length in summary"):
-
-        #     self.assertEqual(summary['length'], 5)
-
-        # for count, alarm_name in enumerate(self._alarms):
-
-        #     with self.subTest(f"Testing alarm names in alarm summary"):
-        #         # print(f"self.__alarms: {self._alarms}")
-        #         self.assertEqual(alarm_name, self._alarms[str(count+1)].name)
-
-        # with self.subTest("Testing alarm tags in summary"):
-
-        #     self.assertListEqual(summary['alarm_tags'], self._tag_alarms)
-
         tags = ['PT-100', 'C-100']
 
         for tag in summary['tags']:

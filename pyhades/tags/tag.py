@@ -146,9 +146,16 @@ class Tag:
         r"""
         Documentation here
         """
+
         for key, value in kwargs.items():
 
-            setattr(self, key, value)
+            if key in ['max_value', 'min_value']:
+
+                setattr(self.value, key, value)
+            
+            else:
+
+                setattr(self, key, value)
 
     def add_custom_conversions(self, custom_conversions_path:str):
         r"""

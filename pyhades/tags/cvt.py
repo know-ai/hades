@@ -150,9 +150,7 @@ class CVT:
         tag = self._tags[id]
         Tags.put(id, **kwargs)
         tag.update(**kwargs)
-
         self._tags[id] = tag
-
         return Tags.read(id)
 
     def get_tags(self):
@@ -934,7 +932,6 @@ class CVTEngine(Singleton):
         * **name** (str): Tag name.
         * **observer** (str): TagObserver instance.
         """
-        print(f"name: {name} - Observer: {observer}")
         _query = dict()
         _query["action"] = "attach"
 
