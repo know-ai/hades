@@ -328,18 +328,19 @@ class Alarm:
 
             return
 
-        self._silence = True
+        self.state.audible = False
         self._operations['silence'] = 'not active'
 
     def sound(self):
         r"""
-        Documentation here for sound alamr
+        Documentation here for sound alarm
         """
         if not self._enabled:
 
             return
         
-        self._silence = False
+        self.state.audible = True
+        self._operations['silence'] = 'active'
         
     def reset(self):
         r"""

@@ -476,10 +476,13 @@ class AlarmLogging(BaseModel):
         Documentation here
         """
         result = list()
-        alarms = cls.select()
-        for alarm in alarms:
-
+        count = 0
+        for alarm in cls.select().order_by(cls.id.desc()):
+            count += 1
             result.append(alarm.serialize())
+            if count >= int(lasts):
+
+                break
     
         return result
 
