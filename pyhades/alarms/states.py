@@ -109,6 +109,18 @@ class AlarmAttrs:
         """
         return self.__audible
 
+    def silence(self):
+        r"""
+        Documentation here
+        """
+        self.__audible = False
+
+    def return_to_audible(self):
+        r"""
+        Documentation here
+        """
+        self.__audible = True
+
     @property
     def color(self):
         r"""

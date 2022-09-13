@@ -328,7 +328,7 @@ class Alarm:
 
             return
 
-        self.state.audible = False
+        self.state.silence()
         self._operations['silence'] = 'not active'
 
     def sound(self):
@@ -341,7 +341,7 @@ class Alarm:
 
         if self.state.is_triggered:
         
-            self.state.audible = True
+            self.state.return_to_audible()
             self._operations['silence'] = 'active'
         
     def reset(self):
