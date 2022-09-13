@@ -338,9 +338,11 @@ class Alarm:
         if not self._enabled:
 
             return
+
+        if self.state.is_triggered:
         
-        self.state.audible = True
-        self._operations['silence'] = 'active'
+            self.state.audible = True
+            self._operations['silence'] = 'active'
         
     def reset(self):
         r"""
