@@ -504,23 +504,72 @@ class AlarmLogging(BaseModel):
 
 class AlarmSummary(BaseModel):
     
-    name = ForeignKeyField(AlarmsDB, backref='summary', on_delete='CASCADE')
+    alarm = ForeignKeyField(AlarmsDB, backref='summary', on_delete='CASCADE')
     state = ForeignKeyField(AlarmStates, backref='summary', on_delete='CASCADE')
+    alarm_time = DateTimeField(default=datetime.now())
     ack_time = DateTimeField(null=True)
-    classification = CharField()
+    out_of_service_time = DateTimeField(null=True)
+    return_to_service_time = DateTimeField(null=True)
 
     @classmethod
-    def create(cls, name:str, state:str, classification:float):
+    def create(cls, name:str, state:str):
+        _alarm = AlarmsDB.read_by_name(name=name)
+        _state = AlarmStates.read_by_name(name=state)
 
-        pass
+        if _alarm:
+
+            if _state:
+            
+                query = cls(alarm=_alarm.id, state=_state.id)
+                query.save()
+                
+                return query
 
     @classmethod
-    def read(cls, lasts:int=1):
+    def read_by_name(cls, name:str)->bool:
+        r"""
+        Get instance by its a name
 
-        pass
+        **Parameters**
+
+        * **name:** (str) Alarm type name
+
+        **Returns**
+
+        * **bool:** If True, name exist into database 
+        """
+        alarm = AlarmsDB.read_by_name(name=name)
+        return cls.get_or_none(alarm=alarm)
 
     def serialize(self):
         r"""
         Documentation here
         """
-        pass
+        ack_time = None
+        if self.ack_time:
+
+            ack_time = self.ack_time.strftime(DATETIME_FORMAT)
+
+        out_of_service_time = None
+        if self.out_of_service_time:
+
+            out_of_service_time = self.out_of_service_time.strftime(DATETIME_FORMAT)
+
+        return_to_service_time = None
+        if self.return_to_service_time:
+
+            return_to_service_time = self.return_To_service_time.strftime(DATETIME_FORMAT)
+
+        return {
+            'id': self.id,
+            'name': self.alarm.name,
+            'state': self.state.name,
+            'mnemonic': self.state.mnemonic,
+            'status': self.state.status,
+            'condition': self.state.condition,
+            'description': self.alarm.description,
+            'alarm_time': self.alarm_time.strftime(DATETIME_FORMAT),
+            'ack_time': ack_time,
+            'out_of_service_time': out_of_service_time,
+            'return_to_service_time': return_to_service_time
+        }

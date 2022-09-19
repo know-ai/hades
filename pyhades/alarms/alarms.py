@@ -4,8 +4,12 @@
 This module implements all Alarms class definitions and Alarm Handlers.
 """
 from datetime import datetime, timedelta
+
+from pyhades.dbmodels.alarms import AlarmStates
+from .states import AlarmState
 from ..tags import CVTEngine
 from ..dbmodels import AlarmLogging as AlarmModel
+from ..dbmodels import AlarmSummary
 from ..logger import DataLoggerEngine
 from .states import AlarmState, Status
 from .trigger import Trigger, TriggerType
@@ -244,6 +248,38 @@ class Alarm:
             priority=self._priority,
             value=self._value
         )
+
+        
+        if self._state.state==AlarmState.UNACK.state:
+
+            AlarmSummary.create(
+                name=self.name,
+                state=self._state.state
+            )
+
+        elif self._state.state==AlarmState.ACKED.state:
+            
+            _alarm = AlarmSummary.read_by_name(self.name)
+
+            if _alarm:
+                
+                _state = AlarmStates.read_by_name(name=self._state.state)
+                AlarmSummary.put(
+                    id=_alarm.id,
+                    state=_state.id,
+                    ack_time=datetime.now()
+                )
+
+        elif self._state.state==AlarmState.RTNUN:
+
+            _alarm = AlarmSummary.read_by_name(self.name)
+
+            if _alarm:
+                _state = AlarmStates.read_by_name(name=self._state.state)
+                AlarmSummary.put(
+                    id=_alarm.id,
+                    state=_state.id
+                )
 
     def trigger_alarm(self):
         r"""
