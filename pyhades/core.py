@@ -54,6 +54,7 @@ class PyHades(Singleton):
 
         self._start_up_datetime = None
         self._status = STARTED
+        self._create_tables = True
         self._logging_level = logging.INFO
         self._max_threads = 10
         self._log_file = "app.log"
@@ -936,16 +937,19 @@ class PyHades(Singleton):
         * AlarmWorker
         * StateMachineWorker
         """
-        db_worker = LoggerWorker(self._db_manager)
-        db_worker.init_database()
-        self.workers.append(db_worker)
+        print(f"Create tables?: {self._create_tables}")
+        if self._create_tables:
 
-        # AlarmWorker
-        alarm_manager = self.get_alarm_manager()
-        if len(alarm_manager.get_alarms())>0:
+            db_worker = LoggerWorker(self._db_manager)
+            db_worker.init_database()
+            self.workers.append(db_worker)
 
-            alarm_worker = AlarmWorker(alarm_manager)
-            self.workers.append(alarm_worker)
+            # AlarmWorker
+            alarm_manager = self.get_alarm_manager()
+            if len(alarm_manager.get_alarms())>0:
+
+                alarm_worker = AlarmWorker(alarm_manager)
+                self.workers.append(alarm_worker)
 
         # StateMachine Worker
         state_manager = self.get_state_machine_manager()
@@ -957,6 +961,7 @@ class PyHades(Singleton):
         try:
 
             for worker in self.workers:
+                print(f"Worker: {worker}")
                 worker.daemon = True
                 worker.start()
 
@@ -975,10 +980,11 @@ class PyHades(Singleton):
                 message = "Error on wokers stop"
                 log_detailed(e, message)
 
-    def safe_start(self):
+    def safe_start(self, create_tables:bool=True):
         r"""
         Run the app without a main thread, only run the app with the threads and state machines define
         """
+        self._create_tables = create_tables
         _start_up_datetime = datetime.now()
         self._set_start_up_datetime(_start_up_datetime)
         self._start_logger()
@@ -999,7 +1005,7 @@ class PyHades(Singleton):
         self._status = STOPPED
         sys.exit()
 
-    def run(self):
+    def run(self, create_tables:bool=True):
         r"""
         Runs main app thread and all defined threads by decorators and State Machines besides this method starts app logger
 
@@ -1011,6 +1017,7 @@ class PyHades(Singleton):
         >>> app.run()
         ```
         """
+        self._create_tables = create_tables
         self.safe_start()
 
         try:

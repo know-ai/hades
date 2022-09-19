@@ -28,13 +28,15 @@ class PyHadesContext(object):
     ```
     """
 
-    def __init__(self, app):
+    def __init__(self, app:PyHades, create_tables:bool=True):
 
         if isinstance(app, PyHades):
+            print(f"Create Tables: {create_tables}")
             self.app = app
+            self._create_tables = create_tables
 
     def __enter__(self):
-        self.app.safe_start()
+        self.app.safe_start(create_tables=self._create_tables)
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
