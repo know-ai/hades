@@ -31,7 +31,7 @@ class PyHadesContext(object):
     def __init__(self, app:PyHades, create_tables:bool=True):
 
         if isinstance(app, PyHades):
-            print(f"Create Tables: {create_tables}")
+            
             self.app = app
             self._create_tables = create_tables
 

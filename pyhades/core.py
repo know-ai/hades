@@ -937,7 +937,7 @@ class PyHades(Singleton):
         * AlarmWorker
         * StateMachineWorker
         """
-        print(f"Create tables?: {self._create_tables}")
+        
         if self._create_tables:
 
             db_worker = LoggerWorker(self._db_manager)
@@ -961,7 +961,7 @@ class PyHades(Singleton):
         try:
 
             for worker in self.workers:
-                print(f"Worker: {worker}")
+                
                 worker.daemon = True
                 worker.start()
 
