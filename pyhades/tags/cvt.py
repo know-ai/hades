@@ -293,6 +293,13 @@ class CVT:
         """
         return self._tags[f"{id}"].get_attributes()
 
+    def get_attributes_by_tag_name(self, name:str):
+        r"""
+        Documentation here
+        """
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_attributes()
+
     def get_unit(self, name):
 
         """Returns the units defined by name.
@@ -1175,7 +1182,7 @@ class CVTEngine(Singleton):
         if result["result"]:
             return result["response"]
 
-    def read_attributes(self, name:str)->dict:
+    def read_attributes(self, id:str)->dict:
         """
         Returns all tag's attributes, in thread-safe mechanism.
         
@@ -1215,6 +1222,54 @@ class CVTEngine(Singleton):
         _query["action"] = "get_attributes"
 
         _query["parameters"] = dict()
+        _query["parameters"]["name"] = id
+
+        self.request(_query)
+        result = self.response()
+
+        if result["result"]:
+            return result["response"]
+
+    def read_attributes_by_tag_name(self, name:str)->dict:
+        """
+        Returns all tag's attributes, in thread-safe mechanism.
+        
+        **Parameters:**
+        
+        * **name** (str): Tag name.
+
+        **Returns**
+
+        * **attrs** (dict) Tag's attributes
+
+        ```python
+        >>> tag_engine.read_attributes('TAG1')
+        {
+            "value":{
+                    "status_code":{
+                    "name": 'GOOD',
+                    "value": '0x000000000',
+                    "description":  'Operation succeeded'
+                },
+                "source_timestamp": '03/25/2022, 14:39:29.189422',
+                "value": 50.53,
+            },
+            'name': 'TAG1', 
+            'unit': 'ºC', 
+            'data_type': 'float', 
+            'description': 'Inlet temperature', 
+            'min_value': 0.0, 
+            'max_value': 100.0,
+            'tcp_source_address': '',
+            'node_namespace': ''
+        }
+        ```
+        """
+
+        _query = dict()
+        _query["action"] = "get_attributes_by_name"
+
+        _query["parameters"] = dict()
         _query["parameters"]["name"] = name
 
         self.request(_query)
@@ -1222,6 +1277,7 @@ class CVTEngine(Singleton):
 
         if result["result"]:
             return result["response"]
+
 
     def request(self, query:dict):
         r"""
@@ -1305,6 +1361,9 @@ class CVTEngine(Singleton):
 
             elif action == "get_attributes":
                 resp = self._cvt.get_attributes(name)
+
+            elif action == "get_attributes_by_name":
+                resp = self._cvt.get_attributes_by_tag_name(name)
 
             elif action == "set_value":
                 value = parameters["value"]
