@@ -67,6 +67,7 @@ class MachineScheduler():
 
     def sleep_elapsed(self, machine):
         elapsed = time.time() - self.last
+        
         try:
             time.sleep(machine.get_interval() - elapsed)
         except ValueError:
@@ -75,6 +76,7 @@ class MachineScheduler():
 
         self.set_last()
 
+        
 class SchedThread(Thread):
 
     def __init__(self, machine, interval):

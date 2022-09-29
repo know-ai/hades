@@ -39,14 +39,6 @@ class MicroLoggerWorker(BaseWorker):
 
         self.set_last()
 
-    def write_tags(self):
-        
-        # for _tag in self.tags:
-            
-        #     value = self.tag_engine.read_tag(_tag)
-        #     self._logger.write_tag(_tag, value)
-        pass
-
     def run(self):
 
         time.sleep(self._period)
