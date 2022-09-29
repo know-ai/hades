@@ -47,7 +47,6 @@ class MicroLoggerWorker(BaseWorker):
 
         while True:
 
-            self.write_tags()
             self.sleep_elapsed()
 
             if self.stop_event.is_set():
