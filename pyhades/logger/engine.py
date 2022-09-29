@@ -124,6 +124,26 @@ class DataLoggerEngine(Singleton):
 
         return result
 
+    def write_tags(self, tags:list):
+        r"""
+        Writes value to tag into database on a thread-safe mechanism
+
+        **Parameters**
+
+        * **tag** (str): Tag name in database
+        * **value** (float): Value to write in tag
+        """
+        _query = dict()
+        _query["action"] = "write_tags"
+
+        _query["parameters"] = dict()
+        _query["parameters"]["tags"] = tags
+
+        self.request(_query)
+        result = self.response()
+
+        return result
+
     def read_tag(self, tag):
         r"""
         Read tag value from database on a thread-safe mechanism
@@ -166,6 +186,23 @@ class DataLoggerEngine(Singleton):
                 value = parameters["value"]
 
                 self._logger.write_tag(tag, value)
+
+                self._response = {
+                    "result": True
+                }
+            except Exception as e:
+                self._response = {
+                    "result": False
+                }
+
+        elif action == "write_tags":
+
+            try:
+                parameters = _query["parameters"]
+
+                tags = parameters["tags"]
+
+                self._logger.write_tags(tags)
 
                 self._response = {
                     "result": True

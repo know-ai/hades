@@ -161,6 +161,11 @@ class DataLogger:
         tag_value = TagValue.create(tag=trend, value=value)
         tag_value.save()
 
+    def write_tags(self, tags:list):
+
+        TagValue.insert_many(tags).execute()
+        # tag_value.save()
+
     def read_tag(self, tag):
         
         query = Tags.select().order_by(Tags.start)

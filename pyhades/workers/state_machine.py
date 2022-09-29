@@ -5,7 +5,6 @@ This module implements State Machine Worker.
 """
 import heapq
 import logging
-from statistics import mode
 import time
 
 from ..utils import log_detailed
@@ -23,6 +22,7 @@ class MachineScheduler():
         self._ready = deque()
         self._sleeping = list()
         self._sequence = 0
+        self.last = None
         self._stop = False
 
     def call_soon(self, func):
@@ -40,24 +40,40 @@ class MachineScheduler():
         self._stop = True
     
     def run(self):
+
+        self.set_last()
+
         while self._ready or self._sleeping:
 
             if self._stop:
                 break
 
             if not self._ready:
-                deadline, _, func, machine = heapq.heappop(self._sleeping)
-                delta = deadline - time.time()
-                if delta > 0:
-                    time.sleep(delta)
-                else:
-                    logging.warning(f"State Machine: {machine.name} not executed on time...")  
+                _, _, func, machine = heapq.heappop(self._sleeping)
+
+                self.sleep_elapsed(machine)
+                
                 self._ready.append(func)
 
             while self._ready:
                 func = self._ready.popleft()
                 func()
 
+    def set_last(self):
+
+        self.last = time.time()
+
+        return self.last
+
+    def sleep_elapsed(self, machine):
+        elapsed = time.time() - self.last
+        try:
+            time.sleep(machine.get_interval() - elapsed)
+        except ValueError:
+
+            logging.warning(f"State Machine: {machine.name} not executed on time...")
+
+        self.set_last()
 
 class SchedThread(Thread):
 

@@ -171,6 +171,18 @@ class CVT:
 
         return None
 
+    def get_tag_id_by_node_namespace(self, node_namespace):
+        r"""
+        Documentation here
+        """
+        for tag_id, tag in self._tags.items():
+
+            if tag.get_node_namespace()==node_namespace:
+                
+                return tag_id
+
+        return None
+
     def get_node_namespace_by_tag_name(self, name):
         r"""
         Documentation here
@@ -215,6 +227,22 @@ class CVT:
             self._tags[str(tag.id)].set_value(value)
     
         self.logger.write_tag(tag_name, value)
+
+    def set_values(self, tags:list):
+        """Sets a new value for a defined tag.
+        
+        # Parameters
+        name (str):
+            Tag name.
+        value (float, int, bool): 
+            Tag value ("int", "float", "bool")
+        """
+
+        for tag in tags:
+
+            self._tags[str(tag['tag'])].set_value(tag['value'])
+    
+        self.logger.write_tags(tags)
 
     def get_value(self, name, unit:str=None):
         """Returns a tag value defined by name.
@@ -647,6 +675,20 @@ class CVTEngine(Singleton):
         """
         return self._cvt.get_tag_by_node_namespace(node_namespace)
 
+    def get_tag_id_by_node_namespace(self, node_namespace:str)->str:
+        r"""
+        Gets tag's ID binded to a tcp node namespace
+
+        **Parameters**
+
+        * **node_namespace** (str): TCP node namespace
+
+        **Returns**
+
+        * **tag_id** (str): Tag's ID binded to a tcp node namespace
+        """
+        return self._cvt.get_tag_id_by_node_namespace(node_namespace)
+
     def get_node_namespace_by_tag_name(self, name:str)->str:
         r"""
         Gets tcp node namespace binded to a tag name
@@ -885,6 +927,43 @@ class CVTEngine(Singleton):
         _query["parameters"] = dict()
         _query["parameters"]["name"] = name
         _query["parameters"]["value"] = value
+
+        self.request(_query)
+        result = self.response()
+
+        return result
+
+    def write_tags(self, tags:list)->dict:
+        """
+        Writes a new values for defined tags, in thread-safe mechanism.
+        
+        **Parameters:**
+
+        * **tags** (list): [
+            {
+                'tag_1': tag_1_id,
+                'value': tag_1_value
+            },
+            {
+                'tag_2': tag_2_id,
+                'value': tag_2_value
+            },
+        ]
+
+        **Returns**
+
+        * **msg** (dict): Message for write request
+
+        ```python
+        >>> tag_engine.write_tag('TAG1', 50.53)
+        ```
+        """
+
+        _query = dict()
+        _query["action"] = "set_values"
+
+        _query["parameters"] = dict()
+        _query["parameters"]["tags"] = tags
 
         self.request(_query)
         result = self.response()
@@ -1189,7 +1268,10 @@ class CVTEngine(Singleton):
         """
         self._request_lock.acquire()
         parameters = query["parameters"]
-        name = parameters["name"]
+        if 'name' in parameters.keys():
+            name = parameters["name"]
+        if 'tags' in parameters.keys():
+            tags = parameters['tags']
         action = query["action"]
         error_msg = f"Error in CVTEngine with action: {action}"
 
@@ -1227,6 +1309,9 @@ class CVTEngine(Singleton):
             elif action == "set_value":
                 value = parameters["value"]
                 resp = self._cvt.set_value(name, value)
+
+            elif action == "set_values":
+                resp = self._cvt.set_values(tags)
 
             elif action in ("attach", "detach"):
                 observer = parameters["observer"]

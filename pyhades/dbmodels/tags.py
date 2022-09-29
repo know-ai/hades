@@ -482,6 +482,11 @@ class Tags(BaseModel):
         return query
 
     @classmethod
+    def read_by_names(cls, names):
+        query = cls.select().where(cls.name in names)
+        return query
+
+    @classmethod
     def name_exist(cls, name):
         r"""
         Documentation here
