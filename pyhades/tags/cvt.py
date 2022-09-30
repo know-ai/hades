@@ -156,8 +156,12 @@ class CVT:
     def get_tags(self):
         """Returns a list of the defined tags names.
         """
-        
-        return {key: value.get_attributes() for key, value in self._tags.items()}
+        result = list()
+        for _, value in self._tags.items():
+
+            result.append(value.name)
+
+        return result
 
     def get_tag_by_node_namespace(self, node_namespace):
         r"""
