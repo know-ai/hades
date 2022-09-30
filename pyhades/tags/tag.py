@@ -1,5 +1,6 @@
 from .tag_value import TagValue
 from ..utils import Observer
+from ..dbmodels.tags import Tags
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
@@ -99,7 +100,11 @@ class Tag:
 
     def get_attributes(self):
 
+        query = Tags.read_by_name(self.name)
+        tag_id = query.id
+
         return {
+            "id": tag_id,
             "value": self.get_value_attributes(),
             "name": self.name,
             "unit": self.get_unit(),

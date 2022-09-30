@@ -1440,6 +1440,21 @@ class CVTEngine(Singleton):
 
         return result
 
+    def serialize_tag_by_name(self, name:str)->dict:
+        r"""
+        Documentation here
+        """
+        attrs = self.read_attributes_by_tag_name(name)
+
+        try:
+            result = attrs
+        except:
+            result = {
+                'tag_name': name
+            }
+
+        return result
+
     def serialize(self)->list:
         r"""
         Serializes all tag's repository in a jsonable object.
