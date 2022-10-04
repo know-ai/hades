@@ -111,7 +111,7 @@ class CVT:
         _tag = Tags.read_by_name(name)
 
         if _tag:
-
+            
             self._tags[str(_tag.id)] = tag
 
     def set_tags(self, tags):
@@ -159,9 +159,21 @@ class CVT:
         result = list()
         for _, value in self._tags.items():
 
-            result.append(value.name)
+            _value = {
+                'name': value.name,
+                'unit': value.get_unit(),
+                'data_type': value.get_data_type(),
+                'description': value.get_description(),
+                'min_value': value.get_min_value(),
+                'max_value': value.get_max_value(),
+                'tcp_source_address': value.get_tcp_source_address(),
+                'node_namespace': value.get_node_namespace(),
+            }
+            result.append(_value)
 
         return result
+
+
 
     def get_tag_by_node_namespace(self, node_namespace):
         r"""
@@ -591,9 +603,10 @@ class CVTEngine(Singleton):
 
         for db_tag in db_tags:
 
-            if db_tag not in list(cvt_tags.keys()):
+            if db_tag not in cvt_tags:
                 
                 db_tag.pop('id')
+                
                 self.set_tag(**db_tag)
             
     def get_data_type(self, name:str)->str:
@@ -1472,8 +1485,8 @@ class CVTEngine(Singleton):
         tags = self.get_tags()
 
         for _tag in tags:
-
-            record = self.serialize_tag(_tag)
+ 
+            record = self.serialize_tag_by_name(_tag['name'])
 
             result.append(record)
 

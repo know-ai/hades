@@ -66,7 +66,7 @@ class Tag:
                 "value": self.value.get_status_code().value[0],
                 "description":  self.value.get_status_code().value[1]
             },
-            "source_timestamp": self.value.get_source_timestamp().strftime(DATETIME_FORMAT),
+            # "source_timestamp": self.value.get_source_timestamp().strftime(DATETIME_FORMAT),
             "value": self.value.get_value(),
         }
 
