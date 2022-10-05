@@ -1,6 +1,14 @@
-import logging
+import logging, os
+from dotenv import load_dotenv
 from inspect import ismethod
-from .utils import log_detailed
+from .utils import (
+    log_detailed,
+    logging_error_handler,
+    notify_state,
+    system_log_transition,
+    get_headers,
+    parse_config
+    )
 
 from statemachine import StateMachine
 from statemachine import State as _State
@@ -8,6 +16,12 @@ from statemachine import State as _State
 from .tags import CVTEngine, TagBinding, GroupBinding
 from .logger import DataLoggerEngine
 from .models import FloatType, IntegerType, BooleanType, StringType
+import requests
+
+DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
+APP_EVENT_LOG = bool(int(os.environ.get('APP_EVENT_LOG') or "0"))
 
 FLOAT = "float"
 INTEGER = "int"
@@ -514,4 +528,901 @@ class PyHadesStateMachine(StateMachine):
         """
 
         return self.current_state.identifier
+
+
+class LeakStateMachine(PyHadesStateMachine):
+    r"""
+    Documentation here
+    """
+    # States definition
+    starting = State('start', initial=True)
+    waiting = State('wait')
+    running = State('run')
+    leaking = State('leak')
+    restarting = State('restart')
+    resetting = State('reset')
+    sleeping = State('sleep')
+    testing = State('test')
+    stopping = State('stop')
+    con_restart = State('confirm_restart')
+    con_reset = State('confirm_reset')
+
+    # Main transitions
+    start_to_wait = starting.to(waiting)
+    wait_to_run = waiting.to(running)
+    reset_to_confirm_reset = resetting.to(con_reset)
+    restart_to_confirm_restart = restarting.to(con_restart)
+    confirm_restart_to_wait = con_restart.to(waiting)
+    confirm_reset_to_start = con_reset.to(starting)
+
+    # Transitions to Testing
+    run_to_test = running.to(testing)
+    wait_to_test = waiting.to(testing)
+
+    # Transitions to Sleeping
+    run_to_sleep = running.to(sleeping)
+    wait_to_sleep = waiting.to(sleeping)
+
+    # Transitions to Stopping
+    run_to_stop = running.to(stopping)
+    wait_to_stop = waiting.to(stopping)
+    test_to_stop = testing.to(stopping)
+    sleep_to_stop = sleeping.to(stopping)
+
+    # Transitions to Restart
+    run_to_restart = running.to(restarting)
+    wait_to_restart = waiting.to(restarting)
+    test_to_restart = testing.to(restarting)
+    sleep_to_restart = sleeping.to(restarting)
+    stop_to_restart = stopping.to(restarting)
+    leak_to_restart = leaking.to(restarting)
+
+    # Transitions to Reset
+    run_to_reset = running.to(resetting)
+    wait_to_reset = waiting.to(resetting)
+    test_to_reset = testing.to(resetting)
+    sleep_to_reset = sleeping.to(resetting)
+    stop_to_reset = stopping.to(resetting)
+    leak_to_reset = leaking.to(resetting)
+
+    # Transitions to Leak
+    run_to_leak = running.to(leaking)
+
+    priority = IntegerType(default=1)
+    criticity = IntegerType(default=1)
+    states_for_users = ['restart', 'reset', 'test', 'sleep', 'stop', 'confirm_restart', 'confirm_reset']
+
+    def __init__(self, name, **kwargs):
+        """
+        """
+        self.system_tags = dict()
+        self.default_tags = list()
+        self.default_alarms = list()
+        self.sio = None
+        self.ready_to_run = False
+        self.buffer = dict()
+        self.event_name = "machine_event"
+        self.app_mode = 'development'
+        self.time_window = 10
+        self.config_file_location = None
+
+        if 'classification' in kwargs:
+
+            self.classification = StringType(default=kwargs['classification'])
+
+        if 'description' in kwargs:
+
+            self.description = StringType(default=kwargs['description'])
+
+        if 'fontawesome' in kwargs:
+
+            self.fontawesome = StringType(default=kwargs['fontawesome'])
         
+        if 'app_mode' in kwargs:
+
+            self.app_mode = kwargs['app_mode']
+
+        if 'sio' in kwargs:
+
+            self.sio = kwargs['sio']
+
+        if 'config_file_location' in kwargs:
+
+            self.config_file_location = kwargs['config_file_location']
+
+        super().__init__(name)
+
+    def while_starting(self):
+        """
+
+        """
+        self.init_configuration()
+        self.start_to_wait()
+
+    def while_waiting(self):
+        r"""
+        Documentation here
+        """
+        data = self.read_data()
+        self.fill_buffer(data)
+        if self.ready_to_run:
+            self.wait_to_run()
+
+    def while_running(self):
+        r"""
+        Documentation here
+        """
+        data = self.read_data()
+        self.fill_buffer(data)
+        self.criticity = 1
+
+    def while_leaking(self):
+        r"""
+        Documentation here
+        """
+        self.criticity = 3
+
+    def while_sleeping(self):
+        """
+        ## **sleeping** state
+
+        Only set priority and classification to notify in the front end
+        """
+        self.criticity = 4
+        
+    def while_testing(self):
+        """
+        ## **testing** state
+
+        Only set priority and classification to notify in the front end
+        """
+        self.criticity = 3
+        
+    def while_stopping(self):
+        """
+        ## **stopping** state
+
+        Only set priority and classification to notify in the front end
+        """
+        self.criticity = 5
+
+    def while_resetting(self):
+        r"""
+        ## **resetting** state
+
+        Only set priority and classification to notify in the front end
+        """
+
+        self.reset_to_confirm_reset()
+
+    def while_con_reset(self):
+        r"""
+        ## **confirm_reset** state
+
+        Only set priority and classification to notify in the front end
+        """
+        self.criticity = 3
+
+    def while_restarting(self):
+        r"""
+        ## **resetting** state
+
+        Only set priority and classification to notify in the front end
+        """
+
+        self.restart_to_confirm_restart()
+
+    def while_con_restart(self):
+        r"""
+        ## **confirm_restart** state
+
+        Only set priority and classification to notify in the front end
+        """
+        self.criticity = 3
+
+    # Transitions definitions
+    @notify_state
+    @system_log_transition(log=APP_EVENT_LOG)
+    def on_start_to_wait(self):
+        r"""
+        ## **Transition**
+
+        * **from: *start* ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to waiting state, no problems.
+        * **classification:** system (Transition triggered automatically).
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 1
+
+    @notify_state
+    @system_log_transition(log=APP_EVENT_LOG)
+    def on_wait_to_run(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *running* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to running state, no problems.
+        * **classification:** system (Transition triggered automatically).
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 1
+
+    @notify_state
+    @system_log_transition(log=APP_EVENT_LOG)
+    def on_run_to_leak(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *running* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to running state, no problems.
+        * **classification:** system (Transition triggered automatically).
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        data_to_log = {
+            'engine': self.serialize(),
+            'tags': [
+                {
+                    'tag_name': self.engine_name,
+                    'value': 1.0
+                }
+            ]
+        }
+        self.sio.emit('tags_logging', data_to_log)
+        self.criticity = 3
+
+    @notify_state
+    def on_confirm_restart_to_wait(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_restart* ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to waiting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        data_to_log = {
+            'engine': self.serialize(),
+            'tags': [
+                {
+                    'tag_name': self.engine_name,
+                    'value': 0.0
+                }
+            ]
+        }
+        self.sio.emit('tags_logging', data_to_log)
+        self.criticity = 1
+
+    @notify_state
+    def on_confirm_reset_to_start(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *starting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        data_to_log = {
+            'engine': self.serialize(),
+            'tags': [
+                {
+                    'tag_name': self.engine_name,
+                    'value': 0.0
+                }
+            ]
+        }
+        self.sio.emit('tags_logging', data_to_log)
+        self.criticity = 1
+
+    @notify_state
+    def on_restart_to_confirm_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *starting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 3
+
+    @notify_state
+    def on_reset_to_confirm_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *starting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 3
+
+    @notify_state
+    def on_wait_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_run_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_leak_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *leaking* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_leak_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *leaking* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_test_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *testing* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+        
+    @notify_state
+    def on_sleep_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *sleeping* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+        
+    @notify_state
+    def on_stop_to_restart(self):
+        """
+        ## **Transition**
+
+        * **from: *stopping* ** state
+        * **to: *restarting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+        
+    @notify_state
+    def on_wait_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 5 (high priority) machine to resetting state, danger
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 5
+
+    @notify_state
+    def on_run_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 5 (high priority) machine to resetting state, danger
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 5
+
+    @notify_state
+    def on_test_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *testing* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to resetting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+        
+    @notify_state
+    def on_sleep_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *sleeping* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to resetting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+        
+    @notify_state
+    def on_stop_to_reset(self):
+        """
+        ## **Transition**
+
+        * **from: *stopping* ** state
+        * **to: *resetting* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to restarting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_run_to_test(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *testing* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to testing state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_wait_to_test(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *testing* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to testing state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_run_to_sleep(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *sleeping* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to sleeping state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_wait_to_sleep(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *sleeping* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to sleeping state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+
+    @notify_state
+    def on_run_to_stop(self):
+        """
+        ## **Transition**
+
+        * **from: *running* ** state
+        * **to: *sleeping* ** state
+
+        ### **Settings**
+
+        * **priority:** 4 (high-middle priority) machine to sleeping state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 4
+    
+    @notify_state
+    def on_wait_to_stop(self):
+        """
+        ## **Transition**
+
+        * **from: *waiting* ** state
+        * **to: *stopping* ** state
+
+        ### **Settings**
+
+        * **priority:** 5 (high priority) machine to stopping state, danger
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 5
+        
+    @notify_state
+    def on_test_to_stop(self):
+        """
+        ## **Transition**
+
+        * **from: *testing* ** state
+        * **to: *stopping* ** state
+
+        ### **Settings**
+
+        * **priority:** 5 (high priority) machine to stopping state, danger
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 5
+        
+    @notify_state
+    def on_sleep_to_stop(self):
+        """
+        ## **Transition**
+
+        * **from: *sleeping* ** state
+        * **to: *stopping* ** state
+
+        ### **Settings**
+
+        * **priority:** 5 (high priority) machine to stopping state, danger
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity = 5
+
+    # Auxiliary Methods
+    @logging_error_handler
+    def init_configuration(self):
+        r"""
+        Documentation here
+        """
+        for tag_definition in self.default_tags:
+            self.define_tag(**tag_definition)
+        
+        for alarm_definition in self.default_alarms:
+            self.define_alarm(**alarm_definition)
+
+    @logging_error_handler
+    def define_tag(self, **payload):
+        r"""
+        Documentation here
+        """
+        requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
+
+    @logging_error_handler
+    def define_alarm(self, **payload):
+        r"""
+        Documentation here
+        """      
+        requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
+
+    @logging_error_handler
+    def get_allowed_transitions(self):
+        r"""
+        Documentation here
+        """
+        _transitions = self.allowed_transitions
+        transitions = {
+            'reset': False, 
+        }
+        for transition in _transitions:
+
+            t = transition.destinations[0].name
+            current_state = self.current_state.name.lower()
+
+            if current_state=="confirm_restart":
+
+                transitions["confirm restart"] = True
+
+                continue
+
+            if current_state=="confirm_reset":
+
+                transitions["confirm reset"] = True
+
+                continue
+
+            if t in self.states_for_users:
+
+                transitions[t] = True
+
+        return transitions
+
+    @logging_error_handler
+    def transition(
+        self, 
+        to
+        ):
+        r"""
+        Documentation here
+        """
+        _from = self.current_state.name.lower()
+        _transition = getattr(self, '{}_to_{}'.format(_from, to))
+        _transition()
+
+    @logging_error_handler
+    def read_data(self):
+        r"""
+        Documentation here
+        """
+        payload = {
+            'tags': list(self.system_tags.keys())
+        }
+        data = dict()
+        response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
+        if response:
+            tags = response.json()
+            
+            for tag_name, value in tags.items():
+
+                data[tag_name] = value
+
+        return data
+
+    @logging_error_handler
+    def load_env_variables(self):
+        r"""
+        Documentation here
+        """
+        if self.app_mode=='development':
+
+            load_dotenv()
+
+    @logging_error_handler
+    def init_configuration(self):
+        r"""
+        Documentation here
+        """
+        self.set_default_tags()
+        self.set_default_alarms()
+
+        if self.config_file_location:
+
+            config = parse_config(self.config_file_location)
+
+            if 'modules' in config and config['modules'] is not None:
+        
+                if 'engine' in config['modules'] and config['modules']['engine'] is not None:
+
+                    if 'name' in config['modules']['engine'] and config['modules']['engine']['name'] is not None:
+
+                        self.engine_name = config['modules']['engine']['name']
+
+                    if 'event_name' in config['modules']['engine']:
+
+                        self.event_name = config['modules']['engine']['event_name']
+
+                    if 'time_window' in config['modules']['engine']:
+                        _time_window = config['modules']['engine']['time_window']
+                        self.time_window = int(_time_window / self.get_interval())
+                        
+                    if 'system_tags' in config['modules']['engine']:
+                        
+                        self.system_tags = config['modules']['engine']['system_tags']
+
+                        self.restart_buffer()
+
+    @logging_error_handler
+    def restart_buffer(self):
+        r"""
+        Documentation here
+        """
+        for tag in list(self.system_tags.keys()):
+
+            location = None
+            if 'location' in self.system_tags[tag]:
+                
+                location = self.system_tags[tag]['location']
+            
+            self.buffer[tag] = {
+                'data': list(),
+                'location': location
+                            }
+
+    @logging_error_handler
+    def set_default_tags(self):
+        r"""
+        Documentation here
+        """
+        self.default_tags = [
+            {
+                'tag_name': self.engine_name,
+                'data_type': 'bool',
+                'unit': '',
+                'description': f'Leak tag for {self.engine_name}'
+            }
+        ]
+
+    @logging_error_handler
+    def get_default_tags(self):
+        r"""
+        Documentation here
+        """
+        return self.default_tags
+
+    @logging_error_handler
+    def set_default_alarms(self):
+        r"""
+        Documentation here
+        """
+        self.default_alarms = [
+            {
+                "name": f'leak_alarm_{self.engine_name}',
+                "tag": self.engine_name,
+                "description": f'Leak alarm by {self.engine_name}',
+                "type": 'BOOL',
+                "trigger_value": 1.0
+            }
+        ]
+
+    @logging_error_handler
+    def get_default_alarms(self):
+        r"""
+        Documentation here
+        """
+        return self.default_alarms
+
+    def fill_buffer(self, data:dict)->dict:
+        r"""
+        Documentation here
+        """
+        for tag_name, value in data.items():
+
+            if len(self.buffer[tag_name]['data']) < self.time_window:
+
+                _value = self.buffer[tag_name]['data']
+                _value.append(value['y'])
+                self.buffer[tag_name]['data'] = _value
+                self.ready_to_run = False
+
+            else:
+
+                _value = self.buffer[tag_name]['data']
+                _value = _value[1:] + _value[:1]
+                _value[-1] = value['y']
+                self.buffer[tag_name]['data'] = _value
+                self.ready_to_run = True
+    

@@ -809,8 +809,9 @@ class PyHades(Singleton):
                 ...
         ```
         """
+        print(f"Kwargs on define_machine: {kwargs}")
         def decorator(cls):
-
+            print(f"Kwargs on LeakStateMachine: {kwargs}")
             machine = cls(name, **kwargs)
 
             self._append_machine(machine, interval=interval, mode=mode)

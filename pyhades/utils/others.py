@@ -6,11 +6,91 @@ This module implements other Use Utility Functions.
 import os
 import re
 import yaml
+import logging
+import requests
+import functools
+
+
+def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, auth_endpoint:str='/api/healthcheck/key'):
+    r"""
+    Documentation here
+    """
+    key = None
+    try:
+        url = f"http://{auth_service_host}:{auth_service_port}{auth_endpoint}"
+        response = requests.get(url)   
+        if response:
+            
+            response = response.json()
+            key = response['message']
+        
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "X-API-KEY": key
+        }
+
+        return headers
+    
+    except requests.ConnectionError as ex:
+
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        msg = str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        })
+        logging.warning(msg=msg)
+
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "X-API-KEY": key
+        }
+
+        return headers
+
+
+def decorator(declared_decorator):
+    """
+    Create a decorator out of a function, which will be used as a wrapper
+    """
+
+    @functools.wraps(declared_decorator)
+    def final_decorator(func=None, **kwargs):
+        # This will be exposed to the rest of your application as a decorator
+        def decorated(func):
+            # This will be exposed to the rest of your application as a decorated
+            # function, regardless how it was called
+            @functools.wraps(func)
+            def wrapper(*a, **kw):
+                # This is used when actually executing the function that was decorated
+
+                return declared_decorator(func, a, kw, **kwargs)
+            
+            return wrapper
+        
+        if func is None:
+            
+            return decorated
+        
+        else:
+            # The decorator was called without arguments, so the function should be
+            # decorated immediately
+            return decorated(func)
+
+    return final_decorator
+
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
-
 
 
 def parse_config(config_file, tag='!ENV'):
@@ -93,3 +173,139 @@ def check_key_in_dict(_dict, key):
         return True
     
     return False
+
+
+
+
+@decorator
+def notify_state(func, args, kwargs):
+    """
+
+    :param args:
+    :return:
+    """
+    result = func(*args, **kwargs)
+    state_machine = args[0]
+    current_transition = func.__name__.replace('on_','')
+    current_destination = current_transition.split('_to_')[-1]
+    active_transitions = state_machine._get_active_transitions()
+
+    for transition in active_transitions:
+
+        if transition.identifier==current_transition:
+            
+            for destination in transition.destinations:
+                
+                if destination.name==current_destination:
+
+                    engine_state = destination.value
+                    info = state_machine.serialize()
+                    info["state"]["value"] = engine_state
+                    
+                    if state_machine.sio: 
+                        state_machine.sio.app.emit(state_machine.event_name, info)
+
+    return result
+
+
+def system_log_transition(
+    log:bool=False,
+    event_service_host:str="127.0.0.1",
+    event_service_port:int=5000, 
+    event_endpoint:str='/api/healthcheck/key',
+    auth_service_host:str="127.0.0.1",
+    auth_service_port:int=5004, 
+    auth_endpoint:str='/api/events/add'
+    ):
+    
+    @decorator
+    def _system_log_transition(func, args, kwargs):
+        r"""
+
+        :param args:
+        :return:
+        """
+        result = func(*args, **kwargs)
+        event_url = f"http://{event_service_host}:{event_service_port}{event_endpoint}"
+
+        if log:
+            
+            state_machine = args[0]
+            current_transition = func.__name__.replace('on_','')
+            current_destination = current_transition.split('_to_')[-1]
+            active_transitions = state_machine._get_active_transitions()
+
+            for transition in active_transitions:
+
+                if transition.identifier==current_transition:
+                    
+                    for destination in transition.destinations:
+                        
+                        if destination.name==current_destination:
+                            _current_transition = current_transition.replace("_", " ")
+                            engine_state = destination.value
+                            info = state_machine.serialize()
+                            info["state"]["value"] = engine_state
+                            payload = {
+                                'user': "SYS.KnowAI",
+                                'message': f"{info['name']['value']} was switched from {_current_transition}",
+                                'description': info['description']['value'],
+                                'classification': info['classification']['value'],
+                                'priority': info['priority']['value'],
+                                'criticity': info['criticity']['value']
+                            }
+                            try:
+                                requests.post(
+                                    event_url, 
+                                    headers=get_headers(auth_service_host, auth_service_port, auth_endpoint), 
+                                    json=payload
+                                    )
+                            except requests.ConnectionError as ex:
+                                trace = []
+                                tb = ex.__traceback__
+                                while tb is not None:
+                                    trace.append({
+                                        "filename": tb.tb_frame.f_code.co_filename,
+                                        "name": tb.tb_frame.f_code.co_name,
+                                        "lineno": tb.tb_lineno
+                                    })
+                                    tb = tb.tb_next
+                                msg = str({
+                                    'type': type(ex).__name__,
+                                    'message': str(ex),
+                                    'trace': trace
+                                })
+                                logging.warning(msg=msg)
+
+        return result
+
+    return _system_log_transition
+
+
+@decorator
+def logging_error_handler(func, args, kwargs):
+    r"""
+    Documentation here
+    """
+    try:
+                
+        result = func(*args, **kwargs)
+        return result
+
+    except Exception as ex:
+
+        trace = []
+        tb = ex.__traceback__
+        while tb is not None:
+            trace.append({
+                "filename": tb.tb_frame.f_code.co_filename,
+                "name": tb.tb_frame.f_code.co_name,
+                "lineno": tb.tb_lineno
+            })
+            tb = tb.tb_next
+        msg = str({
+            'type': type(ex).__name__,
+            'message': str(ex),
+            'trace': trace
+        })
+        logging.error(msg=msg)
