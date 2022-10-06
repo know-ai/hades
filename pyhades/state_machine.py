@@ -25,6 +25,8 @@ DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
 APP_EVENT_LOG = bool(int(os.environ.get('APP_EVENT_LOG') or "0"))
 APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
 
+print(DAQ_SERVICE_URL, APP_EVENT_LOG, APP_AUTH)
+
 FLOAT = "float"
 INTEGER = "int"
 BOOL = "bool"
@@ -109,10 +111,7 @@ class PyHadesStateMachine(StateMachine):
     """
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
-    priority = IntegerType(default=1)
-    criticity = IntegerType(default=1)
-    classification = StringType(default="")
-    description = StringType(default="")
+    
 
     def __init__(self, name:str, **kwargs):
         
@@ -247,7 +246,8 @@ class PyHadesStateMachine(StateMachine):
         """
         self._machine_interval = interval
 
-    def get_attributes(self):
+    @classmethod
+    def get_attributes(cls):
         r"""
         Gets class attributes defined by [model types]()
 
@@ -257,7 +257,7 @@ class PyHadesStateMachine(StateMachine):
         """
         result = dict()
         
-        props = self.__dict__
+        props = cls.__dict__
 
         forbidden_attributes = (
             "states", 
@@ -440,6 +440,21 @@ class PyHadesStateMachine(StateMachine):
         r"""
         Gets state machine attributes serialized
         """
+        def is_serializable(value):
+
+            if isinstance(value, float):
+                return True
+
+            if isinstance(value, int):
+                return True
+
+            if isinstance(value, bool):
+                return True
+
+            if isinstance(value, str):
+                return True
+
+            return False
 
         result = {
             'name': self.name,
@@ -464,13 +479,24 @@ class PyHadesStateMachine(StateMachine):
 
             value = getattr(self, key)
 
-            if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
+            if not is_serializable(value):
+                try:
+                    obj = attrs[key]
 
-                value = value.default
+                    if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-            else:
+                        value = value.default
+                    
+                    else:
 
-                continue
+                        continue
+
+                except Exception as e:
+                    
+                    error = str(e)
+
+                    logging.error("Machine - {}:{}".format(self.name, error))
+                    continue
 
             result[key] = value
 
@@ -531,11 +557,13 @@ class AutomationStateMachine(PyHadesStateMachine):
     test_to_reset = testing.to(resetting)
     sleep_to_reset = sleeping.to(resetting)
 
-    priority = IntegerType(default=1)
     criticity = IntegerType(default=1)
+    priority = IntegerType(default=1)
+    classification = StringType(default='')
+    description = StringType(default='')
     states_for_users = ['restart', 'reset', 'test', 'sleep', 'stop', 'confirm_restart', 'confirm_reset']
 
-    def __init__(self, app, name:str, classification:str, description:str, fontawesome:str):
+    def __init__(self, app, name:str):
         """
         """
         super(AutomationStateMachine, self).__init__(name)
@@ -549,9 +577,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.buffer = dict()
         self.event_name = "machine_event"
         self.time_window = 10
-        self.classification = StringType(default=classification)
-        self.description = StringType(default=description)
-        self.fontawesome = StringType(default=fontawesome)
+
 
     def while_starting(self):
         """

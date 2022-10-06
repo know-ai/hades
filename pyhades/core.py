@@ -849,10 +849,7 @@ class PyHades(Singleton):
         self, 
         name:str, 
         period:float=1,
-        mode:str="async", 
-        classification:str="ASM",
-        description:str="Automation State Machine",
-        fontawesome:str="fas fa-coins"
+        mode:str="async"
         ):
         """
         Append an state machine to the state machine manager by decoration.
@@ -877,7 +874,7 @@ class PyHades(Singleton):
         """
         def decorator(cls):
             
-            machine = cls(self, name, classification, description, fontawesome)
+            machine = cls(self, name)
 
             self._append_machine(machine, interval=period, mode=mode)
 
