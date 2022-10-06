@@ -311,6 +311,32 @@ class PyHades(Singleton):
 
                 os.remove(file)
 
+    def get_period_from_config_file(self):
+        r"""
+        Documentation here
+        """
+        interval = 1.0
+
+        if hasattr(self, 'config_file_location'):
+
+            config = parse_config(self.config_file_location)
+
+            if 'modules' in config and config['modules'] is not None:
+
+                if 'engine' in config['modules'] and config['modules']['engine'] is not None:
+
+                    if 'interval' in config['modules']['engine'] and config['modules']['engine']['interval'] is not None:
+
+                        try:
+
+                            interval = float(config['modules']['engine']['interval'])
+                            
+                        except:
+
+                            interval = 1.0
+
+        return interval
+
     def set_db_from_config_file(self, config_file:str):
         r"""
         Defines the database configuration from a .yml configuration file
@@ -809,12 +835,51 @@ class PyHades(Singleton):
                 ...
         ```
         """
-        print(f"Kwargs on define_machine: {kwargs}")
         def decorator(cls):
-            print(f"Kwargs on LeakStateMachine: {kwargs}")
+            
             machine = cls(name, **kwargs)
 
             self._append_machine(machine, interval=interval, mode=mode)
+
+            return cls
+
+        return decorator
+
+    def define_automation_machine(
+        self, 
+        name:str, 
+        period:float=1,
+        mode:str="async", 
+        classification:str="ASM",
+        description:str="Automation State Machine",
+        fontawesome:str="fas fa-coins"
+        ):
+        """
+        Append an state machine to the state machine manager by decoration.
+
+        **Parameters:**
+
+        * **name** (str): State machine name
+        * **interval** (int): Interval execution time in seconds.
+        * **mode** (str): Syncronic or Asyncronic thread mode - allowed values ['sync', 'async']
+
+        **Returns** Class (cls)
+
+        Usage
+
+        ```python
+        >>> from pyhades import PyHades, PyHadesStateMachine
+        >>> app = PyHades()
+        >>> @app.define_machine(name='state_machine_name', interval=1, mode='async')
+            class StateMachine(PyHadesStateMachine):
+                ...
+        ```
+        """
+        def decorator(cls):
+            
+            machine = cls(self, name, classification, description, fontawesome)
+
+            self._append_machine(machine, interval=period, mode=mode)
 
             return cls
 

@@ -22,6 +22,7 @@ DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
 DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
 DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
 APP_EVENT_LOG = bool(int(os.environ.get('APP_EVENT_LOG') or "0"))
+APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
 
 FLOAT = "float"
 INTEGER = "int"
@@ -530,7 +531,7 @@ class PyHadesStateMachine(StateMachine):
         return self.current_state.identifier
 
 
-class LeakStateMachine(PyHadesStateMachine):
+class AutomationStateMachine(PyHadesStateMachine):
     r"""
     Documentation here
     """
@@ -538,12 +539,10 @@ class LeakStateMachine(PyHadesStateMachine):
     starting = State('start', initial=True)
     waiting = State('wait')
     running = State('run')
-    leaking = State('leak')
     restarting = State('restart')
     resetting = State('reset')
     sleeping = State('sleep')
     testing = State('test')
-    stopping = State('stop')
     con_restart = State('confirm_restart')
     con_reset = State('confirm_reset')
 
@@ -563,72 +562,38 @@ class LeakStateMachine(PyHadesStateMachine):
     run_to_sleep = running.to(sleeping)
     wait_to_sleep = waiting.to(sleeping)
 
-    # Transitions to Stopping
-    run_to_stop = running.to(stopping)
-    wait_to_stop = waiting.to(stopping)
-    test_to_stop = testing.to(stopping)
-    sleep_to_stop = sleeping.to(stopping)
-
     # Transitions to Restart
     run_to_restart = running.to(restarting)
     wait_to_restart = waiting.to(restarting)
     test_to_restart = testing.to(restarting)
     sleep_to_restart = sleeping.to(restarting)
-    stop_to_restart = stopping.to(restarting)
-    leak_to_restart = leaking.to(restarting)
 
     # Transitions to Reset
     run_to_reset = running.to(resetting)
     wait_to_reset = waiting.to(resetting)
     test_to_reset = testing.to(resetting)
     sleep_to_reset = sleeping.to(resetting)
-    stop_to_reset = stopping.to(resetting)
-    leak_to_reset = leaking.to(resetting)
-
-    # Transitions to Leak
-    run_to_leak = running.to(leaking)
 
     priority = IntegerType(default=1)
     criticity = IntegerType(default=1)
     states_for_users = ['restart', 'reset', 'test', 'sleep', 'stop', 'confirm_restart', 'confirm_reset']
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, app, name:str, classification:str, description:str, fontawesome:str):
         """
         """
         self.system_tags = dict()
         self.default_tags = list()
         self.default_alarms = list()
-        self.sio = None
+        self.app = app
         self.ready_to_run = False
+        self.default_alarms = list()
+        self.default_tags = list()
         self.buffer = dict()
         self.event_name = "machine_event"
-        self.app_mode = 'development'
         self.time_window = 10
-        self.config_file_location = None
-
-        if 'classification' in kwargs:
-
-            self.classification = StringType(default=kwargs['classification'])
-
-        if 'description' in kwargs:
-
-            self.description = StringType(default=kwargs['description'])
-
-        if 'fontawesome' in kwargs:
-
-            self.fontawesome = StringType(default=kwargs['fontawesome'])
-        
-        if 'app_mode' in kwargs:
-
-            self.app_mode = kwargs['app_mode']
-
-        if 'sio' in kwargs:
-
-            self.sio = kwargs['sio']
-
-        if 'config_file_location' in kwargs:
-
-            self.config_file_location = kwargs['config_file_location']
+        self.classification = StringType(default=classification)
+        self.description = StringType(default=description)
+        self.fontawesome = StringType(default=fontawesome)
 
         super().__init__(name)
 
@@ -636,6 +601,9 @@ class LeakStateMachine(PyHadesStateMachine):
         """
 
         """
+        self.app_mode = self.app.get_mode()
+        self.sio = self.app.get_socketio()
+        self.config_file_location = self.app.config_file_location
         self.init_configuration()
         self.start_to_wait()
 
@@ -656,12 +624,6 @@ class LeakStateMachine(PyHadesStateMachine):
         self.fill_buffer(data)
         self.criticity = 1
 
-    def while_leaking(self):
-        r"""
-        Documentation here
-        """
-        self.criticity = 3
-
     def while_sleeping(self):
         """
         ## **sleeping** state
@@ -677,14 +639,6 @@ class LeakStateMachine(PyHadesStateMachine):
         Only set priority and classification to notify in the front end
         """
         self.criticity = 3
-        
-    def while_stopping(self):
-        """
-        ## **stopping** state
-
-        Only set priority and classification to notify in the front end
-        """
-        self.criticity = 5
 
     def while_resetting(self):
         r"""
@@ -758,34 +712,6 @@ class LeakStateMachine(PyHadesStateMachine):
         self.criticity = 1
 
     @notify_state
-    @system_log_transition(log=APP_EVENT_LOG)
-    def on_run_to_leak(self):
-        """
-        ## **Transition**
-
-        * **from: *waiting* ** state
-        * **to: *running* ** state
-
-        ### **Settings**
-
-        * **priority:** 1 (low priority) machine to running state, no problems.
-        * **classification:** system (Transition triggered automatically).
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        data_to_log = {
-            'engine': self.serialize(),
-            'tags': [
-                {
-                    'tag_name': self.engine_name,
-                    'value': 1.0
-                }
-            ]
-        }
-        self.sio.emit('tags_logging', data_to_log)
-        self.criticity = 3
-
-    @notify_state
     def on_confirm_restart_to_wait(self):
         """
         ## **Transition**
@@ -804,7 +730,7 @@ class LeakStateMachine(PyHadesStateMachine):
             'engine': self.serialize(),
             'tags': [
                 {
-                    'tag_name': self.engine_name,
+                    'tag_name': self.name,
                     'value': 0.0
                 }
             ]
@@ -831,7 +757,7 @@ class LeakStateMachine(PyHadesStateMachine):
             'engine': self.serialize(),
             'tags': [
                 {
-                    'tag_name': self.engine_name,
+                    'tag_name': self.name,
                     'value': 0.0
                 }
             ]
@@ -897,40 +823,6 @@ class LeakStateMachine(PyHadesStateMachine):
 
         * **from: *running* ** state
         * **to: *restarting* ** state
-
-        ### **Settings**
-
-        * **priority:** 4 (high-middle priority) machine to restarting state, warning
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 4
-
-    @notify_state
-    def on_leak_to_restart(self):
-        """
-        ## **Transition**
-
-        * **from: *leaking* ** state
-        * **to: *restarting* ** state
-
-        ### **Settings**
-
-        * **priority:** 4 (high-middle priority) machine to restarting state, warning
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 4
-
-    @notify_state
-    def on_leak_to_reset(self):
-        """
-        ## **Transition**
-
-        * **from: *leaking* ** state
-        * **to: *resetting* ** state
 
         ### **Settings**
 
@@ -1145,99 +1037,44 @@ class LeakStateMachine(PyHadesStateMachine):
         """
         self.criticity = 4
 
-    @notify_state
-    def on_run_to_stop(self):
-        """
-        ## **Transition**
-
-        * **from: *running* ** state
-        * **to: *sleeping* ** state
-
-        ### **Settings**
-
-        * **priority:** 4 (high-middle priority) machine to sleeping state, warning
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 4
-    
-    @notify_state
-    def on_wait_to_stop(self):
-        """
-        ## **Transition**
-
-        * **from: *waiting* ** state
-        * **to: *stopping* ** state
-
-        ### **Settings**
-
-        * **priority:** 5 (high priority) machine to stopping state, danger
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 5
-        
-    @notify_state
-    def on_test_to_stop(self):
-        """
-        ## **Transition**
-
-        * **from: *testing* ** state
-        * **to: *stopping* ** state
-
-        ### **Settings**
-
-        * **priority:** 5 (high priority) machine to stopping state, danger
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 5
-        
-    @notify_state
-    def on_sleep_to_stop(self):
-        """
-        ## **Transition**
-
-        * **from: *sleeping* ** state
-        * **to: *stopping* ** state
-
-        ### **Settings**
-
-        * **priority:** 5 (high priority) machine to stopping state, danger
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 5
-
     # Auxiliary Methods
     @logging_error_handler
     def init_configuration(self):
         r"""
         Documentation here
         """
-        for tag_definition in self.default_tags:
-            self.define_tag(**tag_definition)
-        
-        for alarm_definition in self.default_alarms:
-            self.define_alarm(**alarm_definition)
+        self.parse_config_file()
+        self.restart_buffer()
 
     @logging_error_handler
     def define_tag(self, **payload):
         r"""
         Documentation here
         """
-        requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
+        if APP_AUTH:
+
+            requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
+
+        else:
+
+            requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', json=payload)
+
+        return payload
 
     @logging_error_handler
     def define_alarm(self, **payload):
         r"""
         Documentation here
-        """      
-        requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
+        """
+        if APP_AUTH:
+
+            response = requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
+        
+        else:
+
+            response = requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', json=payload)
+        
+        return payload
 
     @logging_error_handler
     def get_allowed_transitions(self):
@@ -1292,7 +1129,14 @@ class LeakStateMachine(PyHadesStateMachine):
             'tags': list(self.system_tags.keys())
         }
         data = dict()
-        response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
+        if APP_AUTH:
+            
+            response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
+
+        else:
+
+            response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload)
+
         if response:
             tags = response.json()
             
@@ -1312,13 +1156,11 @@ class LeakStateMachine(PyHadesStateMachine):
             load_dotenv()
 
     @logging_error_handler
-    def init_configuration(self):
+    def parse_config_file(self):
         r"""
         Documentation here
         """
-        self.set_default_tags()
-        self.set_default_alarms()
-
+        
         if self.config_file_location:
 
             config = parse_config(self.config_file_location)
@@ -1327,11 +1169,18 @@ class LeakStateMachine(PyHadesStateMachine):
         
                 if 'engine' in config['modules'] and config['modules']['engine'] is not None:
 
-                    if 'name' in config['modules']['engine'] and config['modules']['engine']['name'] is not None:
+                    if 'tags' in config['modules']['engine'] and config['modules']['engine']['tags'] is not None:
 
-                        self.engine_name = config['modules']['engine']['name']
+                        tags = config['modules']['engine']['tags']
+                        self.default_tags = [self.define_tag(**tag) for key, tag in tags.items()]
+                        
 
-                    if 'event_name' in config['modules']['engine']:
+                    if 'alarms' in config['modules']['engine'] and config['modules']['engine']['alarms'] is not None:
+
+                        alarms = config['modules']['engine']['alarms']
+                        self.default_alarms = [self.define_alarm(**alarm)for key, alarm in alarms.items()]
+
+                    if 'event_name' in config['modules']['engine'] :
 
                         self.event_name = config['modules']['engine']['event_name']
 
@@ -1342,8 +1191,6 @@ class LeakStateMachine(PyHadesStateMachine):
                     if 'system_tags' in config['modules']['engine']:
                         
                         self.system_tags = config['modules']['engine']['system_tags']
-
-                        self.restart_buffer()
 
     @logging_error_handler
     def restart_buffer(self):
@@ -1363,40 +1210,11 @@ class LeakStateMachine(PyHadesStateMachine):
                             }
 
     @logging_error_handler
-    def set_default_tags(self):
-        r"""
-        Documentation here
-        """
-        self.default_tags = [
-            {
-                'tag_name': self.engine_name,
-                'data_type': 'bool',
-                'unit': '',
-                'description': f'Leak tag for {self.engine_name}'
-            }
-        ]
-
-    @logging_error_handler
     def get_default_tags(self):
         r"""
         Documentation here
         """
         return self.default_tags
-
-    @logging_error_handler
-    def set_default_alarms(self):
-        r"""
-        Documentation here
-        """
-        self.default_alarms = [
-            {
-                "name": f'leak_alarm_{self.engine_name}',
-                "tag": self.engine_name,
-                "description": f'Leak alarm by {self.engine_name}',
-                "type": 'BOOL',
-                "trigger_value": 1.0
-            }
-        ]
 
     @logging_error_handler
     def get_default_alarms(self):

@@ -56,7 +56,6 @@ def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, a
 
         return headers
 
-
 def decorator(declared_decorator):
     """
     Create a decorator out of a function, which will be used as a wrapper
@@ -87,11 +86,9 @@ def decorator(declared_decorator):
 
     return final_decorator
 
-
 def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
-
 
 def parse_config(config_file, tag='!ENV'):
     """
@@ -174,9 +171,6 @@ def check_key_in_dict(_dict, key):
     
     return False
 
-
-
-
 @decorator
 def notify_state(func, args, kwargs):
     """
@@ -203,10 +197,10 @@ def notify_state(func, args, kwargs):
                     info["state"]["value"] = engine_state
                     
                     if state_machine.sio: 
-                        state_machine.sio.app.emit(state_machine.event_name, info)
+                        
+                        state_machine.sio.emit(state_machine.event_name, info)
 
     return result
-
 
 def system_log_transition(
     log:bool=False,
@@ -280,7 +274,6 @@ def system_log_transition(
         return result
 
     return _system_log_transition
-
 
 @decorator
 def logging_error_handler(func, args, kwargs):
