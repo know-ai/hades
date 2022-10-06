@@ -1051,13 +1051,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        if APP_AUTH:
-
-            requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
-
-        else:
-
-            requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', json=payload)
+        requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
 
         return payload
 
@@ -1066,14 +1060,8 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        if APP_AUTH:
+        requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
 
-            response = requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
-        
-        else:
-
-            response = requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', json=payload)
-        
         return payload
 
     @logging_error_handler
@@ -1129,15 +1117,11 @@ class AutomationStateMachine(PyHadesStateMachine):
             'tags': list(self.system_tags.keys())
         }
         data = dict()
-        if APP_AUTH:
-            
-            response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
-
-        else:
-
-            response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload)
+             
+        response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
 
         if response:
+            
             tags = response.json()
             
             for tag_name, value in tags.items():

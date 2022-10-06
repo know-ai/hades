@@ -15,20 +15,19 @@ def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, a
     r"""
     Documentation here
     """
-    key = None
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "X-API-KEY": None
+    } 
     try:
         url = f"http://{auth_service_host}:{auth_service_port}{auth_endpoint}"
-        response = requests.get(url)   
-        if response:
+        response = requests.get(url)
+        if response and response.status_code==200:
             
             response = response.json()
             key = response['message']
+            headers["X-API-KEY"] = key
         
-        headers = {
-            "Content-Type": "application/json; charset=utf-8",
-            "X-API-KEY": key
-        }
-
         return headers
     
     except requests.ConnectionError as ex:
@@ -48,11 +47,6 @@ def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, a
             'trace': trace
         })
         logging.warning(msg=msg)
-
-        headers = {
-            "Content-Type": "application/json; charset=utf-8",
-            "X-API-KEY": key
-        }
 
         return headers
 
