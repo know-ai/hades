@@ -189,7 +189,7 @@ def notify_state(func, args, kwargs):
 
                     engine_state = destination.value
                     info = state_machine.serialize()
-                    info["state"]["value"] = engine_state
+                    info["state"] = engine_state
                     
                     if state_machine.sio: 
                         
@@ -265,14 +265,14 @@ def system_log_transition(
                             _current_transition = current_transition.replace("_", " ")
                             engine_state = destination.value
                             info = state_machine.serialize()
-                            info["state"]["value"] = engine_state
+                            info["state"] = engine_state
                             payload = {
                                 'user': "SYS.KnowAI",
-                                'message': f"{info['name']['value']} was switched from {_current_transition}",
-                                'description': info['description']['value'],
-                                'classification': info['classification']['value'],
-                                'priority': info['priority']['value'],
-                                'criticity': info['criticity']['value']
+                                'message': f"{info['name']} was switched from {_current_transition}",
+                                'description': info['description'],
+                                'classification': info['classification'],
+                                'priority': info['priority'],
+                                'criticity': info['criticity']
                             }
                             try:
                                 requests.post(

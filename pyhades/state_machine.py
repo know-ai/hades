@@ -108,6 +108,10 @@ class PyHadesStateMachine(StateMachine):
     """
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
+    priority = IntegerType(default=1)
+    criticity = IntegerType(default=1)
+    classification = StringType(default="")
+    description = StringType(default="")
 
     def __init__(self, name:str, **kwargs):
         
@@ -242,8 +246,7 @@ class PyHadesStateMachine(StateMachine):
         """
         self._machine_interval = interval
 
-    @classmethod
-    def get_attributes(cls):
+    def get_attributes(self):
         r"""
         Gets class attributes defined by [model types]()
 
@@ -253,7 +256,7 @@ class PyHadesStateMachine(StateMachine):
         """
         result = dict()
         
-        props = cls.__dict__
+        props = self.__dict__
 
         forbidden_attributes = (
             "states", 
@@ -277,7 +280,7 @@ class PyHadesStateMachine(StateMachine):
                 continue
             if hasattr(value, '__call__'):
                 continue
-            if isinstance(value, cls):
+            if isinstance(value, PyHadesStateMachine):
                 continue
             if isinstance(value, State):
                 continue
@@ -436,39 +439,10 @@ class PyHadesStateMachine(StateMachine):
         r"""
         Gets state machine attributes serialized
         """
-        def is_serializable(value):
 
-            if isinstance(value, float):
-                return True
-
-            if isinstance(value, int):
-                return True
-
-            if isinstance(value, bool):
-                return True
-
-            if isinstance(value, str):
-                return True
-
-            return False
-
-        def ismodel_instance(obj):
-
-            for cls in [FloatType, IntegerType, BooleanType, StringType]:
-                if isinstance(obj, cls):
-                    return True
-            return False
-
-        result = dict()
-
-        result["name"] = {
-            'value': self.name,
-            'unit': None
-        }
-
-        result["state"] = {
-            'value': self.current_state.identifier,
-            'unit': None
+        result = {
+            'name': self.name,
+            'state': self.current_state.identifier
         }
 
         states = self.get_states()
@@ -478,44 +452,26 @@ class PyHadesStateMachine(StateMachine):
         attrs = self.get_attributes()
         
         for key in attrs.keys():
+
+            obj = attrs[key]
             
             if key in checkers:
                 continue
             if key in methods:
                 continue
-            if not ismodel_instance(attrs[key]):
-                continue
+            
 
-            obj = attrs[key]
-            unit = obj.unit
             value = getattr(self, key)
 
-            if not is_serializable(value):
-                try:
-                    obj = attrs[key]
+            if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-                    if isinstance(obj, FloatType):
-                        value = float(value)
-                    elif isinstance(obj, IntegerType):
-                        value = int(value)
-                    elif isinstance(obj, BooleanType):
-                        value = bool(value)
-                    else:
-                        value = str(value)
-                    
-                    unit = obj.unit
+                value = value.default
 
-                except Exception as e:
-                    
-                    error = str(e)
+            else:
 
-                    logging.error("Machine - {}:{}".format(self.name, error))
-                    value = None
+                continue
 
-            result[key] = {
-                'value': value,
-                'unit': unit
-            }
+            result[key] = value
 
         return result
 
@@ -581,6 +537,7 @@ class AutomationStateMachine(PyHadesStateMachine):
     def __init__(self, app, name:str, classification:str, description:str, fontawesome:str):
         """
         """
+        super(AutomationStateMachine, self).__init__(name)
         self.system_tags = dict()
         self.default_tags = list()
         self.default_alarms = list()
@@ -594,8 +551,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.classification = StringType(default=classification)
         self.description = StringType(default=description)
         self.fontawesome = StringType(default=fontawesome)
-
-        super().__init__(name)
 
     def while_starting(self):
         """
