@@ -9,6 +9,7 @@ import yaml
 import logging
 import requests
 import functools
+from ._errors import RequestDecorationError
 
 
 def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, auth_endpoint:str='/api/healthcheck/key'):
@@ -195,6 +196,37 @@ def notify_state(func, args, kwargs):
                         state_machine.sio.emit(state_machine.event_name, info)
 
     return result
+
+
+@decorator
+def request_redirected(func, args, kwargs):
+    """
+
+    :param args:
+    :return:
+    """
+    try:
+        response = func(*args, **kwargs)
+
+        if isinstance(response, requests.models.Response):
+    
+            status_code = response.status_code
+
+            if status_code==requests.codes.ok:
+
+                return response.json(), status_code
+
+            return None, status_code
+
+        else:
+
+            raise RequestDecorationError(f"Func: {func.__name__} not return a {requests.models.Response} response")
+
+    except requests.ConnectionError as err:
+
+        return {'message': str(err)}, requests.codes.timeout
+    
+
 
 def system_log_transition(
     log:bool=False,
