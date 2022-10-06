@@ -1,6 +1,7 @@
 import logging, os
 from dotenv import load_dotenv
 from inspect import ismethod
+
 from .utils import (
     log_detailed,
     logging_error_handler,
@@ -86,7 +87,7 @@ class State(_State):
         if not self._trigger:
             return
 
-    
+ 
 class PyHadesStateMachine(StateMachine):
 
     """

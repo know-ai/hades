@@ -281,6 +281,12 @@ class Alarm:
                     state=_state.id
                 )
 
+        sio = self.app.get_socketio()
+
+        if sio is not None:
+            
+            sio.emit("notify_alarm", self.serialize())
+
     def trigger_alarm(self):
         r"""
         Trigger alarm in Unacknowledge state if the alarm is enabled
@@ -295,12 +301,7 @@ class Alarm:
         self._operations['shelve'] = 'not active'
         self._operations['suppress by design'] = 'not active'
         self._operations['out of service'] = 'not active'
-        
-        sio = self.app.get_socketio()
-
-        if sio is not None:
-            
-            sio.emit("Alarm Triggered", self.serialize())
+    
 
     @property
     def enabled(self):
