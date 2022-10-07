@@ -584,6 +584,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         """
         self.app_mode = self.app.get_mode()
+        self.headers = get_headers(auth_service_host=AUTH_SERVICE_HOST, auth_service_port=AUTH_SERVICE_PORT)
         self.sio = self.app.get_socketio()
         self.config_file_location = self.app.config_file_location
         self.init_configuration()
@@ -1045,7 +1046,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
+        requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/add', headers=self.headers, json=payload)
 
         return payload
 
@@ -1054,7 +1055,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        requests.post(f'{self.DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
+        requests.post(f'{self.DAQ_SERVICE_URL}/api/alarms/append', headers=self.headers, json=payload)
 
         return payload
 
@@ -1112,7 +1113,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         data = dict()
              
-        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
+        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=self.headers)
 
         if response:
             
