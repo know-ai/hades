@@ -228,12 +228,12 @@ def request_redirected(func, args, kwargs):
 
 def system_log_transition(
     log:bool=False,
-    event_service_host:str="127.0.0.1",
-    event_service_port:int=5000, 
-    event_endpoint:str='/api/healthcheck/key',
+    event_logger_service_host:str="127.0.0.1",
+    event_logger_service_port:int=5000,
+    event_logger_endpoint:str='/api/events/add',
     auth_service_host:str="127.0.0.1",
     auth_service_port:int=5004, 
-    auth_endpoint:str='/api/events/add'
+    auth_endpoint:str='/api/healthcheck/key'
     ):
     
     @decorator
@@ -244,7 +244,7 @@ def system_log_transition(
         :return:
         """
         result = func(*args, **kwargs)
-        event_url = f"http://{event_service_host}:{event_service_port}{event_endpoint}"
+        event_url = f"http://{event_logger_service_host}:{event_logger_service_port}{event_logger_endpoint}"
 
         if log:
             

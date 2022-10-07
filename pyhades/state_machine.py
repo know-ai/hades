@@ -1,5 +1,4 @@
 import logging, os
-from dotenv import load_dotenv
 from inspect import ismethod
 
 from .utils import (
@@ -19,13 +18,11 @@ from .logger import DataLoggerEngine
 from .models import FloatType, IntegerType, BooleanType, StringType
 import requests
 
-DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
 APP_EVENT_LOG = bool(int(os.environ.get('APP_EVENT_LOG') or "0"))
-APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
-
-print(DAQ_SERVICE_URL, APP_EVENT_LOG, APP_AUTH)
+EVENT_LOGGER_SERVICE_HOST = os.environ.get('EVENT_LOGGER_SERVICE_HOST') or "127.0.0.1"
+EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
+AUTH_SERVICE_HOST = os.environ.get('AUTH_SERVICE_HOST') or "127.0.0.1"
+AUTH_SERVICE_PORT = os.environ.get('AUTH_SERVICE_PORT') or "5000"
 
 FLOAT = "float"
 INTEGER = "int"
@@ -567,6 +564,9 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         """
         super(AutomationStateMachine, self).__init__(name)
+        DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+        DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+        self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
         self.system_tags = dict()
         self.default_tags = list()
         self.default_alarms = list()
@@ -658,7 +658,13 @@ class AutomationStateMachine(PyHadesStateMachine):
 
     # Transitions definitions
     @notify_state
-    @system_log_transition(log=APP_EVENT_LOG)
+    @system_log_transition(
+        log=APP_EVENT_LOG,
+        event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
+        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT, 
+        auth_service_host=AUTH_SERVICE_HOST,
+        auth_service_port=AUTH_SERVICE_PORT, 
+        )
     def on_start_to_wait(self):
         r"""
         ## **Transition**
@@ -676,7 +682,13 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity = 1
 
     @notify_state
-    @system_log_transition(log=APP_EVENT_LOG)
+    @system_log_transition(
+        log=APP_EVENT_LOG,
+        event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
+        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT, 
+        auth_service_host=AUTH_SERVICE_HOST,
+        auth_service_port=AUTH_SERVICE_PORT, 
+        )
     def on_wait_to_run(self):
         """
         ## **Transition**
@@ -1033,7 +1045,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        requests.post(f'{DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
+        requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/add', headers=get_headers(), json=payload)
 
         return payload
 
@@ -1042,7 +1054,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        requests.post(f'{DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
+        requests.post(f'{self.DAQ_SERVICE_URL}/api/alarms/append', headers=get_headers(), json=payload)
 
         return payload
 
@@ -1100,7 +1112,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         data = dict()
              
-        response = requests.post(f'{DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
+        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=get_headers())
 
         if response:
             
@@ -1113,20 +1125,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         return data
 
     @logging_error_handler
-    def load_env_variables(self):
-        r"""
-        Documentation here
-        """
-        if self.app_mode=='development':
-
-            load_dotenv()
-
-    @logging_error_handler
     def parse_config_file(self):
         r"""
         Documentation here
         """
-        
         if self.config_file_location:
 
             config = parse_config(self.config_file_location)
