@@ -229,10 +229,10 @@ def request_redirected(func, args, kwargs):
 def system_log_transition(
     log:bool=False,
     event_logger_service_host:str="127.0.0.1",
-    event_logger_service_port:int=5000,
+    event_logger_service_port:int=5004,
     event_logger_endpoint:str='/api/events/add',
     auth_service_host:str="127.0.0.1",
-    auth_service_port:int=5004, 
+    auth_service_port:int=5000, 
     auth_endpoint:str='/api/healthcheck/key'
     ):
     
