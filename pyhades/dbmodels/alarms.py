@@ -1,7 +1,8 @@
 from .core import BaseModel
-from peewee import DateTimeField, IntegerField, FloatField, CharField, ForeignKeyField
+from peewee import *
 from datetime import datetime
 from .tags import Tags
+
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -475,15 +476,10 @@ class AlarmLogging(BaseModel):
         r"""
         Documentation here
         """
-        result = list()
-        count = 0
-        for alarm in cls.select().order_by(cls.id.desc()):
-            count += 1
-            result.append(alarm.serialize())
-            if count >= int(lasts):
+        alarms = cls.select().where(cls.id > cls.select().count() - int(lasts)).order_by(cls.id.desc())
 
-                break
-    
+        result = [alarm.serialize() for alarm in alarms]
+
         return result
 
     def serialize(self):

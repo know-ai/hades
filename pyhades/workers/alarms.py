@@ -28,7 +28,7 @@ class AlarmWorker(BaseWorker):
         _queue = self._manager.get_queue()
 
         while True:
-            
+
             time.sleep(self._period)
 
             if not _queue.empty():

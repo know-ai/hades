@@ -558,7 +558,7 @@ class AutomationStateMachine(PyHadesStateMachine):
     priority = IntegerType(default=1)
     classification = StringType(default='')
     description = StringType(default='')
-    states_for_users = ['restart', 'reset', 'test', 'sleep', 'stop', 'confirm_restart', 'confirm_reset']
+    states_for_users = ['restart', 'reset', 'test', 'sleep', 'confirm_restart', 'confirm_reset']
 
     def __init__(self, app, name:str):
         """
@@ -862,22 +862,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         self.criticity = 4
         
-    @notify_state
-    def on_stop_to_restart(self):
-        """
-        ## **Transition**
-
-        * **from: *stopping* ** state
-        * **to: *restarting* ** state
-
-        ### **Settings**
-
-        * **priority:** 4 (high-middle priority) machine to restarting state, warning
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 4
         
     @notify_state
     def on_wait_to_reset(self):
@@ -947,22 +931,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         self.criticity = 4
         
-    @notify_state
-    def on_stop_to_reset(self):
-        """
-        ## **Transition**
-
-        * **from: *stopping* ** state
-        * **to: *resetting* ** state
-
-        ### **Settings**
-
-        * **priority:** 4 (high-middle priority) machine to restarting state, warning
-        * **classification:** user (Transition triggered by the operator)
-
-        This method is decorated by @notify_transition to register this event in the database.
-        """
-        self.criticity = 4
 
     @notify_state
     def on_run_to_test(self):
