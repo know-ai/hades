@@ -1,3 +1,4 @@
+from signal import alarm
 from .core import PyHades
 
 class PyHadesContext(object):
@@ -28,15 +29,16 @@ class PyHadesContext(object):
     ```
     """
 
-    def __init__(self, app:PyHades, create_tables:bool=True):
+    def __init__(self, app:PyHades, create_tables:bool=True, alarm_worker:bool=False):
 
         if isinstance(app, PyHades):
             
             self.app = app
             self._create_tables = create_tables
+            self._create_alarm_worker = alarm_worker
 
     def __enter__(self):
-        self.app.safe_start(create_tables=self._create_tables)
+        self.app.safe_start(create_tables=self._create_tables, alarm_worker=self._create_alarm_worker)
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):

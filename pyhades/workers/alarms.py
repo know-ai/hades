@@ -11,7 +11,7 @@ from .worker import BaseWorker
 
 class AlarmWorker(BaseWorker):
 
-    def __init__(self, manager, period=0.5):
+    def __init__(self, manager, period=1.0):
 
         super(AlarmWorker, self).__init__()
         
@@ -22,16 +22,15 @@ class AlarmWorker(BaseWorker):
 
     def run(self):
 
-        if not self._manager.get_alarms():
-            return
-
         _queue = self._manager.get_queue()
 
         while True:
 
             time.sleep(self._period)
 
-            if not _queue.empty():
+            while not _queue.empty():
+
+            # if not _queue.empty():
                 item = _queue.get()
                 
                 _tag = item["tag"]

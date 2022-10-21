@@ -191,5 +191,4 @@ class TagObserver(Observer):
 
         result["tag"] = self._subject.name
         result["value"] = self._subject.value
-
         self._tag_queue.put(result)

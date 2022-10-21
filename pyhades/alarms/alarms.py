@@ -498,7 +498,7 @@ class Alarm:
                     self.trigger_alarm()
 
             elif _type == TriggerType.B:
-                
+
                 if value == self._trigger.value:
                 
                     self.trigger_alarm()

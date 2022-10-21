@@ -114,6 +114,7 @@ class CVT:
             
             self._tags[str(_tag.id)] = tag
 
+
     def set_tags(self, tags):
         """Initialize a list of new Tags object in the _tags dictionary.
         
@@ -172,8 +173,6 @@ class CVT:
             result.append(_value)
 
         return result
-
-
 
     def get_tag_by_node_namespace(self, node_namespace):
         r"""

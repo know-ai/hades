@@ -3,7 +3,7 @@
 This module implements Alarm Manager.
 """
 from datetime import datetime
-import queue
+import queue, logging
 from ..tags import CVTEngine, TagObserver
 from ..dbmodels import AlarmLogging as AlarmModel
 from ..dbmodels import AlarmsDB
@@ -261,7 +261,7 @@ class AlarmManager:
         value = _cvt.read_tag(tag)
 
         for id, _alarm in self._alarms.items():
-
+            
             if _alarm.state == AlarmState.SHLVD:
 
                 _now = datetime.now()

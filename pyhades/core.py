@@ -63,6 +63,7 @@ class PyHades(Singleton):
         self.workers = list()
         self._mode = DEVELOPMENT_MODE
         self._sio = None
+        self._create_alarm_worker = False
 
         self._machine_manager = StateMachineManager()
         self._db_manager = DBManager()
@@ -1007,12 +1008,10 @@ class PyHades(Singleton):
             db_worker.init_database()
             self.workers.append(db_worker)
 
-            # AlarmWorker
+        if self._create_alarm_worker:
             alarm_manager = self.get_alarm_manager()
-            if len(alarm_manager.get_alarms())>0:
-
-                alarm_worker = AlarmWorker(alarm_manager)
-                self.workers.append(alarm_worker)
+            alarm_worker = AlarmWorker(alarm_manager)
+            self.workers.append(alarm_worker)
 
         # StateMachine Worker
         state_manager = self.get_state_machine_manager()
@@ -1043,11 +1042,12 @@ class PyHades(Singleton):
                 message = "Error on wokers stop"
                 log_detailed(e, message)
 
-    def safe_start(self, create_tables:bool=True):
+    def safe_start(self, create_tables:bool=True, alarm_worker:bool=False):
         r"""
         Run the app without a main thread, only run the app with the threads and state machines define
         """
         self._create_tables = create_tables
+        self._create_alarm_worker = alarm_worker
         _start_up_datetime = datetime.now()
         self._set_start_up_datetime(_start_up_datetime)
         self._start_logger()
@@ -1068,7 +1068,7 @@ class PyHades(Singleton):
         self._status = STOPPED
         sys.exit()
 
-    def run(self, create_tables:bool=True):
+    def run(self, create_tables:bool=True, alarm_worker:bool=False):
         r"""
         Runs main app thread and all defined threads by decorators and State Machines besides this method starts app logger
 
@@ -1081,6 +1081,7 @@ class PyHades(Singleton):
         ```
         """
         self._create_tables = create_tables
+        self._create_alarm_worker = alarm_worker
         self.safe_start()
 
         try:
