@@ -19,10 +19,41 @@ class PropertyType:
     """
 
     def __init__(self, _type, default=None, unit=None):
+        
 
         self._type = _type
         self.unit = unit
-        self.default = default
+        self.__default = default
+        self.__value = default
+        self.__sio = None
+
+    @property
+    def value(self):
+        r"""
+        Documentation here
+        """
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        
+        if self.__value!=value:
+
+            if self.__sio is not None:
+
+                self.__sio.emit("notify_machine_attr", self.__machine.serialize())
+
+            self.__value = value
+
+    def init_socketio(self, machine):
+        r"""
+        Documentation here"""
+
+        from .core import PyHades
+        app = PyHades()
+
+        self.__sio = app.get_socketio()
+        self.__machine = machine
 
 
 class StringType(PropertyType):

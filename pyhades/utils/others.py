@@ -266,11 +266,11 @@ def system_log_transition(
                             info["state"] = engine_state
                             payload = {
                                 'user': "SYS.KnowAI",
-                                'message': f"{info['name']} was switched from {_current_transition}",
-                                'description': info['description'],
-                                'classification': info['classification'],
-                                'priority': info['priority'],
-                                'criticity': info['criticity']
+                                'message': f"{info['name']['value']} was switched from {_current_transition}",
+                                'description': info['description']['value'],
+                                'classification': info['classification']['value'],
+                                'priority': info['priority']['value'],
+                                'criticity': info['criticity']['value']
                             }
                             try:
                                 requests.post(

@@ -481,10 +481,9 @@ class PyHadesStateMachine(StateMachine):
             
 
             value = getattr(self, key)
-            obj = attrs[key]
             if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-                value = obj.default
+                value = obj.value
                 unit = obj.unit
 
                 result[key] = {
@@ -505,6 +504,28 @@ class PyHadesStateMachine(StateMachine):
 
         return self.current_state.identifier
 
+    def init_socketio_for_variables(self):
+        r"""
+        Documentation here
+        """
+        states = self.get_states()
+        checkers = ["is_" + state for state in states]
+        methods = ["while_" + state for state in states]
+
+        attrs = self.get_attributes()
+        
+        for key in attrs.keys():
+
+            obj = attrs[key]
+            
+            if key in checkers:
+                continue
+            if key in methods:
+                continue
+            
+            if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
+
+                obj.init_socketio(machine=self)
 
 class AutomationStateMachine(PyHadesStateMachine):
     r"""
@@ -583,6 +604,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.sio = self.app.get_socketio()
         self.config_file_location = self.app.config_file_location
         self.init_configuration()
+        self.init_socketio_for_variables()
         self.start_to_wait()
 
     def while_waiting(self):
