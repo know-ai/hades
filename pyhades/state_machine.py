@@ -454,8 +454,14 @@ class PyHadesStateMachine(StateMachine):
             return False
 
         result = {
-            'name': self.name,
-            'state': self.current_state.identifier
+            'name': {
+                'value': self.name,
+                'unit': None,
+            },
+            'state': {
+                'value': self.current_state.identifier,
+                'unit': None
+            }
         }
 
         states = self.get_states()
@@ -475,27 +481,16 @@ class PyHadesStateMachine(StateMachine):
             
 
             value = getattr(self, key)
+            obj = attrs[key]
+            if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-            if not is_serializable(value):
-                try:
-                    obj = attrs[key]
+                value = obj.default
+                unit = obj.unit
 
-                    if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
-
-                        value = value.default
-                    
-                    else:
-
-                        continue
-
-                except Exception as e:
-                    
-                    error = str(e)
-
-                    logging.error("Machine - {}:{}".format(self.name, error))
-                    continue
-
-            result[key] = value
+                result[key] = {
+                    'value': value,
+                    'unit': unit
+                }
 
         return result
 

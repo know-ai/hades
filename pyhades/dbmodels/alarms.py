@@ -452,7 +452,7 @@ class AlarmLogging(BaseModel):
     value = FloatField()
 
     @classmethod
-    def create(cls, timestamp:datetime, name:str, state:str, priority:int, value:float):
+    def create(cls, name:str, state:str, priority:int, value:float):
 
         alarm = AlarmsDB.read_by_name(name=name)
 
@@ -466,7 +466,7 @@ class AlarmLogging(BaseModel):
 
                 if priority:
         
-                    query = cls(timestamp=timestamp, alarm=alarm.id, state=state.id, priority=priority.id, value=value)
+                    query = cls(alarm=alarm.id, state=state.id, priority=priority.id, value=value)
                     query.save()
 
                     return query
@@ -502,7 +502,7 @@ class AlarmSummary(BaseModel):
     
     alarm = ForeignKeyField(AlarmsDB, backref='summary', on_delete='CASCADE')
     state = ForeignKeyField(AlarmStates, backref='summary', on_delete='CASCADE')
-    alarm_time = DateTimeField(default=datetime.now())
+    alarm_time = DateTimeField(default=datetime.now)
     ack_time = DateTimeField(null=True)
     out_of_service_time = DateTimeField(null=True)
     return_to_service_time = DateTimeField(null=True)

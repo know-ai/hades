@@ -242,7 +242,6 @@ class Alarm:
 
         self._state = _state
         AlarmModel.create(
-            timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             name=self.name,
             state=self.state.state,
             priority=self._priority,
