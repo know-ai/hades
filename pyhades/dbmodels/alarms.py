@@ -537,6 +537,17 @@ class AlarmSummary(BaseModel):
         alarm = AlarmsDB.read_by_name(name=name)
         return cls.get_or_none(alarm=alarm)
 
+    @classmethod
+    def read_lasts(cls, lasts:int=1):
+        r"""
+        Documentation here
+        """
+        alarms = cls.select().where(cls.id > cls.select().count() - int(lasts)).order_by(cls.id.desc())
+
+        result = [alarm.serialize() for alarm in alarms]
+
+        return result
+
     def serialize(self):
         r"""
         Documentation here
