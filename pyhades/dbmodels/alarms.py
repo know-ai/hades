@@ -506,6 +506,7 @@ class AlarmSummary(BaseModel):
     ack_time = DateTimeField(null=True)
     out_of_service_time = DateTimeField(null=True)
     return_to_service_time = DateTimeField(null=True)
+    active = BooleanField(default=True)
 
     @classmethod
     def create(cls, name:str, state:str):
@@ -516,6 +517,14 @@ class AlarmSummary(BaseModel):
 
             if _state:
             
+                # Set Active old alarms False
+                old_query = cls.select().where(cls.alarm==_alarm.id).get_or_none()
+                if old_query:
+                    old_query.active = False
+                    old_query.save()
+
+
+                # Create record
                 query = cls(alarm=_alarm.id, state=_state.id)
                 query.save()
                 
@@ -536,6 +545,34 @@ class AlarmSummary(BaseModel):
         """
         alarm = AlarmsDB.read_by_name(name=name)
         return cls.get_or_none(alarm=alarm)
+
+    @classmethod
+    def read_all(cls):
+        r"""
+        Select all records
+
+        You can use this method to retrieve all instances matching in the database. 
+
+        This method is a shortcut that calls Model.select() with the given query.
+
+        **Parameters**
+
+        **Returns**
+
+        * **result:** (dict) --> {'message': (str), 'data': (list) row serialized}
+        """
+
+        # result = dict()
+        data = list()
+        
+        try:
+            data = [query.serialize() for query in cls.select().order_by(cls.id.desc())]
+
+            return data
+
+        except Exception as _err:
+
+            return data
 
     @classmethod
     def read_lasts(cls, lasts:int=1):
@@ -578,5 +615,6 @@ class AlarmSummary(BaseModel):
             'alarm_time': self.alarm_time.strftime(DATETIME_FORMAT),
             'ack_time': ack_time,
             'out_of_service_time': out_of_service_time,
-            'return_to_service_time': return_to_service_time
+            'return_to_service_time': return_to_service_time,
+            'active': self.active
         }

@@ -1,6 +1,9 @@
 from peewee import CharField, DateTimeField, FloatField, ForeignKeyField
 from .core import BaseModel
 from datetime import datetime
+import csv
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 
 class Variables(BaseModel):
@@ -498,6 +501,13 @@ class Tags(BaseModel):
         
         return False
 
+    @classmethod
+    def get_export_to_csv(cls):
+        r"""
+        Documentation here
+        """
+        return [tag.serialize() for tag in cls.select()]
+
     def serialize(self):
         r"""
         Documentation here
@@ -520,3 +530,41 @@ class TagValue(BaseModel):
     tag = ForeignKeyField(Tags, backref='values')
     value = FloatField()
     timestamp = DateTimeField(default=datetime.now)
+
+
+    @classmethod
+    def export_to_csv(cls):
+        r"""
+        Documentation here
+        """
+        result = {
+            'Tags': Tags.get_export_to_csv(),
+        }
+        tag_value = list()
+        tag_info = dict()
+        previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
+        for tag in cls.select():
+
+            timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
+            if previous_timestamp!=timestamp:
+                if tag_info:
+                    tag_value.append(tag_info)
+                tag_info = dict()
+                previous_timestamp = timestamp
+                tag_info['timestamp'] = timestamp
+                tag_info[f'{tag.tag.name}'] = tag.value
+
+            else:
+                tag_info[f'{tag.tag.name}'] = tag.value
+
+        result['TagValue'] = tag_value
+
+        for key, value in result.items():
+
+            with open(f'daq_{key}.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, value[0].keys(), delimiter=",")
+                dict_writer.writeheader()
+                dict_writer.writerows(value)
+
+        return result
+        

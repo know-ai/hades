@@ -18,7 +18,7 @@ class PropertyType:
     Implement an abstract property type
     """
 
-    def __init__(self, _type, default=None, unit=None):
+    def __init__(self, _type, default=None, unit=None, log:bool=False):
         
 
         self._type = _type
@@ -26,6 +26,7 @@ class PropertyType:
         self.__default = default
         self.__value = default
         self.__sio = None
+        self.__log = log
 
     @property
     def value(self):
@@ -55,6 +56,23 @@ class PropertyType:
         self.__sio = app.get_socketio()
         self.__machine = machine
 
+    @property
+    def tag_name(self):
+
+        return self.__tag_name
+    
+    @tag_name.setter
+    def tag_name(self, tag_name:str):
+        
+        self.__tag_name = tag_name
+
+    def is_logged(self):
+        r"""
+        Documentation here
+        """
+
+        return self.__log == True
+
 
 class StringType(PropertyType):
 
@@ -62,9 +80,9 @@ class StringType(PropertyType):
     Implement a Float Type
     """
 
-    def __init__(self, default=None, unit=None):
+    def __init__(self, default=None, unit=None, log:bool=False):
 
-        super(StringType, self).__init__(STRING, default, unit)
+        super(StringType, self).__init__(STRING, default, unit, log)
 
 
 class FloatType(PropertyType):
@@ -73,9 +91,9 @@ class FloatType(PropertyType):
     Implement a Float Type
     """
 
-    def __init__(self, default=None, unit=None):
+    def __init__(self, default=None, unit=None, log:bool=False):
 
-        super(FloatType, self).__init__(FLOAT, default, unit)
+        super(FloatType, self).__init__(FLOAT, default, unit, log)
 
 
 class IntegerType(PropertyType):
@@ -84,9 +102,9 @@ class IntegerType(PropertyType):
     Implement an Integer Typle
     """
 
-    def __init__(self, default=None, unit=None):
+    def __init__(self, default=None, unit=None, log:bool=False):
 
-        super(IntegerType, self).__init__(INTEGER, default, unit)
+        super(IntegerType, self).__init__(INTEGER, default, unit, log)
 
         
 class BooleanType(PropertyType):
@@ -95,9 +113,9 @@ class BooleanType(PropertyType):
     Implement a Boolean Type
     """
 
-    def __init__(self, default=None, unit=None):
+    def __init__(self, default=None, unit=None, log:bool=False):
 
-        super(BooleanType, self).__init__(BOOL, default, unit)
+        super(BooleanType, self).__init__(BOOL, default, unit, log)
 
 
 class Model(object):

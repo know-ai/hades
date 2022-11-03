@@ -106,7 +106,6 @@ class BaseModel(Model):
                     'data': query.serialize()
                 }
             )
-
             return result
 
         message = f"ID {id} not exist into database"
@@ -117,7 +116,6 @@ class BaseModel(Model):
                 'data': data
             }
         )
-
         return result
 
     @classmethod

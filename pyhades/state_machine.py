@@ -40,7 +40,7 @@ class State(_State):
     This class is used to define custom states in a state machine.
 
     **Parameters:**
-        
+
     * **name** (str): state machine name.
     * **interval** (float): machine loop time for this state in seconds.
 
@@ -55,7 +55,7 @@ class State(_State):
 
         super(State, self).__init__(*args, **kwargs)
         self._trigger = None
-        
+
         if "interval" in kwargs:
             self._interval = kwargs["interval"]
         else:
@@ -86,32 +86,32 @@ class State(_State):
         if not self._trigger:
             return
 
- 
+
 class PyHadesStateMachine(StateMachine):
 
     """
     Class used to define custom state machines.
 
     This class is used to define custom machines,
-    by defining parameters, states, transitions and 
+    by defining parameters, states, transitions and
     by defining methods state behaviour can de defined.
 
     **Parameters:**
-        
+
     * **name** (str): state machine name.
 
     **Attributes**
 
     * **tag_engine** (CVTEngine Object)
-    * **logger_engine** (DataLoggerEngine Object) 
+    * **logger_engine** (DataLoggerEngine Object)
 
     """
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
-    
+
 
     def __init__(self, name:str, **kwargs):
-        
+
         super(PyHadesStateMachine, self).__init__()
         self.name = name
         self._tag_bindings = list()
@@ -121,7 +121,7 @@ class PyHadesStateMachine(StateMachine):
         attrs = self.get_attributes()
 
         for key, value in attrs.items():
-        
+
             try:
                 if isinstance(value, TagBinding):
                     self._tag_bindings.append((key, value))
@@ -140,7 +140,7 @@ class PyHadesStateMachine(StateMachine):
                 else:
                     default = value.default
                     _type = value._type
-                    
+
                 if default:
                     setattr(self, key, default)
                 else:
@@ -156,6 +156,10 @@ class PyHadesStateMachine(StateMachine):
                 continue
 
         self.attrs = attrs
+
+        DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+        DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+        self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
 
     def info(self)->str:
         r"""
@@ -173,7 +177,7 @@ class PyHadesStateMachine(StateMachine):
         ```
         """
         return f'''\nState Machine: {self.name} - Interval: {self.get_interval()} seconds - States: {self.get_states()} - Transitions: {self.get_transitions_name()}'''
-    
+
     def get_states(self)->list:
         r"""
         Gets a list of state machine's names
@@ -183,7 +187,7 @@ class PyHadesStateMachine(StateMachine):
         * **(list)**
 
         Usage
-        
+
         ```python
         >>> machine = app.get_machine(name)
         >>> states = machine.get_states()
@@ -253,17 +257,17 @@ class PyHadesStateMachine(StateMachine):
         * **(dict)**
         """
         result = dict()
-        
+
         props = cls.__dict__
 
         forbidden_attributes = (
-            "states", 
-            "transitions", 
-            "states_map", 
-            "_loop", 
-            "get_attributes", 
-            "_tag_bindings", 
-            "_get_active_transitions", 
+            "states",
+            "transitions",
+            "states_map",
+            "_loop",
+            "get_attributes",
+            "_tag_bindings",
+            "_get_active_transitions",
             "_activate_triggers",
             "get_state_interval",
             "get_interval",
@@ -320,7 +324,7 @@ class PyHadesStateMachine(StateMachine):
         * **(list)** of string
         """
         transitions = self.transitions
-        
+
         _transitions = list()
 
         for transition in transitions:
@@ -355,39 +359,39 @@ class PyHadesStateMachine(StateMachine):
 
             try:
                 if direction == READ and _binding.direction == READ:
-                
+
                     tag = _binding.tag
                     value = self.tag_engine.read_tag(tag)
                     value = setattr(self, attr, value)
-                
+
                 elif direction == WRITE and _binding.direction == WRITE:
                     tag = _binding.tag
                     value = getattr(self, attr)
                     self.tag_engine.write_tag(tag, value)
-            
+
             except Exception as e:
                 message = "Machine - {}: Error on machine tag-bindings".format(self.name)
                 log_detailed(e, message)
 
     def _update_groups(self, direction=READ):
-    
+
         for attr, _binding in self._group_bindings:
 
             try:
                 if direction == READ and _binding.direction == READ:
-                
+
                     _binding.update()
 
                     setattr(self, attr, _binding.values)
-                
+
                 elif direction == WRITE and _binding.direction == WRITE:
-                    
+
                     values = getattr(self, attr)
-                    
+
                     _binding.values = values
 
                     _binding.update()
-            
+
             except Exception as e:
                 message = "Machine - {}: Error on machine group-bindings".format(self.name)
                 log_detailed(e, message)
@@ -420,6 +424,7 @@ class PyHadesStateMachine(StateMachine):
                 update_tags("write")
                 update_groups("write")
 
+            self.log_to_db()
             self._activate_triggers()
 
         except Exception as e:
@@ -432,7 +437,7 @@ class PyHadesStateMachine(StateMachine):
         in the state machine loop execution
         """
         self._loop()
-    
+
     def serialize(self)->dict:
         r"""
         Gets state machine attributes serialized
@@ -469,16 +474,16 @@ class PyHadesStateMachine(StateMachine):
         methods = ["while_" + state for state in states]
 
         attrs = self.get_attributes()
-        
+
         for key in attrs.keys():
 
             obj = attrs[key]
-            
+
             if key in checkers:
                 continue
             if key in methods:
                 continue
-            
+
 
             value = getattr(self, key)
             if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
@@ -513,6 +518,31 @@ class PyHadesStateMachine(StateMachine):
         methods = ["while_" + state for state in states]
 
         attrs = self.get_attributes()
+
+        for key in attrs.keys():
+
+            obj = attrs[key]
+
+            if key in checkers:
+                continue
+            if key in methods:
+                continue
+
+            if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
+
+                obj.init_socketio(machine=self)
+
+    @logging_error_handler
+    def get_tag_name_to_log(self):
+        r"""
+        Documentation here
+        """
+        tag_names = list()
+        states = self.get_states()
+        checkers = ["is_" + state for state in states]
+        methods = ["while_" + state for state in states]
+
+        attrs = self.get_attributes()
         
         for key in attrs.keys():
 
@@ -525,7 +555,36 @@ class PyHadesStateMachine(StateMachine):
             
             if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-                obj.init_socketio(machine=self)
+                if obj.is_logged():
+
+                    tag_names.append(key)
+
+        return tag_names
+
+    @logging_error_handler
+    def log_to_db(self):
+        r"""
+        Documentation here
+        """
+        tag_names = self.get_tag_name_to_log()
+        response = requests.post(f"{self.DAQ_SERVICE_URL}/api/tags/read_tag_id_by_name", json=tag_names)
+        tags = list()
+
+        if response.status_code==200:
+
+            tag_names_ids = response.json()
+
+            for tag_name, tag_id in tag_names_ids.items():
+
+                tag_attr = getattr(self, tag_name)
+
+
+                tags.append({
+                    'tag': tag_id,
+                    'value': tag_attr.value
+                })
+
+            response = requests.post(f"{self.DAQ_SERVICE_URL}/api/tags/write_tags", json=tags)
 
 class AutomationStateMachine(PyHadesStateMachine):
     r"""
@@ -580,9 +639,9 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         """
         super(AutomationStateMachine, self).__init__(name)
-        DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
+        # DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+        # DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+        # self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
         self.system_tags = dict()
         self.default_tags = list()
         self.default_alarms = list()
@@ -631,7 +690,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         Only set priority and classification to notify in the front end
         """
         self.criticity = 4
-        
+
     def while_testing(self):
         """
         ## **testing** state
@@ -679,9 +738,9 @@ class AutomationStateMachine(PyHadesStateMachine):
     @system_log_transition(
         log=APP_EVENT_LOG,
         event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
-        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT, 
+        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT,
         auth_service_host=AUTH_SERVICE_HOST,
-        auth_service_port=AUTH_SERVICE_PORT, 
+        auth_service_port=AUTH_SERVICE_PORT,
         )
     def on_start_to_wait(self):
         r"""
@@ -703,9 +762,9 @@ class AutomationStateMachine(PyHadesStateMachine):
     @system_log_transition(
         log=APP_EVENT_LOG,
         event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
-        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT, 
+        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT,
         auth_service_host=AUTH_SERVICE_HOST,
-        auth_service_port=AUTH_SERVICE_PORT, 
+        auth_service_port=AUTH_SERVICE_PORT,
         )
     def on_wait_to_run(self):
         """
@@ -861,7 +920,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity = 4
-        
+
     @notify_state
     def on_sleep_to_restart(self):
         """
@@ -878,8 +937,8 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity = 4
-        
-        
+
+
     @notify_state
     def on_wait_to_reset(self):
         """
@@ -930,7 +989,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity = 4
-        
+
     @notify_state
     def on_sleep_to_reset(self):
         """
@@ -947,7 +1006,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity = 4
-        
+
 
     @notify_state
     def on_run_to_test(self):
@@ -1051,7 +1110,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         _transitions = self.allowed_transitions
         transitions = {
-            'reset': False, 
+            'reset': False,
         }
         for transition in _transitions:
 
@@ -1078,7 +1137,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
     @logging_error_handler
     def transition(
-        self, 
+        self,
         to
         ):
         r"""
@@ -1097,13 +1156,13 @@ class AutomationStateMachine(PyHadesStateMachine):
             'tags': list(self.system_tags.keys())
         }
         data = dict()
-             
+
         response = requests.post(f'{self.DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=self.headers)
 
         if response:
-            
+
             tags = response.json()
-            
+
             for tag_name, value in tags.items():
 
                 data[tag_name] = value
@@ -1120,14 +1179,14 @@ class AutomationStateMachine(PyHadesStateMachine):
             config = parse_config(self.config_file_location)
 
             if 'modules' in config and config['modules'] is not None:
-        
+
                 if 'engine' in config['modules'] and config['modules']['engine'] is not None:
 
                     if 'tags' in config['modules']['engine'] and config['modules']['engine']['tags'] is not None:
 
                         tags = config['modules']['engine']['tags']
                         self.default_tags = [self.define_tag(**tag) for key, tag in tags.items()]
-                        
+
 
                     if 'alarms' in config['modules']['engine'] and config['modules']['engine']['alarms'] is not None:
 
@@ -1141,9 +1200,9 @@ class AutomationStateMachine(PyHadesStateMachine):
                     if 'time_window' in config['modules']['engine']:
                         _time_window = config['modules']['engine']['time_window']
                         self.time_window = int(_time_window / self.get_interval())
-                        
+
                     if 'system_tags' in config['modules']['engine']:
-                        
+
                         self.system_tags = config['modules']['engine']['system_tags']
 
     @logging_error_handler
@@ -1155,9 +1214,9 @@ class AutomationStateMachine(PyHadesStateMachine):
 
             location = None
             if 'location' in self.system_tags[tag]:
-                
+
                 location = self.system_tags[tag]['location']
-            
+
             self.buffer[tag] = {
                 'data': list(),
                 'location': location
@@ -1177,6 +1236,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         return self.default_alarms
 
+    @logging_error_handler
     def fill_buffer(self, data:dict)->dict:
         r"""
         Documentation here
@@ -1197,4 +1257,3 @@ class AutomationStateMachine(PyHadesStateMachine):
                 _value[-1] = value['y']
                 self.buffer[tag_name]['data'] = _value
                 self.ready_to_run = True
-    

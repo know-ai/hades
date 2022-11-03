@@ -76,16 +76,17 @@ class Alarm:
         Sets default operations from alarms
         """
         self._operations = {
-            'acknowledge': 'not active',
-            'enable': 'not active',
-            'disable': 'active',
-            'silence': 'not active',
-            'shelve': 'active',
-            'suppress by design': 'active',
-            'unsuppressed': 'not active',
-            'out of service': 'active',
-            'return to service': 'not active',
-            'reset': 'active'
+            'acknowledge': False,
+            'enable': False,
+            'disable': True,
+            'silence': False,
+            'sound': True,
+            'shelve': True,
+            'suppress by design': True,
+            'unsuppressed': False,
+            'out of service': True,
+            'return to service': False,
+            'reset': True
         }
 
     def get_operations(self):
@@ -259,7 +260,7 @@ class Alarm:
         elif self._state.state==AlarmState.ACKED.state:
             
             _alarm = AlarmSummary.read_by_name(self.name)
-
+    
             if _alarm:
                 
                 _state = AlarmStates.read_by_name(name=self._state.state)
@@ -296,10 +297,10 @@ class Alarm:
        
         self._timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.state = AlarmState.UNACK
-        self._operations['acknowledge'] = 'active'
-        self._operations['shelve'] = 'not active'
-        self._operations['suppress by design'] = 'not active'
-        self._operations['out of service'] = 'not active'
+        self._operations['acknowledge'] = True
+        self._operations['shelve'] = False
+        self._operations['suppress by design'] = False
+        self._operations['out of service'] = False
     
 
     @property
@@ -320,8 +321,8 @@ class Alarm:
 
         self._enabled = True
 
-        self._operations['disable'] = 'active'
-        self._operations['enable'] = 'not active'
+        self._operations['disable'] = True
+        self._operations['enable'] = False
 
     def disable(self):
         r"""
@@ -334,8 +335,8 @@ class Alarm:
 
         self._enabled = False
 
-        self._operations['disable'] = 'not active'
-        self._operations['enable'] = 'active'
+        self._operations['disable'] = False
+        self._operations['enable'] = True
 
     def acknowledge(self):
         r"""
@@ -354,7 +355,7 @@ class Alarm:
             self.state = AlarmState.NORM
 
         self._acknowledged_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self._operations['acknowledge'] = 'not active'
+        self._operations['acknowledge'] = False
 
     def silence(self):
         r"""
@@ -365,7 +366,7 @@ class Alarm:
             return
 
         self.state.silence()
-        self._operations['silence'] = 'not active'
+        self._operations['silence'] = False
 
     def sound(self):
         r"""
@@ -378,7 +379,7 @@ class Alarm:
         if self.state.is_triggered:
         
             self.state.return_to_audible()
-            self._operations['silence'] = 'active'
+            self._operations['silence'] = True
         
     def reset(self):
         r"""
@@ -413,9 +414,9 @@ class Alarm:
             self._shelved_until = self._shelved_time + timedelta(**options_time)
         
         self.state = AlarmState.SHLVD
-        self._operations['shelve'] = 'not active'
-        self._operations['suppress by design'] = 'not active'
-        self._operations['out of service'] = 'not active'
+        self._operations['shelve'] = False
+        self._operations['suppress by design'] = False
+        self._operations['out of service'] = False
 
     def unshelve(self):
         r"""
@@ -424,47 +425,47 @@ class Alarm:
         self._shelved_time = None
         self._shelved_until = None
         self.state = AlarmState.NORM
-        self._operations['shelve'] = 'active'
-        self._operations['suppress by design'] = 'active'
-        self._operations['out of service'] = 'nactive'
+        self._operations['shelve'] = True
+        self._operations['suppress by design'] = True
+        self._operations['out of service'] = True
 
     def suppress_by_design(self):
         r"""
         Suppress Alarm by design
         """
         self.state = AlarmState.DSUPR
-        self._operations['shelve'] = 'not active'
-        self._operations['suppress by design'] = 'not active'
-        self._operations['out of service'] = 'not active'
-        self._operations['unsuppress by design'] = 'active'
+        self._operations['shelve'] = False
+        self._operations['suppress by design'] = False
+        self._operations['out of service'] = False
+        self._operations['unsuppress by design'] = True
 
     def unsuppress_by_design(self):
         r"""
         Unsuppress alarm, return to normal state after suppress state
         """
         self.state = AlarmState.NORM
-        self._operations['shelve'] = 'active'
-        self._operations['suppress by design'] = 'active'
-        self._operations['out of service'] = 'active'
+        self._operations['shelve'] = True
+        self._operations['suppress by design'] = True
+        self._operations['out of service'] = True
 
     def out_of_service(self):
         r"""
         Remove alarm from service
         """
         self.state = AlarmState.OOSRV
-        self._operations['shelve'] = 'not active'
-        self._operations['suppress by design'] = 'not active'
-        self._operations['out of service'] = 'not active'
-        self._operations['return to service'] = 'active'
+        self._operations['shelve'] = False
+        self._operations['suppress by design'] = False
+        self._operations['out of service'] = False
+        self._operations['return to service'] = True
     
     def return_to_service(self):
         r"""
         Return alarm to normal condition after Out Of Service state
         """
         self.state = AlarmState.NORM
-        self._operations['shelve'] = 'active'
-        self._operations['suppress by design'] = 'active'
-        self._operations['out of service'] = 'active'
+        self._operations['shelve'] = True
+        self._operations['suppress by design'] = True
+        self._operations['out of service'] = True
 
     def update(self, value):
         r"""
