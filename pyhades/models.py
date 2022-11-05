@@ -5,11 +5,15 @@ This module implements a Tags and other classes for
 modelling the subjects involved in the core of the engine.
 """
 from inspect import ismethod
+import os
+import requests
+from .utils import logging_error_handler
 
 FLOAT = "float"
 INTEGER = "int"
 BOOL = "bool"
 STRING = "str"
+
 
 
 class PropertyType:
@@ -20,13 +24,17 @@ class PropertyType:
 
     def __init__(self, _type, default=None, unit=None, log:bool=False):
         
-
+        self.tag_engine = None
         self._type = _type
         self.unit = unit
         self.__default = default
         self.__value = default
         self.__sio = None
         self.__log = log
+        self.__tag_name = None
+        self.DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+        self.DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+        self.DAQ_SERVICE_URL = f"http://{self.DAQ_SERVICE_HOST}:{self.DAQ_SERVICE_PORT}"
 
     @property
     def value(self):
@@ -36,12 +44,20 @@ class PropertyType:
         return self.__value
 
     @value.setter
+    @logging_error_handler
     def value(self, value):
         
         if self.__value!=value:
 
             if self.__sio is not None:
 
+                if self.is_logged():
+                    payload = {
+                        'name': self.tag_name,
+                        'value': value
+                    }
+                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
+                    
                 self.__sio.emit("notify_machine_attr", self.__machine.serialize())
 
             self.__value = value
@@ -72,6 +88,18 @@ class PropertyType:
         """
 
         return self.__log == True
+
+    def set_log(self):
+        r"""
+        Documentation here
+        """
+        self.__log = True
+
+    def drop_log(self):
+        r"""
+        Documentation here
+        """
+        self.__log = False
 
 
 class StringType(PropertyType):

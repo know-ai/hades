@@ -1,7 +1,8 @@
-from peewee import CharField, DateTimeField, FloatField, ForeignKeyField
+from peewee import CharField, DateTimeField, FloatField, ForeignKeyField, fn
 from .core import BaseModel
 from datetime import datetime
 import csv
+from tqdm import tqdm
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -537,34 +538,39 @@ class TagValue(BaseModel):
         r"""
         Documentation here
         """
-        result = {
-            'Tags': Tags.get_export_to_csv(),
-        }
-        tag_value = list()
-        tag_info = dict()
-        previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
-        for tag in cls.select():
-
-            timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
-            if previous_timestamp!=timestamp:
-                if tag_info:
-                    tag_value.append(tag_info)
-                tag_info = dict()
-                previous_timestamp = timestamp
-                tag_info['timestamp'] = timestamp
-                tag_info[f'{tag.tag.name}'] = tag.value
-
-            else:
-                tag_info[f'{tag.tag.name}'] = tag.value
-
-        result['TagValue'] = tag_value
-
-        for key, value in result.items():
-
-            with open(f'daq_{key}.csv', 'w', newline='') as output_file:
-                dict_writer = csv.DictWriter(output_file, value[0].keys(), delimiter=",")
-                dict_writer.writeheader()
-                dict_writer.writerows(value)
-
-        return result
+        tag_names_query = cls.select(fn.DISTINCT(cls.tag_id))
         
+        tag_info = dict()
+        tag_info['timestamp'] = None
+        for tag in tag_names_query:
+
+            tag_info[tag.tag.name] = None
+
+        previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
+        tags = cls.select()
+        row = 0
+        with open('daq_tag_value.csv', 'w', newline='') as f:
+            
+            for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
+
+                timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
+                if previous_timestamp!=timestamp:
+                    
+                    if tag_info:
+
+                        if row==0:
+                    
+                            dict_writer = csv.DictWriter(f, tag_info.keys(), delimiter=",")
+                            dict_writer.writeheader()
+
+                        dict_writer.writerow(tag_info)
+                        row += 1
+
+                    tag_info = dict()
+                    previous_timestamp = timestamp
+                    tag_info['timestamp'] = timestamp
+                    tag_info[tag.tag.name] = tag.value
+
+                else:
+
+                    tag_info[f'{tag.tag.name}'] = tag.value

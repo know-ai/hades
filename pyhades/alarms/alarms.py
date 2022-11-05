@@ -259,7 +259,7 @@ class Alarm:
 
         elif self._state.state==AlarmState.ACKED.state:
             
-            _alarm = AlarmSummary.read_by_name(self.name)
+            _alarm = AlarmSummary.read_by_alarm_id(self._id)
     
             if _alarm:
                 
@@ -270,15 +270,27 @@ class Alarm:
                     ack_time=datetime.now()
                 )
 
-        elif self._state.state==AlarmState.RTNUN:
+        elif self._state.state==AlarmState.RTNUN.state:
 
-            _alarm = AlarmSummary.read_by_name(self.name)
+            _alarm = AlarmSummary.read_by_alarm_id(self._id)
 
             if _alarm:
                 _state = AlarmStates.read_by_name(name=self._state.state)
                 AlarmSummary.put(
                     id=_alarm.id,
-                    state=_state.id
+                    state=_state.id,
+                    active=False
+                )
+
+        elif self._state.state==AlarmState.NORM.state:
+
+            _alarm = AlarmSummary.read_by_alarm_id(self._id)
+
+            if _alarm:
+
+                AlarmSummary.put(
+                    id=_alarm.id,
+                    active=False
                 )
 
         sio = self.app.get_socketio()
@@ -286,6 +298,8 @@ class Alarm:
         if sio is not None:
             
             sio.emit("notify_alarm", self.serialize())
+            summary = AlarmSummary.read_lasts(lasts=100)
+            sio.emit("notify_alarm_summary", summary)
 
     def trigger_alarm(self):
         r"""

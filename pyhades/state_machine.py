@@ -123,6 +123,13 @@ class PyHadesStateMachine(StateMachine):
         for key, value in attrs.items():
 
             try:
+
+                obj = attrs[key]
+
+                if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
+
+                    obj.tag_name = key
+
                 if isinstance(value, TagBinding):
                     self._tag_bindings.append((key, value))
                     _value = self.tag_engine.read_tag(value.tag)
@@ -152,6 +159,7 @@ class PyHadesStateMachine(StateMachine):
                         setattr(self, key, False)
                     elif _type == STRING:
                         setattr(self, key, "")
+
             except Exception as e:
                 continue
 
@@ -424,7 +432,6 @@ class PyHadesStateMachine(StateMachine):
                 update_tags("write")
                 update_groups("write")
 
-            self.log_to_db()
             self._activate_triggers()
 
         except Exception as e:
@@ -532,59 +539,49 @@ class PyHadesStateMachine(StateMachine):
 
                 obj.init_socketio(machine=self)
 
-    @logging_error_handler
-    def get_tag_name_to_log(self):
+    def get_loggeable_variables(self):
         r"""
         Documentation here
         """
-        tag_names = list()
         states = self.get_states()
         checkers = ["is_" + state for state in states]
         methods = ["while_" + state for state in states]
 
         attrs = self.get_attributes()
-        
+        result = list()
+
         for key in attrs.keys():
 
             obj = attrs[key]
-            
+
             if key in checkers:
                 continue
             if key in methods:
                 continue
-            
+
             if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
 
-                if obj.is_logged():
+                result.append(key)
 
-                    tag_names.append(key)
+        return result
 
-        return tag_names
-
-    @logging_error_handler
-    def log_to_db(self):
+    
+    def set_loggeable_variable(self, name:str):
         r"""
         Documentation here
         """
-        tag_names = self.get_tag_name_to_log()
-        response = requests.post(f"{self.DAQ_SERVICE_URL}/api/tags/read_tag_id_by_name", json=tag_names)
-        tags = list()
+        if name in self.get_loggeable_variables():
+            attr = getattr(self, name)
+            attr.set_log()
 
-        if response.status_code==200:
+    def drop_loggeable_variable(self, name:str):
+        r"""
+        Documentation here
+        """
+        if name in self.get_loggeable_variables():
+            attr = getattr(self, name)
+            attr.drop_log()
 
-            tag_names_ids = response.json()
-
-            for tag_name, tag_id in tag_names_ids.items():
-
-                tag_attr = getattr(self, tag_name)
-
-
-                tags.append({
-                    'tag': tag_id,
-                    'value': tag_attr.value
-                })
-
-            response = requests.post(f"{self.DAQ_SERVICE_URL}/api/tags/write_tags", json=tags)
 
 class AutomationStateMachine(PyHadesStateMachine):
     r"""
@@ -639,9 +636,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         """
         super(AutomationStateMachine, self).__init__(name)
-        # DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        # DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        # self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
         self.system_tags = dict()
         self.default_tags = list()
         self.default_alarms = list()
@@ -1143,9 +1137,13 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        _from = self.current_state.name.lower()
-        _transition = getattr(self, '{}_to_{}'.format(_from, to))
-        _transition()
+        try:
+            _from = self.current_state.name.lower()
+            _transition = getattr(self, '{}_to_{}'.format(_from, to))
+            _transition()
+        except Exception as err:
+
+            logging.WARNING(f"Transition from {_from} state to {to} state for {self.name} is not allowed")
 
     @logging_error_handler
     def read_data(self):
@@ -1157,7 +1155,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         data = dict()
 
-        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/daq/read_current_tags', json=payload, headers=self.headers)
+        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAQ/read_current_tags', json=payload)
 
         if response:
 

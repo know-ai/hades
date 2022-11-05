@@ -178,7 +178,15 @@ class AlarmsDB(BaseModel):
                     query.save()
                     
                     return query
-                    
+
+    @classmethod
+    def read(cls, id:int) -> dict:
+        r"""
+        Select a single record
+        """
+        query = cls.select().where(cls.id == id).get_or_none()
+
+        return query      
 
     def set_trigger(self, alarm_type:str, trigger:float):
         r"""
@@ -518,10 +526,12 @@ class AlarmSummary(BaseModel):
             if _state:
             
                 # Set Active old alarms False
-                old_query = cls.select().where(cls.alarm==_alarm.id).get_or_none()
+                old_query = cls.select().where(cls.alarm==_alarm)
                 if old_query:
-                    old_query.active = False
-                    old_query.save()
+                    
+                    for _query in old_query:
+                        _query.active = False
+                        _query.save()
 
 
                 # Create record
@@ -544,7 +554,23 @@ class AlarmSummary(BaseModel):
         * **bool:** If True, name exist into database 
         """
         alarm = AlarmsDB.read_by_name(name=name)
-        return cls.get_or_none(alarm=alarm)
+        return cls.select().where(cls.alarm==alarm).order_by(cls.id.desc()).get_or_none()
+
+    @classmethod
+    def read_by_alarm_id(cls, alarm_id:int)->bool:
+        r"""
+        Get instance by its a name
+
+        **Parameters**
+
+        * **name:** (str) Alarm type name
+
+        **Returns**
+
+        * **bool:** If True, name exist into database 
+        """
+        alarm = AlarmsDB.read(id=alarm_id)
+        return cls.select().where(cls.alarm==alarm).order_by(cls.id.desc()).get_or_none()
 
     @classmethod
     def read_all(cls):
