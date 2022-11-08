@@ -338,6 +338,12 @@ class Alarm:
         self._operations['disable'] = True
         self._operations['enable'] = False
 
+        self._operations['shelve'] = True
+        self._operations['suppress by design'] = True
+        self._operations['unsuppressed'] = False
+        self._operations['out of service'] = True
+        self._operations['reset'] = True
+
     def disable(self):
         r"""
         Enable or disable alarm according the parameter *value*
@@ -351,6 +357,19 @@ class Alarm:
 
         self._operations['disable'] = False
         self._operations['enable'] = True
+
+        self._operations['acknowledge'] = False
+        self._operations['silence'] = False
+        self._operations['sound'] = False
+        self._operations['shelve'] = False
+        self._operations['suppress by design'] = False
+        self._operations['unsuppressed'] = False
+        self._operations['out of service'] = False
+        self._operations['return to service'] = False
+        self._operations['reset'] = False
+
+        self.silence()
+
 
     def acknowledge(self):
         r"""

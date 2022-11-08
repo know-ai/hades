@@ -46,21 +46,19 @@ class PropertyType:
     @value.setter
     @logging_error_handler
     def value(self, value):
-        
-        if self.__value!=value:
 
-            if self.__sio is not None:
+        if self.__sio is not None:
 
-                if self.is_logged():
-                    payload = {
-                        'name': self.tag_name,
-                        'value': value
-                    }
-                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
-                    
-                self.__sio.emit("notify_machine_attr", self.__machine.serialize())
+            if self.is_logged():
+                payload = {
+                    'name': self.tag_name,
+                    'value': value
+                }
+                requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
+                
+            self.__sio.emit("notify_machine_attr", self.__machine.serialize())
 
-            self.__value = value
+        self.__value = value
 
     def init_socketio(self, machine):
         r"""

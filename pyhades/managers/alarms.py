@@ -267,17 +267,15 @@ class AlarmManager:
                 _now = datetime.now()
                 
                 if _alarm._shelved_until:
-
+                    
                     if _now >= _alarm._shelved_until:
                         
                         AlarmModel.create(
-                            timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                             name=_alarm.name,
                             state=_alarm.state.state,
                             priority=_alarm._priority,
                             value=_alarm._value
                         )
-                        
                         _alarm.unshelve()
                         continue
 
