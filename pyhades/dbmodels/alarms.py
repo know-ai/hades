@@ -2,6 +2,8 @@ from .core import BaseModel
 from peewee import *
 from datetime import datetime
 from .tags import Tags
+import requests
+import os
 
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -611,10 +613,32 @@ class AlarmSummary(BaseModel):
 
         return result
 
+    def get_comments(self):
+        r"""
+        Documentation here
+        """
+        EVENT_LOGGER_SERVICE_HOST = os.environ.get('EVENT_LOGGER_SERVICE_HOST') or "127.0.0.1"
+        EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
+        EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
+        try:
+            comments = requests.get(f"{EVENT_LOGGER_SERVICE_URL}/api/logs/comments/{self.id}")
+            if comments:
+
+                return comments.json()
+
+            return []
+        
+        except:
+
+            return []
+
     def serialize(self):
         r"""
         Documentation here
         """
+        from pyhades import PyHades
+        app = PyHades()
+        alarm_manager = app.get_alarm_manager()
         ack_time = None
         if self.ack_time:
 
@@ -630,8 +654,17 @@ class AlarmSummary(BaseModel):
 
             return_to_service_time = self.return_To_service_time.strftime(DATETIME_FORMAT)
 
+        alarm = alarm_manager.get_alarm_by_name(self.alarm.name)
+
+        is_process_alarm = True
+
+        if 'leak' in self.alarm.name or 'iad' in self.alarm.name:
+
+            is_process_alarm = False
+
         return {
             'id': self.id,
+            'alarm_id': alarm._id,
             'name': self.alarm.name,
             'state': self.state.name,
             'mnemonic': self.state.mnemonic,
@@ -642,5 +675,8 @@ class AlarmSummary(BaseModel):
             'ack_time': ack_time,
             'out_of_service_time': out_of_service_time,
             'return_to_service_time': return_to_service_time,
-            'active': self.active
+            'active': self.active,
+            'audible': alarm.audible,
+            'is_process_alarm': is_process_alarm,
+            'comments': self.get_comments()
         }

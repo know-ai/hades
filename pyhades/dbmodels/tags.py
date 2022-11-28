@@ -574,3 +574,4 @@ class TagValue(BaseModel):
                 else:
 
                     tag_info[f'{tag.tag.name}'] = tag.value
+

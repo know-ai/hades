@@ -114,7 +114,6 @@ class CVT:
             
             self._tags[str(_tag.id)] = tag
 
-
     def set_tags(self, tags):
         """Initialize a list of new Tags object in the _tags dictionary.
         
@@ -220,26 +219,28 @@ class CVT:
         value (float, int, bool): 
             Tag value ("int", "float", "bool")
         """
-        if "." in name:
-            values = name.split(".")
-            tag_name = values[0]
-        else:
-            tag_name = name
+        # if "." in name:
+        #     values = name.split(".")
+        #     tag_name = values[0]
+        # else:
+        #     tag_name = name
+        tag_name = name
         
         tag = Tags.read_by_name(tag_name)
 
         if str(tag.id) not in self._tags:
             raise KeyError
 
-        if "." in name:
-            values = name.split(".")
-            name = values[0]
-            _property = values[1]
-            setattr(self._tags[str(tag.id)].value, _property, value)
-            self._tags[str(tag.id)].notify()
+        # if "." in name:
+        #     values = name.split(".")
+        #     name = values[0]
+        #     _property = values[1]
+        #     setattr(self._tags[str(tag.id)].value, _property, value)
+        #     self._tags[str(tag.id)].notify()
 
-        else:
-            self._tags[str(tag.id)].set_value(value)
+        # else:
+            # self._tags[str(tag.id)].set_value(value)
+        self._tags[str(tag.id)].set_value(value)
     
         self.logger.write_tag(tag_name, value)
 
@@ -268,24 +269,24 @@ class CVT:
         """
         tag = Tags.read_by_name(name)
         
-        if "." in name:
-            values = name.split(".")
-            name = values[0]
-            _property = values[1]
-            _new_object = copy.copy(getattr(self._tags[str(tag.id)].value, _property))
-        else:
+        # if "." in name:
+        #     values = name.split(".")
+        #     name = values[0]
+        #     _property = values[1]
+        #     _new_object = copy.copy(getattr(self._tags[str(tag.id)].value, _property))
+        # else:
             # _new_object = copy.copy(self._tags[str(tag.id)].get_value(unit=unit))
-            _new_object = copy.copy(self._tags[str(tag.id)].get_value())
+        _new_object = copy.copy(self._tags[str(tag.id)].get_value())
 
-            _tag = self._tags[str(tag.id)]
-            _unit = Units.read_by_unit(unit)
-            from_unit = Units.read_by_unit(_tag.unit)
-            from_unit = from_unit['name']
-            value = self._tags[str(tag.id)].get_value()
-            if _unit:
-                to_unit = _unit['name']
-                new_value =  self.unit_converter.convert(value, from_unit=from_unit, to_unit=to_unit)
-                _new_object = copy.copy(new_value)
+        _tag = self._tags[str(tag.id)]
+        _unit = Units.read_by_unit(unit)
+        from_unit = Units.read_by_unit(_tag.unit)
+        from_unit = from_unit['name']
+        value = self._tags[str(tag.id)].get_value()
+        if _unit:
+            to_unit = _unit['name']
+            new_value =  self.unit_converter.convert(value, from_unit=from_unit, to_unit=to_unit)
+            _new_object = copy.copy(new_value)
         
         return _new_object
 
@@ -1293,7 +1294,6 @@ class CVTEngine(Singleton):
 
         if result["result"]:
             return result["response"]
-
 
     def request(self, query:dict):
         r"""

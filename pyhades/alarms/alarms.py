@@ -26,7 +26,7 @@ class Alarm:
 
     def __init__(self, name:str, tag:str, description:str, load=False):
 
-        self._name = name
+        self.name = name
         self._tag = tag
         self._description = description
         self._value = False
@@ -43,6 +43,7 @@ class Alarm:
         self._timestamp = None
         self._acknowledged_timestamp = None
         self._shelved_time = None
+        self.audible = False
         self._shelved_options_time = {
             'days': 0,
             'seconds': 0,
@@ -213,6 +214,17 @@ class Alarm:
         """
         return self._name
 
+    @name.setter
+    def name(self, value:str):
+        
+        self._is_process_alarm = False
+
+        if 'leak' not in value and 'iad' not in value:
+
+            self._is_process_alarm = True
+
+        self._name = value
+
     @property
     def tag(self):
         r"""
@@ -256,6 +268,9 @@ class Alarm:
                 name=self.name,
                 state=self._state.state
             )
+            self._operations['silence'] = True
+            self._operations['sound'] = False
+            self.audible = True
 
         elif self._state.state==AlarmState.ACKED.state:
             
@@ -269,6 +284,9 @@ class Alarm:
                     state=_state.id,
                     ack_time=datetime.now()
                 )
+                self._operations['silence'] = False
+                self._operations['sound'] = False
+                self.audible = False
 
         elif self._state.state==AlarmState.RTNUN.state:
 
@@ -281,6 +299,9 @@ class Alarm:
                     state=_state.id,
                     active=False
                 )
+                self._operations['silence'] = False
+                self._operations['sound'] = False
+                self.audible = False
 
         elif self._state.state==AlarmState.NORM.state:
 
@@ -292,6 +313,11 @@ class Alarm:
                     id=_alarm.id,
                     active=False
                 )
+
+            self._operations['disable'] = True
+            self._operations['silence'] = False
+            self._operations['sound'] = False
+            self.audible = False
 
         sio = self.app.get_socketio()
 
@@ -312,11 +338,12 @@ class Alarm:
         self._timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.state = AlarmState.UNACK
         self._operations['acknowledge'] = True
-        self._operations['shelve'] = False
-        self._operations['suppress by design'] = False
-        self._operations['out of service'] = False
+        self._operations['shelve'] = True
+        self._operations['suppress by design'] = True
+        self._operations['out of service'] = True
+        self._operations['enable'] = False
+        self._operations['disable'] = False
     
-
     @property
     def enabled(self):
         r"""
@@ -334,10 +361,8 @@ class Alarm:
         """
 
         self._enabled = True
-
         self._operations['disable'] = True
         self._operations['enable'] = False
-
         self._operations['shelve'] = True
         self._operations['suppress by design'] = True
         self._operations['unsuppressed'] = False
@@ -370,7 +395,6 @@ class Alarm:
 
         self.silence()
 
-
     def acknowledge(self):
         r"""
         Allows you to acknowledge alarm triggered
@@ -382,10 +406,12 @@ class Alarm:
         if self.state == AlarmState.UNACK:
 
             self.state = AlarmState.ACKED
+            self.audible = False
         
         if self.state == AlarmState.RTNUN:
             
             self.state = AlarmState.NORM
+            self.audible = False
 
         self._acknowledged_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self._operations['acknowledge'] = False
@@ -398,8 +424,22 @@ class Alarm:
 
             return
 
-        self.state.silence()
+        self.audible = False
         self._operations['silence'] = False
+
+        if self._state.state==AlarmState.UNACK.state:
+            
+            self._operations['sound'] = True
+        
+        else:
+
+            self._operations['sound'] = False
+
+        sio = self.app.get_socketio()
+
+        if sio is not None:
+            
+            sio.emit("notify_alarm", self.serialize())
 
     def sound(self):
         r"""
@@ -411,8 +451,22 @@ class Alarm:
 
         if self.state.is_triggered:
         
-            self.state.return_to_audible()
-            self._operations['silence'] = True
+            self.audible = True
+            self._operations['sound'] = False
+            
+            if self._state.state==AlarmState.UNACK.state:
+            
+                self._operations['silence'] = True
+            
+            else:
+
+                self._operations['silence'] = False
+
+            sio = self.app.get_socketio()
+            
+            if sio is not None:
+                
+                sio.emit("notify_alarm", self.serialize())
         
     def reset(self):
         r"""
@@ -447,9 +501,19 @@ class Alarm:
             self._shelved_until = self._shelved_time + timedelta(**options_time)
         
         self.state = AlarmState.SHLVD
+        self.audible = False
+
+        self._operations['acknowledge'] = False
+        self._operations['enable'] = False
+        self._operations['disable'] = False
+        self._operations['silence'] = False
+        self._operations['sound'] = False
         self._operations['shelve'] = False
         self._operations['suppress by design'] = False
+        self._operations['unsuppressed'] = False
         self._operations['out of service'] = False
+        self._operations['return to service'] = False
+        self._operations['reset'] = True
 
     def unshelve(self):
         r"""
@@ -458,47 +522,61 @@ class Alarm:
         self._shelved_time = None
         self._shelved_until = None
         self.state = AlarmState.NORM
-        self._operations['shelve'] = True
-        self._operations['suppress by design'] = True
-        self._operations['out of service'] = True
+        self.audible = False
+        self.__default_operations()
 
     def suppress_by_design(self):
         r"""
         Suppress Alarm by design
         """
         self.state = AlarmState.DSUPR
+        
+        self._operations['acknowledge'] = False
+        self._operations['enable'] = False
+        self._operations['disable'] = False
+        self._operations['silence'] = False
+        self._operations['sound'] = False
         self._operations['shelve'] = False
         self._operations['suppress by design'] = False
+        self._operations['unsuppressed'] = True
         self._operations['out of service'] = False
-        self._operations['unsuppress by design'] = True
+        self._operations['return to service'] = False
+        self._operations['reset'] = False
+        self.audible = False
 
     def unsuppress_by_design(self):
         r"""
         Unsuppress alarm, return to normal state after suppress state
         """
         self.state = AlarmState.NORM
-        self._operations['shelve'] = True
-        self._operations['suppress by design'] = True
-        self._operations['out of service'] = True
+        self.audible = False
+        self.__default_operations()
 
     def out_of_service(self):
         r"""
         Remove alarm from service
         """
         self.state = AlarmState.OOSRV
+        self.audible = False
+        self._operations['acknowledge'] = False
+        self._operations['enable'] = False
+        self._operations['disable'] = False
+        self._operations['silence'] = False
+        self._operations['sound'] = False
         self._operations['shelve'] = False
         self._operations['suppress by design'] = False
+        self._operations['unsuppressed'] = False
         self._operations['out of service'] = False
         self._operations['return to service'] = True
+        self._operations['reset'] = False
     
     def return_to_service(self):
         r"""
         Return alarm to normal condition after Out Of Service state
         """
         self.state = AlarmState.NORM
-        self._operations['shelve'] = True
-        self._operations['suppress by design'] = True
-        self._operations['out of service'] = True
+        self.audible = False
+        self.__default_operations()
 
     def update(self, value):
         r"""
@@ -599,9 +677,10 @@ class Alarm:
             "acknowledged": self.state.is_acknowledged(),
             "acknowledged_timestamp": self._acknowledged_timestamp,
             "value": self._value,
+            "audible": self.audible,
             "type": self._trigger.type.value,
-            "audible": self.state.audible,
             "description": self.description,
             "operations": self.get_operations(),
-            "priority": self.priority
+            "priority": self.priority,
+            "is_process_alarm": self._is_process_alarm
         }

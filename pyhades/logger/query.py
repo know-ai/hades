@@ -10,14 +10,16 @@ from datetime import datetime, timedelta
 from .engine import DataLoggerEngine
 from ..dbmodels import Tags, TagValue
 
+
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 
 class QueryLogger:
 
     def __init__(self):
-
+        from ..tags import CVTEngine
         self._logger = DataLoggerEngine()
+        self.tag_engine = CVTEngine()
 
     def get_values(self, tag):
 
@@ -49,41 +51,26 @@ class QueryLogger:
 
     def query_waveform(self, tag, start, stop):
 
-        _query = Tags.select().order_by(Tags.start)
-        trend = _query.where(Tags.name == tag).get()
-        
+        trend = Tags.select().where(Tags.name == tag).order_by(Tags.start).get()
         start = datetime.strptime(start, DATETIME_FORMAT)
         stop = datetime.strptime(stop, DATETIME_FORMAT)
-
         period = trend.period
-        
-        _query = trend.values.select().order_by(TagValue.timestamp.asc())
-        values = _query.where((TagValue.timestamp > start) & (TagValue.timestamp < stop))
-        
+        values= trend.values.select().where((TagValue.timestamp > start) & (TagValue.timestamp < stop)).order_by(TagValue.timestamp.asc())
         result = dict()
-
         t0 = values[0].timestamp.strftime(DATETIME_FORMAT)
-
         result["t0"] = t0
         result["dt"] = period
-        
         result["values"] = values
 
         return result
 
     def query_trend(self, tag, start, stop):
 
-        _query = Tags.select().order_by(Tags.start)
-        trend = _query.where(Tags.name == tag).get()
-        
+        trend = Tags.select().where(Tags.name == tag).order_by(Tags.start).get()
         start = datetime.strptime(start, DATETIME_FORMAT)
         stop = datetime.strptime(stop, DATETIME_FORMAT)
-        
-        _query = trend.values.select().order_by(TagValue.timestamp.asc())
-        values = _query.where((TagValue.timestamp > start) & (TagValue.timestamp < stop))
-
+        values = trend.values.select().where((TagValue.timestamp > start) & (TagValue.timestamp < stop)).order_by(TagValue.timestamp.asc())
         result = dict()
-
         values = [{"x": value.timestamp.strftime(DATETIME_FORMAT), "y": value.value} for value in values]
         result["values"] = values
 
@@ -129,3 +116,61 @@ class QueryLogger:
         
         return self.query_trend(tag, start, stop)
 
+
+    def query_lasts(self, seconds=None, *tags):
+        r"""
+        Documentation here
+        """
+        stop = datetime.now()
+    
+        if seconds==None:
+
+            seconds = self.get_period(tags[0])
+
+        start = stop - timedelta(seconds=seconds)
+        stop = stop.strftime(DATETIME_FORMAT)
+        start = start.strftime(DATETIME_FORMAT)
+
+        return self.query_trends(start, stop, *tags)
+
+    def query_current(self, *tags):
+        r"""
+        Documentation here
+        """
+        result = dict()
+        timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
+        
+        for tag in tags:
+        
+            trend = Tags.select().where(Tags.name==tag).order_by(Tags.start).get()
+            value = trend.values.select().order_by(TagValue.timestamp.desc()).get()
+            result[value.tag.name] = {"x": timestamp, "y": value.value}
+        
+        return result
+
+    def query_trends(self, start, stop, *tags):
+        r"""
+        Documentation here
+        """
+
+        
+        start = datetime.strptime(start, DATETIME_FORMAT)
+        stop = datetime.strptime(stop, DATETIME_FORMAT)
+        
+        
+        result = {tag: {
+            'values': list(),
+            'unit': self.tag_engine.get_unit(tag)
+        } for tag in tags}
+        
+        for tag in tags:
+
+            trend = Tags.select().where(Tags.name.in_(tags)).get()
+            values = trend.values.select().where((TagValue.timestamp > start) & (TagValue.timestamp < stop)).order_by(TagValue.timestamp.asc())
+
+            for value in values:
+
+                result[tag]['values'].append({"x": value.timestamp.strftime(DATETIME_FORMAT), "y": value.value})
+
+
+        return result

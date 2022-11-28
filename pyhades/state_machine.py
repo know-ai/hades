@@ -124,12 +124,6 @@ class PyHadesStateMachine(StateMachine):
 
             try:
 
-                obj = attrs[key]
-
-                if isinstance(obj, (FloatType, IntegerType, BooleanType, StringType)):
-
-                    obj.tag_name = key
-
                 if isinstance(value, TagBinding):
                     self._tag_bindings.append((key, value))
                     _value = self.tag_engine.read_tag(value.tag)
@@ -473,7 +467,8 @@ class PyHadesStateMachine(StateMachine):
             'state': {
                 'value': self.current_state.identifier,
                 'unit': None
-            }
+            },
+            'actions': self.get_allowed_transitions()
         }
 
         states = self.get_states()
@@ -675,7 +670,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         data = self.read_data()
         self.fill_buffer(data)
-        self.criticity = 1
+        self.criticity.value = 1
 
     def while_sleeping(self):
         """
@@ -683,7 +678,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     def while_testing(self):
         """
@@ -691,7 +686,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity = 3
+        self.criticity.value = 3
 
     def while_resetting(self):
         r"""
@@ -708,7 +703,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity = 3
+        self.criticity.value = 3
 
     def while_restarting(self):
         r"""
@@ -725,7 +720,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity = 3
+        self.criticity.value = 3
 
     # Transitions definitions
     @notify_state
@@ -750,7 +745,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 1
+        self.criticity.value = 1
 
     @notify_state
     @system_log_transition(
@@ -774,7 +769,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 1
+        self.criticity.value = 1
 
     @notify_state
     def on_confirm_restart_to_wait(self):
@@ -801,7 +796,7 @@ class AutomationStateMachine(PyHadesStateMachine):
             ]
         }
         self.sio.emit('tags_logging', data_to_log)
-        self.criticity = 1
+        self.criticity.value = 1
 
     @notify_state
     def on_confirm_reset_to_start(self):
@@ -828,7 +823,7 @@ class AutomationStateMachine(PyHadesStateMachine):
             ]
         }
         self.sio.emit('tags_logging', data_to_log)
-        self.criticity = 1
+        self.criticity.value = 1
 
     @notify_state
     def on_restart_to_confirm_restart(self):
@@ -845,7 +840,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 3
+        self.criticity.value = 3
 
     @notify_state
     def on_reset_to_confirm_reset(self):
@@ -862,7 +857,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 3
+        self.criticity.value = 3
 
     @notify_state
     def on_wait_to_restart(self):
@@ -879,7 +874,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_run_to_restart(self):
@@ -896,7 +891,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_test_to_restart(self):
@@ -913,7 +908,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_sleep_to_restart(self):
@@ -930,7 +925,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
 
     @notify_state
@@ -948,7 +943,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 5
+        self.criticity.value = 5
 
     @notify_state
     def on_run_to_reset(self):
@@ -965,7 +960,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 5
+        self.criticity.value = 5
 
     @notify_state
     def on_test_to_reset(self):
@@ -982,7 +977,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_sleep_to_reset(self):
@@ -999,7 +994,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
 
     @notify_state
@@ -1017,7 +1012,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_wait_to_test(self):
@@ -1034,7 +1029,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_run_to_sleep(self):
@@ -1051,7 +1046,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     @notify_state
     def on_wait_to_sleep(self):
@@ -1068,7 +1063,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         This method is decorated by @notify_transition to register this event in the database.
         """
-        self.criticity = 4
+        self.criticity.value = 4
 
     # Auxiliary Methods
     @logging_error_handler
@@ -1154,9 +1149,7 @@ class AutomationStateMachine(PyHadesStateMachine):
             'tags': list(self.system_tags.keys())
         }
         data = dict()
-
-        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAQ/read_current_tags', json=payload)
-
+        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAS/read_current_tags', json=payload)
         if response:
 
             tags = response.json()

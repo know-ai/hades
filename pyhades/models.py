@@ -22,7 +22,7 @@ class PropertyType:
     Implement an abstract property type
     """
 
-    def __init__(self, _type, default=None, unit=None, log:bool=False):
+    def __init__(self, _type, default=None, unit=None, log:bool=False, tag_name:str=None):
         
         self.tag_engine = None
         self._type = _type
@@ -31,7 +31,7 @@ class PropertyType:
         self.__value = default
         self.__sio = None
         self.__log = log
-        self.__tag_name = None
+        self.__tag_name = tag_name
         self.DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
         self.DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
         self.DAQ_SERVICE_URL = f"http://{self.DAQ_SERVICE_HOST}:{self.DAQ_SERVICE_PORT}"
@@ -54,7 +54,14 @@ class PropertyType:
                     'name': self.tag_name,
                     'value': value
                 }
-                requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
+                
+                if isinstance(value, str):
+                
+                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/str/write', json=payload)
+
+                else:
+
+                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
                 
             self.__sio.emit("notify_machine_attr", self.__machine.serialize())
 
@@ -106,9 +113,9 @@ class StringType(PropertyType):
     Implement a Float Type
     """
 
-    def __init__(self, default=None, unit=None, log:bool=False):
+    def __init__(self, default=None, unit=None, log:bool=False, tag_name:str=None):
 
-        super(StringType, self).__init__(STRING, default, unit, log)
+        super(StringType, self).__init__(STRING, default, unit, log, tag_name)
 
 
 class FloatType(PropertyType):
@@ -117,9 +124,9 @@ class FloatType(PropertyType):
     Implement a Float Type
     """
 
-    def __init__(self, default=None, unit=None, log:bool=False):
+    def __init__(self, default=None, unit=None, log:bool=False, tag_name:str=None):
 
-        super(FloatType, self).__init__(FLOAT, default, unit, log)
+        super(FloatType, self).__init__(FLOAT, default, unit, log, tag_name)
 
 
 class IntegerType(PropertyType):
@@ -128,9 +135,9 @@ class IntegerType(PropertyType):
     Implement an Integer Typle
     """
 
-    def __init__(self, default=None, unit=None, log:bool=False):
+    def __init__(self, default=None, unit=None, log:bool=False, tag_name:str=None):
 
-        super(IntegerType, self).__init__(INTEGER, default, unit, log)
+        super(IntegerType, self).__init__(INTEGER, default, unit, log, tag_name)
 
         
 class BooleanType(PropertyType):
@@ -139,9 +146,9 @@ class BooleanType(PropertyType):
     Implement a Boolean Type
     """
 
-    def __init__(self, default=None, unit=None, log:bool=False):
+    def __init__(self, default=None, unit=None, log:bool=False, tag_name:str=None):
 
-        super(BooleanType, self).__init__(BOOL, default, unit, log)
+        super(BooleanType, self).__init__(BOOL, default, unit, log, tag_name)
 
 
 class Model(object):

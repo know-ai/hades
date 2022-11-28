@@ -1,4 +1,4 @@
-from peewee import Proxy, Model
+from peewee import Proxy, Model, Expression
 
 proxy = Proxy()
 

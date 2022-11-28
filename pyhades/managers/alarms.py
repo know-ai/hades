@@ -128,8 +128,9 @@ class AlarmManager:
 
         * **alarm** (Alarm Object)
         """
-        for id, alarm in self._alarms.items():
 
+        for id, alarm in self._alarms.items():
+            
             if name == alarm.name:
 
                 return self._alarms[str(id)]

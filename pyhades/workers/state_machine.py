@@ -58,6 +58,7 @@ class MachineScheduler():
             while self._ready:
                 func = self._ready.popleft()
                 func()
+                
 
     def set_last(self):
 
@@ -67,14 +68,15 @@ class MachineScheduler():
 
     def sleep_elapsed(self, machine):
         elapsed = time.time() - self.last
-        
+        # self.set_last()
         try:
             time.sleep(machine.get_interval() - elapsed)
+            self.set_last()
         except ValueError:
+            self.set_last()
+            logging.warning(f"State Machine: {machine.name} NOT executed on time - Execution Interval: {machine.get_interval()} - Elapsed: {elapsed}")
 
-            logging.warning(f"State Machine: {machine.name} not executed on time...")
-
-        self.set_last()
+        
 
         
 class SchedThread(Thread):
