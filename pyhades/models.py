@@ -62,8 +62,22 @@ class PropertyType:
                 else:
 
                     requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
-                
-            self.__sio.emit("notify_machine_attr", self.__machine.serialize())
+            
+            machine = self.__machine.serialize()
+            self.__sio.emit("notify_machine_attr", machine)
+            if "." in self.tag_name:
+                folder_name, attr = self.tag_name.split(".")
+            else:
+                folder_name = ""
+                attr = self.tag_name
+            
+            payload_to_sio = {
+                'folder_struct': [folder_name, "Engines", machine['name']['value']],
+                'engine': {
+                    attr: machine[attr]
+                }
+            }
+            self.__sio.emit("notify_attr", payload_to_sio)
 
         self.__value = value
 
