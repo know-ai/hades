@@ -143,8 +143,11 @@ class QueryLogger:
         for tag in tags:
         
             trend = Tags.select().where(Tags.name==tag).order_by(Tags.start).get()
-            value = trend.values.select().order_by(TagValue.timestamp.desc()).get()
-            result[value.tag.name] = {"x": timestamp, "y": value.value}
+            if trend:
+                value = trend.values.select().order_by(TagValue.timestamp.desc())
+                if value:
+                    value = value.get()
+                    result[value.tag.name] = {"x": timestamp, "y": value.value}
         
         return result
 

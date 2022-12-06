@@ -658,8 +658,7 @@ class Alarm:
                 
                     self.state = AlarmState.NORM
 
-        resp = requests.put(f'{self.DAQ_SERVICE_URL}/api/opcua_server/alarm', json=self.serialize())
-        # print(f"Response: {resp.json()}")
+        requests.put(f'{self.DAQ_SERVICE_URL}/api/opcua_server/alarm', json=self.serialize())
 
     def serialize(self):
         r"""

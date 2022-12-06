@@ -1150,13 +1150,16 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         data = dict()
         response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAS/read_current_tags', json=payload)
-        if response:
+
+        if response.status_code==200:
 
             tags = response.json()
 
             for tag_name, value in tags.items():
 
                 data[tag_name] = value
+
+            return data
 
         return data
 
