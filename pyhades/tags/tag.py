@@ -8,14 +8,15 @@ class Tag:
 
     def __init__(
         self, 
-        name, 
-        unit, 
-        data_type, 
-        description="", 
-        min_value=None, 
-        max_value=None, 
-        tcp_source_address=None, 
-        node_namespace=None
+        name:str, 
+        unit:str, 
+        data_type:str, 
+        description:str="",
+        display_name:str="",
+        min_value:float=None, 
+        max_value:float=None, 
+        tcp_source_address:str=None, 
+        node_namespace:str=None
         ):
 
         self.name = name
@@ -26,6 +27,14 @@ class Tag:
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace
         self.unit = unit
+
+        if display_name:
+
+            self.display_name = display_name
+
+        else:
+
+            self.display_name = name
 
     def set_value(self, value):
 
@@ -39,6 +48,13 @@ class Tag:
     def set_max_value(self, value):
 
         self.value.set_max_value(value)
+
+    def set_display_name(self, value:str):
+        r"""
+        Documentation here
+        """
+
+        self.display_name = value
 
     def set_tcp_source_address(self, tcp_source_address):
 
@@ -89,6 +105,13 @@ class Tag:
     def get_description(self):
 
         return self.description
+    
+    def get_display_name(self)->str:
+        r"""
+        Documentation here
+        """
+
+        return self.display_name
 
     def get_tcp_source_address(self):
         
@@ -110,6 +133,7 @@ class Tag:
             "unit": self.get_unit(),
             "data_type": self.get_data_type(),
             "description": self.get_description(),
+            "display_name": self.get_display_name(),
             "min_value": self.get_min_value(),
             "max_value": self.get_max_value(),
             "tcp_source_address": self.get_tcp_source_address(),
@@ -141,6 +165,7 @@ class Tag:
             self.get_unit(),
             self.get_data_type(),
             self.get_description(),
+            self.get_display_name(),
             self.value.get_min_value(),
             self.value.get_max_value(),
             self.get_tcp_source_address(),

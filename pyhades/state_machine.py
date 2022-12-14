@@ -560,7 +560,6 @@ class PyHadesStateMachine(StateMachine):
 
         return result
 
-    
     def set_loggeable_variable(self, name:str):
         r"""
         Documentation here
@@ -641,7 +640,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.buffer = dict()
         self.event_name = "machine_event"
         self.time_window = 10
-
 
     def while_starting(self):
         """
@@ -927,7 +925,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         self.criticity.value = 4
 
-
     @notify_state
     def on_wait_to_reset(self):
         """
@@ -995,7 +992,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-
 
     @notify_state
     def on_run_to_test(self):

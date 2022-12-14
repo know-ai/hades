@@ -7,7 +7,7 @@ modelling the subjects involved in the core of the engine.
 from inspect import ismethod
 import os
 import requests
-from .utils import logging_error_handler
+from .utils import logging_error_handler, get_headers
 
 FLOAT = "float"
 INTEGER = "int"
@@ -35,6 +35,10 @@ class PropertyType:
         self.DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
         self.DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
         self.DAQ_SERVICE_URL = f"http://{self.DAQ_SERVICE_HOST}:{self.DAQ_SERVICE_PORT}"
+        self.AUTH_SERVICE_HOST = os.environ.get('AUTH_SERVICE_HOST') or "127.0.0.1"
+        self.AUTH_SERVICE_PORT = os.environ.get('AUTH_SERVICE_PORT') or "5000"
+        self.AUTH_SERVICE_URL = f"http://{self.AUTH_SERVICE_HOST}:{self.AUTH_SERVICE_PORT}"
+        self.APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
 
     @property
     def value(self):
@@ -65,19 +69,36 @@ class PropertyType:
             
             machine = self.__machine.serialize()
             self.__sio.emit("notify_machine_attr", machine)
-            if "." in self.tag_name:
-                folder_name, attr = self.tag_name.split(".")
-            else:
-                folder_name = ""
-                attr = self.tag_name
-            
-            payload_to_sio = {
-                'folder_struct': [folder_name, "Engines", machine['name']['value']],
-                'engine': {
-                    attr: machine[attr]
+            if self.tag_name:
+                
+                if "." in self.tag_name:
+                    folder_name, attr = self.tag_name.split(".")
+                else:
+                    folder_name = ""
+                    attr = self.tag_name
+                
+                payload_to_sio = {
+                    'folder_struct': [folder_name, "Engines", machine['name']['value']],
+                    'engine': {
+                        attr: machine[attr]
+                    }
                 }
+                self.__sio.emit("notify_attr", payload_to_sio)
+
+            # Notify to OPCUA Server
+            payload = {
+                'folder_struct': [folder_name, "Engines", machine['name']['value']],
+                'engine': machine
             }
-            self.__sio.emit("notify_attr", payload_to_sio)
+            if self.APP_AUTH:
+                headers = get_headers(
+                    auth_service_host=self.AUTH_SERVICE_HOST, 
+                    auth_service_port=self.AUTH_SERVICE_PORT
+                )
+                response = requests.put(f"{self.DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload, headers=headers)
+            else:
+
+                response = requests.put(f"{self.DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload)
 
         self.__value = value
 

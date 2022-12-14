@@ -11,6 +11,14 @@ import requests
 import functools
 from ._errors import RequestDecorationError
 
+DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
+AUTH_SERVICE_HOST = os.environ.get('AUTH_SERVICE_HOST') or "127.0.0.1"
+AUTH_SERVICE_PORT = os.environ.get('AUTH_SERVICE_PORT') or "5000"
+AUTH_SERVICE_URL = f"http://{AUTH_SERVICE_HOST}:{AUTH_SERVICE_PORT}"
+APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
+
 
 def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, auth_endpoint:str='/api/healthcheck/key'):
     r"""
@@ -192,6 +200,34 @@ def notify_state(func, args, kwargs):
                     info["state"] = engine_state
                     if state_machine.sio: 
                         state_machine.sio.emit('notify_state', info)
+
+                    machine = state_machine.serialize()
+                    machine['state']['value'] = engine_state
+
+                    if "pipeline" in machine.keys():
+
+                        payload = {
+                            'folder_struct': [machine['pipeline']['value'], "Engines", machine['name']['value']],
+                            'engine': machine
+                        }
+
+                    else:
+
+                        payload = {
+                            'folder_struct': ["Engines", machine['name']['value']],
+                            'engine': machine
+                        }
+
+                    # Notify to OPCUA Server
+                    if APP_AUTH:
+                        headers = get_headers(
+                            auth_service_host=AUTH_SERVICE_HOST, 
+                            auth_service_port=AUTH_SERVICE_PORT
+                        )
+                        requests.put(f"{DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload, headers=headers)
+                    else:
+
+                        requests.put(f"{DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload)
 
     return result
 

@@ -397,6 +397,7 @@ class Tags(BaseModel):
     unit = ForeignKeyField(Units, backref='tags', on_delete='CASCADE')
     data_type = ForeignKeyField(DataTypes, backref='tags', on_delete='CASCADE')
     description = CharField(max_length=250)
+    display_name = CharField(unique=True)
     min_value = FloatField(null=True)
     max_value = FloatField(null=True)
     tcp_source_address = CharField(null=True)
@@ -410,6 +411,7 @@ class Tags(BaseModel):
         unit:str,
         data_type:str,
         description:str,
+        display_name:str,
         min_value:float=None,
         max_value:float=None,
         tcp_source_address:str=None,
@@ -435,6 +437,7 @@ class Tags(BaseModel):
                         unit=_unit['id'],
                         data_type=_data_type['id'],
                         description=description,
+                        display_name=display_name,
                         min_value=min_value,
                         max_value=max_value,
                         tcp_source_address=tcp_source_address,
@@ -519,6 +522,7 @@ class Tags(BaseModel):
             'unit': self.unit.unit,
             'data_type': self.data_type.name,
             'description': self.description,
+            'display_name': self.display_name,
             'min_value': self.min_value,
             'max_value': self.max_value,
             'tcp_source_address': self.tcp_source_address,

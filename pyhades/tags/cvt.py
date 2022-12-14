@@ -64,6 +64,7 @@ class CVT:
         unit:str, 
         data_type:str, 
         description:str, 
+        display_name:str="",
         min_value:float=None, 
         max_value:float=None,
         tcp_source_address:str="",
@@ -95,13 +96,14 @@ class CVT:
             data_type = data_type.__name__
             self.set_data_type(data_type)
 
-        tag = Tag(name, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace)
+        tag = Tag(name, unit, data_type, description, display_name, min_value, max_value, tcp_source_address, node_namespace)
 
         Tags.create(
             name=name, 
             unit=unit, 
             data_type=data_type,
             description=description,
+            display_name=display_name,
             min_value=min_value,
             max_value=max_value,
             tcp_source_address=tcp_source_address,
@@ -164,6 +166,7 @@ class CVT:
                 'unit': value.get_unit(),
                 'data_type': value.get_data_type(),
                 'description': value.get_description(),
+                'display_name': value.get_display_name(),
                 'min_value': value.get_min_value(),
                 'max_value': value.get_max_value(),
                 'tcp_source_address': value.get_tcp_source_address(),
@@ -219,29 +222,14 @@ class CVT:
         value (float, int, bool): 
             Tag value ("int", "float", "bool")
         """
-        # if "." in name:
-        #     values = name.split(".")
-        #     tag_name = values[0]
-        # else:
-        #     tag_name = name
         tag_name = name
-        
         tag = Tags.read_by_name(tag_name)
 
         if str(tag.id) not in self._tags:
+            
             raise KeyError
 
-        # if "." in name:
-        #     values = name.split(".")
-        #     name = values[0]
-        #     _property = values[1]
-        #     setattr(self._tags[str(tag.id)].value, _property, value)
-        #     self._tags[str(tag.id)].notify()
-
-        # else:
-            # self._tags[str(tag.id)].set_value(value)
         self._tags[str(tag.id)].set_value(value)
-    
         self.logger.write_tag(tag_name, value)
 
     def set_values(self, tags:list):
@@ -337,6 +325,17 @@ class CVT:
         """
         tag = Tags.read_by_name(name)
         return self._tags[str(tag.id)].get_description()
+
+    def get_display_name(self, name):
+
+        """Returns the display name defined by name.
+        
+        # Parameters
+        name (str):
+            Tag name.
+        """
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_display_name()
 
     def get_min_value(self, name):
 
@@ -543,6 +542,7 @@ class CVTEngine(Singleton):
                 'unit': 'Pa', 
                 'data_type': 'float', 
                 'description': 'Inlet Pressure', 
+                'display_name': 'PT-01',
                 'min_value': 0.0, 
                 'max_value': 100.0, 
                 'tcp_source_address': '', 
@@ -553,6 +553,7 @@ class CVTEngine(Singleton):
                 'unit': 'Pa', 
                 'data_type': 'float', 
                 'description': 'Outlet Pressure', 
+                'display_name': 'PT-02',
                 'min_value': 0.0, 
                 'max_value': 100.0, 
                 'tcp_source_address': '', 
@@ -657,6 +658,21 @@ class CVTEngine(Singleton):
 
         return self._cvt.get_description(name)
 
+    def get_display_name(self, name:str)->str:
+        r"""
+        Gets tag's display name.
+        
+        **Parameters:**
+        
+        * **name** (str): Tag's name.
+
+        **Returns**
+
+        * **display_name** (str): Tag's display name
+        """
+
+        return self._cvt.get_display_name(name)
+
     def get_min_value(self, name:str)->float:
         r"""
         Gets tag's min value defined.
@@ -753,6 +769,7 @@ class CVTEngine(Singleton):
         * **unit** (str)[Optional]: New tag unit
         * **data_type** (str)[Optional]: New tag data type
         * **description** (str)[Optional]: New tag description
+        * **display_name** (str)[Optional]: New tag display name
         * **min_value** (float)[Optional]: New tag min value
         * **max_value** (float)[Optional]: New tag max value
         * **tcp_source_address** (str)[Optional]: New tcp source address to tag binding
@@ -772,6 +789,7 @@ class CVTEngine(Singleton):
         unit:str, 
         data_type:str, 
         description:str, 
+        display_name:str="",
         min_value:float=None, 
         max_value:float=None,
         tcp_source_address:str="",
@@ -799,7 +817,7 @@ class CVTEngine(Singleton):
         
         if not self.tag_defined(name):
 
-            self._cvt.set_tag(name, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace)
+            self._cvt.set_tag(name, unit, data_type, description, display_name, min_value, max_value, tcp_source_address, node_namespace)
 
     def set_tags(self, tags:list):
         """
@@ -1148,6 +1166,31 @@ class CVTEngine(Singleton):
 
         if result["result"]:
             return result["response"]
+    
+    def read_display_name(self, name:str)->str:
+        """
+        Returns the tag's display name, in thread-safe mechanism.
+        
+        **Parameters:**
+        
+        * **name** (str): Tag name.
+
+        **Returns**
+
+        * **display_name** (str): Tag's display name.
+        """
+
+        _query = dict()
+        _query["action"] = "get_display_name"
+
+        _query["parameters"] = dict()
+        _query["parameters"]["name"] = name
+
+        self.request(_query)
+        result = self.response()
+
+        if result["result"]:
+            return result["response"]
 
     def read_min_value(self, name:str)->float:
         """
@@ -1227,6 +1270,7 @@ class CVTEngine(Singleton):
             'unit': 'ºC', 
             'data_type': 'float', 
             'description': 'Inlet temperature', 
+            'display_name': 'TAG1',
             'min_value': 0.0, 
             'max_value': 100.0,
             'tcp_source_address': '',
@@ -1275,6 +1319,7 @@ class CVTEngine(Singleton):
             'unit': 'ºC', 
             'data_type': 'float', 
             'description': 'Inlet temperature', 
+            'display_name': 'TAG1',
             'min_value': 0.0, 
             'max_value': 100.0,
             'tcp_source_address': '',
@@ -1319,6 +1364,7 @@ class CVTEngine(Singleton):
         * get_data_type
         * get_unit
         * get_description
+        * get_display_name
         * get_min_value
         * get_max_value
         * get_attributes
@@ -1368,6 +1414,9 @@ class CVTEngine(Singleton):
 
             elif action == "get_description":
                 resp = self._cvt.get_description(name)
+
+            elif action == "get_display_name":
+                resp = self._cvt.get_display_name(name)
 
             elif action == "get_min_value":
                 resp = self._cvt.get_min_value(name)
