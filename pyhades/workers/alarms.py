@@ -30,11 +30,9 @@ class AlarmWorker(BaseWorker):
 
             while not _queue.empty():
 
-            # if not _queue.empty():
                 item = _queue.get()
                 
                 _tag = item["tag"]
-
                 self._manager.execute(_tag)
 
             if self.stop_event.is_set():

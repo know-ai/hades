@@ -164,7 +164,8 @@ class DBManager:
         tag:str, 
         unit:str, 
         data_type:str, 
-        description:str, 
+        description:str,
+        display_name:str="", 
         min_value:float=None, 
         max_value:float=None, 
         tcp_source_address:str=None, 
@@ -188,6 +189,7 @@ class DBManager:
             unit=unit,
             data_type=data_type,
             description=description,
+            display_name=display_name,
             min_value=min_value,
             max_value=max_value,
             tcp_source_address=tcp_source_address,
@@ -202,13 +204,14 @@ class DBManager:
             
             tags = self._logging_tags.get_tags(period)
         
-            for tag, unit, data_type, description, min_value, max_value, tcp_source_address, node_namespace in tags:
+            for tag, unit, data_type, description, display_name, min_value, max_value, tcp_source_address, node_namespace in tags:
 
                 self.set_tag(
                     tag=tag,
                     unit=unit, 
                     data_type=data_type, 
                     description=description, 
+                    display_name=display_name,
                     min_value=min_value, 
                     max_value=max_value, 
                     tcp_source_address=tcp_source_address, 

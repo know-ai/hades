@@ -1145,6 +1145,7 @@ class AutomationStateMachine(PyHadesStateMachine):
             'tags': list(self.system_tags.keys())
         }
         data = dict()
+
         response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAS/read_current_tags', json=payload)
 
         if response.status_code==200:
@@ -1176,7 +1177,6 @@ class AutomationStateMachine(PyHadesStateMachine):
 
                         tags = config['modules']['engine']['tags']
                         self.default_tags = [self.define_tag(**tag) for key, tag in tags.items()]
-
 
                     if 'alarms' in config['modules']['engine'] and config['modules']['engine']['alarms'] is not None:
 

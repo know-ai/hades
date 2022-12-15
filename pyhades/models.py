@@ -69,6 +69,8 @@ class PropertyType:
             
             machine = self.__machine.serialize()
             self.__sio.emit("notify_machine_attr", machine)
+            folder_name = ""
+            
             if self.tag_name:
                 
                 if "." in self.tag_name:
@@ -87,9 +89,15 @@ class PropertyType:
 
             # Notify to OPCUA Server
             payload = {
-                'folder_struct': [folder_name, "Engines", machine['name']['value']],
+                'folder_struct': ["Engines", machine['name']['value']],
                 'engine': machine
             }
+            if folder_name:
+                payload = {
+                    'folder_struct': [folder_name, "Engines", machine['name']['value']],
+                    'engine': machine
+                }
+
             if self.APP_AUTH:
                 headers = get_headers(
                     auth_service_host=self.AUTH_SERVICE_HOST, 

@@ -262,11 +262,11 @@ class AlarmManager:
         value = _cvt.read_tag(tag)
 
         for id, _alarm in self._alarms.items():
-            
+
             if _alarm.state == AlarmState.SHLVD:
 
                 _now = datetime.now()
-                
+
                 if _alarm._shelved_until:
                     
                     if _now >= _alarm._shelved_until:
