@@ -15,8 +15,8 @@
         ["kilogram_force_centimeter_square", "kgf/cm2"]
     ],
     "Temperature": [
-        ["degree_celsius", "ªC"],
-        ["degree_fahrenheit", "ªF"],
+        ["degree_celsius", "C"],
+        ["degree_fahrenheit", "F"],
         ["kelvin", "K"],
         ["rankine", "R"]
     ],
@@ -54,6 +54,7 @@
         ["foot_cube_hour", "ft3/h"],
         ["us_gallons_minute", "US gal/min"],
         ["us_barrels_oil_day", "US brl/d"],
+        ["us_barrels_oil_day", "US brl/h"],
         ["normal_meter_cube_hour", "Nm3/h"],
         ["standard_cubic_feet_hour", "Std. ft3/h"],
         ["standard_cubic_feet_minute", "Std. ft3/min"]
@@ -152,7 +153,7 @@
         ["meter_squared_second", "m2/s"]
     ],
     "Conductivity": [
-        ["british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit", "BTU.in/(h.ft2.ªF)"],
+        ["british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit", "BTU.in/(h.ft2.F)"],
         ["watt_meter_kelvin", "W/(m.K)"]
     ],
     "Energy": [
