@@ -301,8 +301,16 @@ class CVT:
         r"""
         Documentation here
         """
+
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_attributes()
+        if tag:
+            
+            attrs = self._tags[str(tag.id)].get_attributes()
+            return attrs
+        
+        else:
+
+            return dict()
 
     def get_unit(self, name):
 

@@ -538,10 +538,11 @@ class TagValue(BaseModel):
 
 
     @classmethod
-    def export_to_csv(cls):
+    def export_to_csv(cls, init_id:int=0, end_id:int=10000):
         r"""
         Documentation here
         """
+
         tag_names_query = cls.select(fn.DISTINCT(cls.tag_id))
         
         tag_info = dict()
@@ -550,10 +551,12 @@ class TagValue(BaseModel):
 
             tag_info[tag.tag.name] = None
 
+        del tag_names_query
+
         previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
-        tags = cls.select()
+        tags = cls.select().where((cls.id >=init_id) & (cls.id <= end_id))
         row = 0
-        with open('daq_tag_value.csv', 'w', newline='') as f:
+        with open(f'daq_tag_value_from_id_{init_id}_to_id_{end_id}.csv', 'w', newline='') as f:
             
             for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
 

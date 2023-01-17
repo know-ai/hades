@@ -75,7 +75,8 @@
         "foot_cube_minute": 2.119093,
         "foot_cube_hour": 127.1197,
         "us_gallons_minute": 15.85037,
-        "us_barrels_oil_day": 543.4783
+        "us_barrels_oil_day": 543.4783,
+        "us_barrels_oil_hour": 22.6433
     },
     "normal_meter_cube_hour" : {
         "standard_cubic_feet_hour": 35.31073,

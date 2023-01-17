@@ -54,7 +54,7 @@
         ["foot_cube_hour", "ft3/h"],
         ["us_gallons_minute", "US gal/min"],
         ["us_barrels_oil_day", "US brl/d"],
-        ["us_barrels_oil_day", "US brl/h"],
+        ["us_barrels_oil_hour", "US brl/h"],
         ["normal_meter_cube_hour", "Nm3/h"],
         ["standard_cubic_feet_hour", "Std. ft3/h"],
         ["standard_cubic_feet_minute", "Std. ft3/min"]

@@ -164,7 +164,8 @@ class Alarm:
         self._trigger.value = value
         self._trigger.type = _type
         alarm = AlarmsDB.read_by_name(self.name)
-        alarm.set_trigger(alarm_type=_type, trigger=float(value))
+        if alarm:
+            alarm.set_trigger(alarm_type=_type, trigger=float(value))
 
     @property
     def value(self):
