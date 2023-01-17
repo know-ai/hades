@@ -1195,11 +1195,11 @@ class AutomationStateMachine(PyHadesStateMachine):
 
                         self.system_tags = config['modules']['engine']['system_tags']
                     
-                    if 'number_of_times_alarm_triggered_before_pre_alarm' in config['modules']['engine'] and config['modules']['engine']['number_of_times_alarm_triggered_before_pre_alarm'] is not None:
+                    if 'number_of_times_alarm_triggered_before_pre_alarm' in config['modules']['engine']:
 
                         self.NUMBER_OF_TIMES_ALARM_TRIGGERED_BEFORE_PRE_ALARM = config['modules']['engine']['number_of_times_alarm_triggered_before_pre_alarm']
 
-                    if 'number_of_times_alarm_triggered_before_leaking' in config['modules']['engine'] and config['modules']['engine']['number_of_times_alarm_triggered_before_leaking'] is not None:
+                    if 'number_of_times_alarm_triggered_before_leaking' in config['modules']['engine']:
 
                         self.NUMBER_OF_TIMES_ALARM_TRIGGERED_BEFORE_LEAKING = config['modules']['engine']['number_of_times_alarm_triggered_before_leaking']
 
@@ -1254,4 +1254,5 @@ class AutomationStateMachine(PyHadesStateMachine):
                 _value = _value[1:] + _value[:1]
                 _value[-1] = value['y']
                 self.buffer[tag_name]['data'] = _value
-                self.ready_to_run = True
+                if all(self.buffer[tag_name]['data']):
+                    self.ready_to_run = True
