@@ -795,6 +795,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         self.sio.emit('tags_logging', data_to_log)
         self.criticity.value = 1
+        self.restart_buffer()
 
     @notify_state
     def on_confirm_reset_to_start(self):
@@ -822,6 +823,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         }
         self.sio.emit('tags_logging', data_to_log)
         self.criticity.value = 1
+        self.restart_buffer()
 
     @notify_state
     def on_restart_to_confirm_restart(self):
