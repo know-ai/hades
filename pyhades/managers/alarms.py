@@ -3,7 +3,8 @@
 This module implements Alarm Manager.
 """
 from datetime import datetime
-import queue, logging
+import queue
+from .._singleton import Singleton
 from ..tags import CVTEngine, TagObserver
 from ..dbmodels import AlarmLogging as AlarmModel
 from ..dbmodels import AlarmsDB
@@ -11,7 +12,7 @@ from ..alarms import AlarmState
 from ..alarms.alarms import Alarm
 
 
-class AlarmManager:
+class AlarmManager(Singleton):
     r"""
     This class implements all definitions for the Alarm Management System
     """

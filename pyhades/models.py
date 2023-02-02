@@ -7,12 +7,15 @@ modelling the subjects involved in the core of the engine.
 from inspect import ismethod
 import os
 import requests
-from .utils import logging_error_handler, get_headers
+from .utils import logging_error_handler
+from .tags import CVTEngine
 
 FLOAT = "float"
 INTEGER = "int"
 BOOL = "bool"
 STRING = "str"
+
+tag_engine = CVTEngine()
 
 
 
@@ -32,13 +35,6 @@ class PropertyType:
         self.__sio = None
         self.__log = log
         self.__tag_name = tag_name
-        self.DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        self.DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        self.DAQ_SERVICE_URL = f"http://{self.DAQ_SERVICE_HOST}:{self.DAQ_SERVICE_PORT}"
-        self.AUTH_SERVICE_HOST = os.environ.get('AUTH_SERVICE_HOST') or "127.0.0.1"
-        self.AUTH_SERVICE_PORT = os.environ.get('AUTH_SERVICE_PORT') or "5000"
-        self.AUTH_SERVICE_URL = f"http://{self.AUTH_SERVICE_HOST}:{self.AUTH_SERVICE_PORT}"
-        self.APP_AUTH = bool(int(os.environ.get('APP_AUTH') or "0"))
 
     @property
     def value(self):
@@ -54,18 +50,8 @@ class PropertyType:
         if self.__sio is not None:
 
             if self.is_logged():
-                payload = {
-                    'name': self.tag_name,
-                    'value': value
-                }
-                
-                if isinstance(value, str):
-                
-                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/str/write', json=payload)
 
-                else:
-
-                    requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/write', json=payload)
+                tag_engine.write_tag(self.tag_name, value=value)
             
             machine = self.__machine.serialize()
             self.__sio.emit("notify_machine_attr", machine)
@@ -98,15 +84,11 @@ class PropertyType:
                     'engine': machine
                 }
 
-            if self.APP_AUTH:
-                headers = get_headers(
-                    auth_service_host=self.AUTH_SERVICE_HOST, 
-                    auth_service_port=self.AUTH_SERVICE_PORT
-                )
-                response = requests.put(f"{self.DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload, headers=headers)
-            else:
+            payload= payload
+            folder_struct = payload.pop('folder_struct')
+            engine = payload['engine']
 
-                response = requests.put(f"{self.DAQ_SERVICE_URL}/api/opcua_server/engine", json=payload)
+            self.__machine.set_engine_into_server(folder_struct=folder_struct, **engine)
 
         self.__value = value
 

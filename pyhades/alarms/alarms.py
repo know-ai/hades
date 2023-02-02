@@ -4,7 +4,6 @@
 This module implements all Alarms class definitions and Alarm Handlers.
 """
 from datetime import datetime, timedelta
-import os, requests
 from pyhades.dbmodels.alarms import AlarmStates
 from .states import AlarmState
 from ..tags import CVTEngine
@@ -67,10 +66,6 @@ class Alarm:
         if alarm:
         
             self._id = alarm.id
-
-        self.DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        self.DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        self.DAQ_SERVICE_URL = f"http://{self.DAQ_SERVICE_HOST}:{self.DAQ_SERVICE_PORT}"
 
         from ..core import PyHades
 
@@ -659,7 +654,7 @@ class Alarm:
                 
                     self.state = AlarmState.NORM
 
-        requests.put(f'{self.DAQ_SERVICE_URL}/api/opcua_server/alarm', json=self.serialize())
+        self.__machine.write_alarm(self.serialize())
 
     def serialize(self):
         r"""

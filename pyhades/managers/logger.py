@@ -4,6 +4,7 @@
 This module implements Logger Manager.
 """
 import logging
+from .._singleton import Singleton
 from ..logger import DataLoggerEngine, LogTable
 from ..tags import CVTEngine
 from ..dbmodels import (
@@ -21,7 +22,7 @@ from ..dbmodels import (
     BaseModel)
 
 
-class DBManager:
+class DBManager(Singleton):
     r"""
     Database Manager class for database logging settings.
     """

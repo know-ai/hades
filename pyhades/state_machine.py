@@ -1,12 +1,10 @@
-import logging, os
+import logging
 from inspect import ismethod
 
 from .utils import (
     log_detailed,
     logging_error_handler,
     notify_state,
-    system_log_transition,
-    get_headers,
     parse_config
     )
 
@@ -16,13 +14,9 @@ from statemachine import State as _State
 from .tags import CVTEngine, TagBinding, GroupBinding
 from .logger import DataLoggerEngine
 from .models import FloatType, IntegerType, BooleanType, StringType
-import requests
-
-APP_EVENT_LOG = bool(int(os.environ.get('APP_EVENT_LOG') or "0"))
-EVENT_LOGGER_SERVICE_HOST = os.environ.get('EVENT_LOGGER_SERVICE_HOST') or "127.0.0.1"
-EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
-AUTH_SERVICE_HOST = os.environ.get('AUTH_SERVICE_HOST') or "127.0.0.1"
-AUTH_SERVICE_PORT = os.environ.get('AUTH_SERVICE_PORT') or "5000"
+from .alarms import Alarm, TriggerType
+from .managers.alarms import AlarmManager
+from .managers.logger import DBManager
 
 FLOAT = "float"
 INTEGER = "int"
@@ -108,6 +102,8 @@ class PyHadesStateMachine(StateMachine):
     """
     tag_engine = CVTEngine()
     logger_engine = DataLoggerEngine()
+    alarm_manager = AlarmManager()
+    db_manager = DBManager()
 
 
     def __init__(self, name:str, **kwargs):
@@ -158,10 +154,6 @@ class PyHadesStateMachine(StateMachine):
                 continue
 
         self.attrs = attrs
-
-        DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
 
     def info(self)->str:
         r"""
@@ -646,7 +638,6 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         """
         self.app_mode = self.app.get_mode()
-        self.headers = get_headers(auth_service_host=AUTH_SERVICE_HOST, auth_service_port=AUTH_SERVICE_PORT)
         self.sio = self.app.get_socketio()
         self.config_file_location = self.app.config_file_location
         self.init_configuration()
@@ -722,13 +713,6 @@ class AutomationStateMachine(PyHadesStateMachine):
 
     # Transitions definitions
     @notify_state
-    @system_log_transition(
-        log=APP_EVENT_LOG,
-        event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
-        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT,
-        auth_service_host=AUTH_SERVICE_HOST,
-        auth_service_port=AUTH_SERVICE_PORT,
-        )
     def on_start_to_wait(self):
         r"""
         ## **Transition**
@@ -746,13 +730,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 1
 
     @notify_state
-    @system_log_transition(
-        log=APP_EVENT_LOG,
-        event_logger_service_host=EVENT_LOGGER_SERVICE_HOST,
-        event_logger_service_port=EVENT_LOGGER_SERVICE_PORT,
-        auth_service_host=AUTH_SERVICE_HOST,
-        auth_service_port=AUTH_SERVICE_PORT,
-        )
     def on_wait_to_run(self):
         """
         ## **Transition**
@@ -1077,18 +1054,110 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        requests.post(f'{self.DAQ_SERVICE_URL}/api/tags/add', headers=self.headers, json=payload)
+        # Checking Tag Name
+        tag_name = payload['tag_name']
+        tags = self.db_manager.get_tags()
+        if tag_name in tags:
 
-        return payload
+            return {'message': f"{tag_name} is already defined"}, 400
+        
+        # Checking datatype
+        datatype = payload['data_type'].lower()
+        if not datatype in ['float', 'string', 'int', 'bool']:
+
+            return {'message': f"{datatype} is not a valid datatype - try ['float', 'string', 'int', 'bool']"}
+
+        unit = payload['unit']
+
+        description = None
+        if 'description' in payload:
+            description = payload['description']
+
+        display_name = None
+        if 'display_name' in payload:
+            display_name = payload['display_name']
+
+        min_value = None
+        if 'min_value' in payload:
+            min_value = payload['min_value']
+
+        max_value = None
+        if 'max_value' in payload:
+            max_value = payload['max_value']
+
+        tcp_source_address = None
+        if 'tcp_source_address' in payload:
+            tcp_source_address = payload['tcp_source_address']
+
+        node_namespace = None
+        if 'node_namespace' in payload:
+            node_namespace = payload['node_namespace']
+
+        # Adding tag to cvt
+        tag = (
+            tag_name, 
+            unit,
+            datatype, 
+            description, 
+            display_name,
+            min_value, 
+            max_value, 
+            tcp_source_address,
+            node_namespace)
+        self.tag_engine.set_tag(*tag)
+
+        # Adding to log into Database
+        self.db_manager.set_tag(*tag)
 
     @logging_error_handler
     def define_alarm(self, **payload):
         r"""
         Documentation here
         """
-        requests.post(f'{self.DAQ_SERVICE_URL}/api/alarms/append', headers=self.headers, json=payload)
+        # Check tag existence
+        tag_name = payload['tag']
+        _tags = self.db_manager.get_tags()
+        tags = [tag['name'] for tag in _tags]
+        
+        if not tag_name in tags:
 
-        return payload
+            return {'message': f'{tag_name} is not defined in tags'}, 400
+        
+        # Check alarm name existence
+        alarm_name = payload['name']
+        alarms = self.alarm_manager.get_alarms()
+        alarm_names = [alarm.name for id, alarm in alarms.items()]
+        if alarm_name in alarm_names:
+
+            return {'message': f'{alarm_name} is already defined'}, 200
+
+        # Checking Alarm Type
+        _type =  payload['type'].upper()
+        if not _type in ["HIGH-HIGH", "HIGH", "BOOL", "LOW", "LOW-LOW"]:
+
+            return {'message': f'{_type} alarm is not allowed - Try some these values ["HIGH-HIGH", "HIGH", "BOOL", "LOW", "LOW-LOW"]'}, 400
+
+        # Appending alarm
+        alarm_description = payload['description']
+        _type = TriggerType(_type)
+        trigger_value = payload['trigger_value']
+
+        if _type.value=="BOOL":
+
+            trigger_value = bool(trigger_value)
+
+        alarm = Alarm(alarm_name, tag_name, alarm_description)
+        alarm.set_trigger(value=trigger_value, _type=_type.value)
+
+        self.alarm_manager.append_alarm(alarm)
+
+        result = alarm.serialize()
+
+        result.update({
+            'message': f"{alarm_name} added successfully"
+        })
+        
+        return result, 200 
 
     @logging_error_handler
     def get_allowed_transitions(self):
@@ -1137,30 +1206,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         except Exception as err:
 
             logging.WARNING(f"Transition from {_from} state to {to} state for {self.name} is not allowed")
-
-    @logging_error_handler
-    def read_data(self):
-        r"""
-        Documentation here
-        """
-        payload = {
-            'tags': list(self.system_tags.keys())
-        }
-        data = dict()
-
-        response = requests.post(f'{self.DAQ_SERVICE_URL}/api/DAS/read_current_tags', json=payload)
-
-        if response.status_code==200:
-
-            tags = response.json()
-
-            for tag_name, value in tags.items():
-
-                data[tag_name] = value
-
-            return data
-
-        return data
 
     @logging_error_handler
     def parse_config_file(self):
