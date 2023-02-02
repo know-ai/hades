@@ -5,19 +5,12 @@ This module implements a Tags and other classes for
 modelling the subjects involved in the core of the engine.
 """
 from inspect import ismethod
-import os
-import requests
 from .utils import logging_error_handler
-from .tags import CVTEngine
 
 FLOAT = "float"
 INTEGER = "int"
 BOOL = "bool"
 STRING = "str"
-
-tag_engine = CVTEngine()
-
-
 
 class PropertyType:
 
@@ -51,7 +44,7 @@ class PropertyType:
 
             if self.is_logged():
 
-                tag_engine.write_tag(self.tag_name, value=value)
+                self.__machine.write_tag(name=self.tag_name, value=value)
             
             machine = self.__machine.serialize()
             self.__sio.emit("notify_machine_attr", machine)
