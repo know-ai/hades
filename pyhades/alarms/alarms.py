@@ -654,8 +654,6 @@ class Alarm:
                 
                     self.state = AlarmState.NORM
 
-        self.__machine.write_alarm(self.serialize())
-
     def serialize(self):
         r"""
         Allows you to serialize alarm to a dict jsonable
