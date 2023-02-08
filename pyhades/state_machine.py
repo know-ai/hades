@@ -707,20 +707,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        if self._last_state.lower() == "run":
-
-            state = "running"
-        
-        elif self._last_state.lower() == "not_available":
-
-            state = "not_available"
-        
-        else:
-
-            state = self._last_state.lower() + "ing"
-
-        last_state = getattr(self, f"while_{state}")
-        last_state()
+        self.criticity.value = 4
 
     @logging_error_handler
     def while_restarting(self):
@@ -739,20 +726,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         Only set priority and classification to notify in the front end
         """
-        if self._last_state.lower() == "run":
-
-            state = "running"
-
-        elif self._last_state.lower() == "not_available":
-
-            state = "not_available"
-        
-        else:
-
-            state = self._last_state.lower() + "ing"
-
-        last_state = getattr(self, f"while_{state}")
-        last_state()
+        self.criticity.value = 4
 
     # Transitions definitions
     @notify_state
