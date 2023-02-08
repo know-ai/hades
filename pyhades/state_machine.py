@@ -591,6 +591,13 @@ class AutomationStateMachine(PyHadesStateMachine):
     restart_to_confirm_restart = restarting.to(con_restart)
     confirm_restart_to_wait = con_restart.to(waiting)
     confirm_reset_to_start = con_reset.to(starting)
+    confirm_restart_to_run = con_restart.to(running)
+    confirm_restart_to_sleep = con_restart.to(sleeping)
+    confirm_restart_to_test = con_restart.to(testing)
+    confirm_reset_to_run = con_reset.to(running)
+    confirm_reset_to_wait = con_reset.to(waiting)
+    confirm_reset_to_sleep = con_reset.to(sleeping)
+    confirm_reset_to_test = con_reset.to(testing)
 
     # Transitions to Testing
     run_to_test = running.to(testing)
@@ -616,7 +623,7 @@ class AutomationStateMachine(PyHadesStateMachine):
     priority = IntegerType(default=1)
     classification = StringType(default='')
     description = StringType(default='')
-    states_for_users = ['restart', 'reset', 'test', 'sleep', 'confirm_restart', 'confirm_reset']
+    states_for_users = ['restart', 'reset', 'test', 'sleep', 'confirm_restart', 'confirm_reset', 'deny_restart', 'deny_reset']
 
     def __init__(self, app, name:str):
         """
@@ -632,7 +639,9 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.buffer = dict()
         self.event_name = "machine_event"
         self.time_window = 10
+        self._last_state = "start"
 
+    @logging_error_handler
     def while_starting(self):
         """
 
@@ -644,6 +653,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.init_socketio_for_variables()
         self.start_to_wait()
 
+    @logging_error_handler
     def while_waiting(self):
         r"""
         Documentation here
@@ -653,6 +663,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         if self.ready_to_run:
             self.wait_to_run()
 
+    @logging_error_handler
     def while_running(self):
         r"""
         Documentation here
@@ -661,6 +672,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.fill_buffer(data)
         self.criticity.value = 1
 
+    @logging_error_handler
     def while_sleeping(self):
         """
         ## **sleeping** state
@@ -669,6 +681,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         self.criticity.value = 4
 
+    @logging_error_handler
     def while_testing(self):
         """
         ## **testing** state
@@ -677,6 +690,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         self.criticity.value = 3
 
+    @logging_error_handler
     def while_resetting(self):
         r"""
         ## **resetting** state
@@ -686,14 +700,29 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         self.reset_to_confirm_reset()
 
+    @logging_error_handler
     def while_con_reset(self):
         r"""
         ## **confirm_reset** state
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity.value = 3
+        if self._last_state.lower() == "run":
 
+            state = "running"
+        
+        elif self._last_state.lower() == "not_available":
+
+            state = "not_available"
+        
+        else:
+
+            state += "ing"
+
+        last_state = getattr(self, f"while_{state}")
+        last_state()
+
+    @logging_error_handler
     def while_restarting(self):
         r"""
         ## **resetting** state
@@ -703,16 +732,31 @@ class AutomationStateMachine(PyHadesStateMachine):
 
         self.restart_to_confirm_restart()
 
+    @logging_error_handler
     def while_con_restart(self):
         r"""
         ## **confirm_restart** state
 
         Only set priority and classification to notify in the front end
         """
-        self.criticity.value = 3
+        if self._last_state.lower() == "run":
+
+            state = "running"
+
+        elif self._last_state.lower() == "not_available":
+
+            state = "not_available"
+        
+        else:
+
+            state += "ing"
+
+        last_state = getattr(self, f"while_{state}")
+        last_state()
 
     # Transitions definitions
     @notify_state
+    @logging_error_handler
     def on_start_to_wait(self):
         r"""
         ## **Transition**
@@ -730,6 +774,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 1
 
     @notify_state
+    @logging_error_handler
     def on_wait_to_run(self):
         """
         ## **Transition**
@@ -747,6 +792,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 1
 
     @notify_state
+    @logging_error_handler
     def on_confirm_restart_to_wait(self):
         """
         ## **Transition**
@@ -775,6 +821,61 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.restart_buffer()
 
     @notify_state
+    @logging_error_handler
+    def on_confirm_restart_to_run(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 1
+
+    @notify_state
+    @logging_error_handler
+    def on_confirm_restart_to_test(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 4
+
+    @notify_state
+    @logging_error_handler
+    def on_confirm_restart_to_sleep(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 4
+
+    @notify_state
+    @logging_error_handler
     def on_confirm_reset_to_start(self):
         """
         ## **Transition**
@@ -803,6 +904,79 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.restart_buffer()
 
     @notify_state
+    @logging_error_handler
+    def on_confirm_reset_to_wait(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 1
+
+    @notify_state
+    @logging_error_handler
+    def on_confirm_reset_to_run(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 1
+
+    @notify_state
+    @logging_error_handler
+    def on_confirm_reset_to_test(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 4
+
+    @notify_state
+    @logging_error_handler
+    def on_confirm_reset_to_sleep(self):
+        """
+        ## **Transition**
+
+        * **from: *confirm_reset ** state
+        * **to: *waiting* ** state
+
+        ### **Settings**
+
+        * **priority:** 1 (low priority) machine to starting state, warning
+        * **classification:** user (Transition triggered by the operator)
+
+        This method is decorated by @notify_transition to register this event in the database.
+        """
+        self.criticity.value = 4
+
+    @notify_state
+    @logging_error_handler
     def on_restart_to_confirm_restart(self):
         """
         ## **Transition**
@@ -820,6 +994,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 3
 
     @notify_state
+    @logging_error_handler
     def on_reset_to_confirm_reset(self):
         """
         ## **Transition**
@@ -837,6 +1012,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 3
 
     @notify_state
+    @logging_error_handler
     def on_wait_to_restart(self):
         """
         ## **Transition**
@@ -852,8 +1028,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "wait"
 
     @notify_state
+    @logging_error_handler
     def on_run_to_restart(self):
         """
         ## **Transition**
@@ -869,8 +1047,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "run"
 
     @notify_state
+    @logging_error_handler
     def on_test_to_restart(self):
         """
         ## **Transition**
@@ -886,8 +1066,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "test"
 
     @notify_state
+    @logging_error_handler
     def on_sleep_to_restart(self):
         """
         ## **Transition**
@@ -903,8 +1085,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "sleep"
 
     @notify_state
+    @logging_error_handler
     def on_wait_to_reset(self):
         """
         ## **Transition**
@@ -920,8 +1104,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 5
+        self._last_state = "wait"
 
     @notify_state
+    @logging_error_handler
     def on_run_to_reset(self):
         """
         ## **Transition**
@@ -937,8 +1123,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 5
+        self._last_state = "run"
 
     @notify_state
+    @logging_error_handler
     def on_test_to_reset(self):
         """
         ## **Transition**
@@ -954,8 +1142,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "test"
 
     @notify_state
+    @logging_error_handler
     def on_sleep_to_reset(self):
         """
         ## **Transition**
@@ -971,8 +1161,10 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
+        self._last_state = "sleep"
 
     @notify_state
+    @logging_error_handler
     def on_run_to_test(self):
         """
         ## **Transition**
@@ -990,6 +1182,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 4
 
     @notify_state
+    @logging_error_handler
     def on_wait_to_test(self):
         """
         ## **Transition**
@@ -1007,6 +1200,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 4
 
     @notify_state
+    @logging_error_handler
     def on_run_to_sleep(self):
         """
         ## **Transition**
@@ -1024,6 +1218,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.criticity.value = 4
 
     @notify_state
+    @logging_error_handler
     def on_wait_to_sleep(self):
         """
         ## **Transition**
@@ -1176,12 +1371,15 @@ class AutomationStateMachine(PyHadesStateMachine):
             if current_state=="confirm_restart":
 
                 transitions["confirm restart"] = True
+                transitions["deny restart"] = True
 
                 continue
 
             if current_state=="confirm_reset":
 
                 transitions["confirm reset"] = True
+                transitions["deny reset"] = True
+                
 
                 continue
 
@@ -1249,7 +1447,7 @@ class AutomationStateMachine(PyHadesStateMachine):
                     if 'number_of_times_alarm_triggered_before_leaking' in config['modules']['engine']:
 
                         self.NUMBER_OF_TIMES_ALARM_TRIGGERED_BEFORE_LEAKING = config['modules']['engine']['number_of_times_alarm_triggered_before_leaking']
-
+                        
     @logging_error_handler
     def restart_buffer(self):
         r"""
