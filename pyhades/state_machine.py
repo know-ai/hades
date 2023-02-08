@@ -717,7 +717,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         
         else:
 
-            state += "ing"
+            state = self._last_state.lower() + "ing"
 
         last_state = getattr(self, f"while_{state}")
         last_state()
@@ -749,7 +749,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         
         else:
 
-            state += "ing"
+            state = self._last_state.lower() + "ing"
 
         last_state = getattr(self, f"while_{state}")
         last_state()
