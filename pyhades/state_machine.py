@@ -639,7 +639,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.buffer = dict()
         self.event_name = "machine_event"
         self.time_window = 10
-        self._last_state = "start"
+        self.last_state = "start"
 
     @logging_error_handler
     def while_starting(self):
@@ -1002,7 +1002,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "wait"
+        self.last_state = "wait"
 
     @notify_state
     @logging_error_handler
@@ -1021,7 +1021,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "run"
+        self.last_state = "run"
 
     @notify_state
     @logging_error_handler
@@ -1040,7 +1040,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "test"
+        self.last_state = "test"
 
     @notify_state
     @logging_error_handler
@@ -1059,7 +1059,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "sleep"
+        self.last_state = "sleep"
 
     @notify_state
     @logging_error_handler
@@ -1078,7 +1078,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 5
-        self._last_state = "wait"
+        self.last_state = "wait"
 
     @notify_state
     @logging_error_handler
@@ -1097,7 +1097,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 5
-        self._last_state = "run"
+        self.last_state = "run"
 
     @notify_state
     @logging_error_handler
@@ -1116,7 +1116,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "test"
+        self.last_state = "test"
 
     @notify_state
     @logging_error_handler
@@ -1135,7 +1135,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         This method is decorated by @notify_transition to register this event in the database.
         """
         self.criticity.value = 4
-        self._last_state = "sleep"
+        self.last_state = "sleep"
 
     @notify_state
     @logging_error_handler
