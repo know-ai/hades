@@ -13,12 +13,14 @@ class TestAlarmManager(unittest.TestCase):
     def setUp(self) -> None:
 
         self.__tags = [
-            ('PT-100', 'Pa', 'float', 'Inlet Pressure'),
-            ('C-100', 'kg/s', 'float', 'Compressor 100')
+            ('PT-100', 'Pa', 'float', 'Inlet Pressure', 'PT-100'),
+            ('C-100', 'kg/s', 'float', 'Compressor 100', 'C-100')
         ]
-        tag_engine.set_tags(self.__tags)
+        # tag_engine.set_tags(self.__tags)
 
-        for name, unit, data_type, description in self.__tags:
+        for name, unit, data_type, description, display_name in self.__tags:
+
+            tag_engine.set_tag(name, unit, data_type, description, display_name)
 
             self._tag = name
 
@@ -26,7 +28,8 @@ class TestAlarmManager(unittest.TestCase):
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                description=description)
+                description=description,
+                display_name=display_name)
 
         self._alarms = dict()
         self._tag_alarms = list()
@@ -87,7 +90,7 @@ class TestAlarmManager(unittest.TestCase):
         alarm_manager = app.get_alarm_manager()
         summary = alarm_manager.summary()
 
-        self.assertEqual(summary['length'], 5)
+        self.assertEqual(summary['length'], 11)
 
     def testGetAlarm(self):
 
@@ -161,11 +164,11 @@ class TestAlarmManager(unittest.TestCase):
 
         tags = ['PT-100', 'C-100']
 
-        for tag in subscribed_tags:
+        for tag in tags:
 
             with self.subTest(f"Testing tag {tag} associate in alarms"):
 
-                self.assertTrue(tag in tags)
+                self.assertTrue(tag in subscribed_tags)
 
     def testSummary(self):
 
@@ -175,11 +178,11 @@ class TestAlarmManager(unittest.TestCase):
 
         tags = ['PT-100', 'C-100']
 
-        for tag in summary['tags']:
+        for tag in tags:
 
             with self.subTest(f"Testing tag {tag} associate in alarm summary"):
 
-                self.assertTrue(tag in tags)
+                self.assertTrue(tag in summary['tags'])
 
     def testSimulateExecuteWorker(self):
 
@@ -212,16 +215,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH-HIGH')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'active', 
-                'suppress by design': 'active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': True, 
+                'silence': False, 
+                'sound': True,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertDictEqual(alarm['operations'], expected_operations)
 
@@ -244,16 +248,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'active', 
-                'suppress by design': 'active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': True, 
+                'silence': False, 
+                'sound': True,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertDictEqual(alarm['operations'], expected_operations)
 
@@ -276,16 +281,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'BOOL')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'active', 
-                'suppress by design': 'active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': True, 
+                'silence': False, 
+                'sound': True,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertDictEqual(alarm['operations'], expected_operations)
 
@@ -308,16 +314,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'LOW')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'active', 
-                'suppress by design': 'active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': True, 
+                'silence': False, 
+                'sound': True,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertDictEqual(alarm['operations'], expected_operations)
 
@@ -340,16 +347,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'LOW-LOW')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'active', 
-                'suppress by design': 'active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': True, 
+                'silence': False,
+                'sound': True, 
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertDictEqual(alarm['operations'], expected_operations)
 
@@ -378,16 +386,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH')
             self.assertEqual(alarm['audible'], True)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': True, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -417,16 +426,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH-HIGH')
             self.assertEqual(alarm['audible'], True)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': True, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -452,16 +462,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH-HIGH')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'not active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': False, 
+                'enable': False, 
+                'disable': False, 
+                'silence': False, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -494,16 +505,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'HIGH')
             self.assertEqual(alarm['audible'], False)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': False, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -526,16 +538,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'BOOL')
             self.assertEqual(alarm['audible'], True)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': True, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -558,16 +571,17 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'LOW')
             self.assertEqual(alarm['audible'], True)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': True, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)
 
@@ -597,15 +611,16 @@ class TestAlarmManager(unittest.TestCase):
             self.assertEqual(alarm['type'], 'LOW-LOW')
             self.assertEqual(alarm['audible'], True)
             expected_operations = {
-                'acknowledge': 'active', 
-                'enable': 'not active', 
-                'disable': 'active', 
-                'silence': 'not active', 
-                'shelve': 'not active', 
-                'suppress by design': 'not active', 
-                'unsuppressed': 'not active', 
-                'out of service': 'not active', 
-                'return to service': 'not active', 
-                'reset': 'active'
+                'acknowledge': True, 
+                'enable': False, 
+                'disable': False, 
+                'silence': True, 
+                'sound': False,
+                'shelve': True, 
+                'suppress by design': True, 
+                'unsuppressed': False, 
+                'out of service': True, 
+                'return to service': False, 
+                'reset': True
             }
             self.assertEqual(alarm['operations'], expected_operations)

@@ -453,7 +453,6 @@ class PyHades(Singleton):
 
                     pass
             
-
             self.set_dbtags(self._engine._cvt._tags, period=period, delay=init_delay)
             self._db_manager.create_tables()
             self.init_db()
@@ -561,6 +560,7 @@ class PyHades(Singleton):
             unit = tag_object.get_unit()
             data_type = tag_object.get_data_type()
             description = tag_object.get_description()
+            display_name = tag_object.get_display_name()
             min_value = tag_object.get_min_value()
             max_value = tag_object.get_max_value()
             tcp_source_address = tag_object.get_tcp_source_address()
@@ -571,6 +571,7 @@ class PyHades(Singleton):
                 unit,
                 data_type,
                 description,
+                display_name,
                 min_value,
                 max_value,
                 tcp_source_address,

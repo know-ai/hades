@@ -3,48 +3,18 @@ from pyhades.alarms import Alarm
 from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
 from pyhades.dbmodels import Tags
+from pyhades.tests import app
 
 
 class TestBoolAlarms(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        # self.__variables = [
-        #     'Pressure',
-        #     'Temperature',
-        #     'Mass_Flow'
-        # ]
-
-        # self.__units = [
-        #     ('pascal', 'Pa', 'Pressure'),
-        #     ('degree_celsius', 'ªC', 'Temperature'),
-        #     ('kilogram_second', 'kg/s', 'Mass_Flow')
-        # ]
-
-        # self.__data_types = [
-        #     'float',
-        #     'int',
-        #     'str',
-        #     'bool'
-        # ]
-
         self.__tags = [
-            ('PT-100', 'Pa', 'float', 'Inlet Pressure')
+            ('PT-100', 'Pa', 'float', 'Inlet Pressure', 'PT-100')
         ]
 
-        # for variable_name in self.__variables:
-
-        #     Variables.create(name=variable_name)
-
-        # for name, unit, variable in self.__units:
-
-        #     Units.create(name=name, unit=unit, variable=variable)
-
-        # for datatype_name in self.__data_types:
-
-        #     DataTypes.create(name=datatype_name)
-
-        for name, unit, data_type, description in self.__tags:
+        for name, unit, data_type, description, display_name in self.__tags:
 
             self._tag = name
 
@@ -52,7 +22,8 @@ class TestBoolAlarms(unittest.TestCase):
                 name=name,  
                 unit=unit, 
                 data_type=data_type,
-                description=description)
+                description=description,
+                display_name=display_name)
 
 
         # Default Alarm
@@ -68,6 +39,7 @@ class TestBoolAlarms(unittest.TestCase):
         self.trigger_type = TriggerType.B.value
         self.trigger_value = True
         self._alarm.set_trigger(self.trigger_value, self.trigger_type)
+        app.append_alarm(self._alarm)
         return super().setUp()
 
     def tearDown(self) -> None:

@@ -3,6 +3,7 @@ from pyhades.alarms import Alarm
 from pyhades.alarms.states import AlarmState, States
 from pyhades.alarms.trigger import TriggerType
 from pyhades.dbmodels.tags import Tags
+from pyhades.tests import app
 
 
 class TestHighHighAlarms(unittest.TestCase):
@@ -10,10 +11,10 @@ class TestHighHighAlarms(unittest.TestCase):
     def setUp(self) -> None:
 
         self.__tags = [
-            ('PT-05', 'Pa', 'float', 'Inlet Pressure')
+            ('PT-05', 'Pa', 'float', 'Inlet Pressure', 'PT-05')
         ]
 
-        for name, unit, data_type, description in self.__tags:
+        for name, unit, data_type, description, display_name in self.__tags:
 
             self._tag = name
 
@@ -21,7 +22,8 @@ class TestHighHighAlarms(unittest.TestCase):
                 name=name, 
                 unit=unit, 
                 data_type=data_type,
-                description=description)
+                description=description,
+                display_name=display_name)
 
         # Default Alarm
         self._name = "PT-05-HH"
@@ -34,6 +36,7 @@ class TestHighHighAlarms(unittest.TestCase):
         self.trigger_type = TriggerType.HH.value
         self.trigger_value = 100.0
         self._alarm.set_trigger(self.trigger_value, self.trigger_type)
+        app.append_alarm(self._alarm)
         return super().setUp()
 
     def tearDown(self) -> None:

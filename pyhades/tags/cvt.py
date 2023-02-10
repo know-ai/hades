@@ -224,13 +224,14 @@ class CVT:
         """
         tag_name = name
         tag = Tags.read_by_name(tag_name)
+        if tag:
 
-        if str(tag.id) not in self._tags:
-            
-            raise KeyError
+            if str(tag.id) not in self._tags:
+                
+                raise KeyError
 
-        self._tags[str(tag.id)].set_value(value)
-        self.logger.write_tag(tag_name, value)
+            self._tags[str(tag.id)].set_value(value)
+            self.logger.write_tag(tag_name, value)
 
     def set_values(self, tags:list):
         """Sets a new value for a defined tag.

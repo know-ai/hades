@@ -12,6 +12,7 @@ modules:
           unit: 'Pa'
           data_type: 'float'
           description: 'Inlet Pressure'
+          display_name: 'PT-01'
           min_value: 0.00
           max_value: 100.00
           tcp_source_address: ''
@@ -22,6 +23,7 @@ modules:
           unit: 'Pa'
           data_type: 'float'
           description: 'Outlet Pressure'
+          display_name: 'PT-02'
           min_value: 0.00
           max_value: 100.00
           tcp_source_address: ''

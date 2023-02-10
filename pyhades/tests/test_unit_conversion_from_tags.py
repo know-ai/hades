@@ -15,7 +15,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testLengthUnitConversion(self):
 
         tag_name = 'test_length_tag'
-        _tag = (tag_name, 'm', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'm', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 10
         tag_engine.write_tag(tag_name, value)
@@ -44,7 +44,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testAreaUnitConversion(self):
 
         tag_name = 'test_area_tag'
-        _tag = (tag_name, 'm2', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'm2', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 10
         tag_engine.write_tag(tag_name, value)
@@ -59,7 +59,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testVolumeUnitConversion(self):
 
         tag_name = 'test_volume_tag'
-        _tag = (tag_name, 'm3', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'm3', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 10
         tag_engine.write_tag(tag_name, value)
@@ -79,7 +79,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testMassUnitConversion(self):
 
         tag_name = 'test_mass_tag'
-        _tag = (tag_name, 'g', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'g', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1000
         tag_engine.write_tag(tag_name, value)
@@ -99,7 +99,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testDensityUnitConversion(self):
 
         tag_name = 'test_density_tag'
-        _tag = (tag_name, 'g/ml', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'g/ml', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1
         tag_engine.write_tag(tag_name, value)
@@ -116,7 +116,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testVolumetricLiquidFlowUnitConversion(self):
 
         tag_name = 'test_vol_liq_flow_tag'
-        _tag = (tag_name, 'lt/s', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'lt/s', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1000
         tag_engine.write_tag(tag_name, value)
@@ -139,7 +139,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testVolumetricGasFlowUnitConversion(self):
 
         tag_name = 'test_vol_gas_flow_tag'
-        _tag = (tag_name, 'Nm3/h', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'Nm3/h', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1
         tag_engine.write_tag(tag_name, value)
@@ -153,7 +153,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testMassFlowUnitConversion(self):
 
         tag_name = 'test_mass_flow_tag'
-        _tag = (tag_name, 'kg/h', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'kg/h', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1000
         tag_engine.write_tag(tag_name, value)
@@ -173,7 +173,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testMolarFlowUnitConversion(self):
 
         tag_name = 'test_molar_flow_tag'
-        _tag = (tag_name, 'kmole/h', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'kmole/h', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1000
         tag_engine.write_tag(tag_name, value)
@@ -187,7 +187,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testPressuresUnitConversion(self):
 
         tag_name = 'test_pressure_tag'
-        _tag = (tag_name, 'Pa', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'Pa', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 10 ** 6
         tag_engine.write_tag(tag_name, value)
@@ -210,7 +210,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testSpeedUnitConversion(self):
 
         tag_name = 'test_speed_tag'
-        _tag = (tag_name, 'm/s', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'm/s', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)
@@ -230,7 +230,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testDynamicViscosityUnitConversion(self):
 
         tag_name = 'test_dyn_visc_tag'
-        _tag = (tag_name, 'cp', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'cp', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1000.0
         tag_engine.write_tag(tag_name, value)
@@ -244,7 +244,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testKinematicViscosityUnitConversion(self):
 
         tag_name = 'test_kin_visc_tag'
-        _tag = (tag_name, 'St', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'St', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 10
         tag_engine.write_tag(tag_name, value)
@@ -261,7 +261,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testTemperatureUnitConversion(self):
 
         tag_name = 'test_temp_tag'
-        _tag = (tag_name, 'ªC', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'C', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 300
         tag_engine.write_tag(tag_name, value)
@@ -269,7 +269,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
         new_value = tag_engine.read_tag(tag_name, unit='K')
         self.assertAlmostEqual(new_value, 573.15, 5)
 
-        new_value = tag_engine.read_tag(tag_name, unit='ªF')
+        new_value = tag_engine.read_tag(tag_name, unit='F')
         self.assertAlmostEqual(new_value, 572, 5)
 
         new_value = tag_engine.read_tag(tag_name, unit='R')
@@ -278,7 +278,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testTimeUnitConversion(self):
 
         tag_name = 'test_time_tag'
-        _tag = (tag_name, 'd', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'd', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)
@@ -295,18 +295,18 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testConductivityUnitConversion(self):
 
         tag_name = 'test_cond_tag'
-        _tag = (tag_name, 'W/(m.K)', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'W/(m.K)', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)
 
-        new_value = tag_engine.read_tag(tag_name, unit='BTU.in/(h.ft2.ªF)')
+        new_value = tag_engine.read_tag(tag_name, unit='BTU.in/(h.ft2.F)')
         self.assertAlmostEqual(new_value, 6.9381117888, 5)
 
     def testEnergyUnitConversion(self):
 
         tag_name = 'test_ener_tag'
-        _tag = (tag_name, 'J', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'J', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)
@@ -329,7 +329,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testPowerUnitConversion(self):
 
         tag_name = 'test_power_tag'
-        _tag = (tag_name, 'W', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'W', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)
@@ -349,7 +349,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
     def testAccelerationUnitConversion(self):
 
         tag_name = 'test_acc_tag'
-        _tag = (tag_name, 'm/s2', 'float', 'Test Tag Description')
+        _tag = (tag_name, 'm/s2', 'float', 'Test Tag Description', tag_name)
         tag_engine.set_tag(*_tag)
         value = 1.0
         tag_engine.write_tag(tag_name, value)

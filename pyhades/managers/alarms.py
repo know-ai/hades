@@ -129,7 +129,6 @@ class AlarmManager(Singleton):
 
         * **alarm** (Alarm Object)
         """
-
         for id, alarm in self._alarms.items():
             
             if name == alarm.name:

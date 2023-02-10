@@ -13,10 +13,10 @@ class TestDBModels(unittest.TestCase):
 
 
         self.__tags = [
-            ('PT-01', 'Pa', 'float', 'Inlet Pressure'),
-            ('PT-02', 'Pa', 'float', 'Outlet Pressure'),
-            ('FT-01', 'kg/s', 'float', 'Inlet Mass Flow'),
-            ('FT-02', 'kg/s', 'float', 'Outlet Mass Flow')
+            ('PT-01', 'Pa', 'float', 'Inlet Pressure', 'PT-01'),
+            ('PT-02', 'Pa', 'float', 'Outlet Pressure', 'PT-02'),
+            ('FT-01', 'kg/s', 'float', 'Inlet Mass Flow', 'FT-01'),
+            ('FT-02', 'kg/s', 'float', 'Outlet Mass Flow', 'FT-02')
         ]
 
         return super().setUp()
@@ -35,7 +35,7 @@ class TestDBModels(unittest.TestCase):
 
         result = Units.read_all()
 
-        self.assertEqual(len(result), 144)
+        self.assertEqual(len(result), 145)
 
     def testCountDataTypesAdded(self):
 
@@ -65,14 +65,14 @@ class TestDBModels(unittest.TestCase):
         r"""
         Documentation here
         """
-
-        for name, unit, data_type, description in self.__tags:
+        for name, unit, data_type, description, display_name in self.__tags:
 
             Tags.create(
                 name=name,  
                 unit=unit, 
                 data_type=data_type,
-                description=description)
+                description=description,
+                display_name=display_name)
 
         alarm_name, tag, description, alarm_type, alarm_trigger = (
             "alarm_PT_01", 
