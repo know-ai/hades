@@ -261,13 +261,21 @@ def system_log_transition(
                     for destination in transition.destinations:
                         
                         if destination.name==current_destination:
+                            
                             _current_transition = current_transition.replace("_", " ")
                             engine_state = destination.value
                             info = state_machine.serialize()
                             info["state"] = engine_state
+
+                            msg = f"{info['name']['value']} was switched from {_current_transition}"
+
+                            if hasattr(state_machine, "pipeline"):
+
+                                msg = f"{state_machine.pipeline.value}: {info['name']['value']} was switched from {_current_transition}"
+
                             payload = {
                                 'user': "SYS.KnowAI",
-                                'message': f"{info['name']['value']} was switched from {_current_transition}",
+                                'message': msg,
                                 'description': info['description']['value'],
                                 'classification': info['classification']['value'],
                                 'priority': info['priority']['value'],
