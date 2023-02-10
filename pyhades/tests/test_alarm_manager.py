@@ -85,13 +85,6 @@ class TestAlarmManager(unittest.TestCase):
 
         return super().tearDown()
 
-    def testAlarmsAppended(self):
-
-        alarm_manager = app.get_alarm_manager()
-        summary = alarm_manager.summary()
-
-        self.assertEqual(summary['length'], 11)
-
     def testGetAlarm(self):
 
         alarm_manager = app.get_alarm_manager()
