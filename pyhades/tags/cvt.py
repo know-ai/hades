@@ -258,13 +258,6 @@ class CVT:
         """
         tag = Tags.read_by_name(name)
         
-        # if "." in name:
-        #     values = name.split(".")
-        #     name = values[0]
-        #     _property = values[1]
-        #     _new_object = copy.copy(getattr(self._tags[str(tag.id)].value, _property))
-        # else:
-            # _new_object = copy.copy(self._tags[str(tag.id)].get_value(unit=unit))
         _new_object = copy.copy(self._tags[str(tag.id)].get_value())
 
         _tag = self._tags[str(tag.id)]
@@ -278,6 +271,12 @@ class CVT:
             _new_object = copy.copy(new_value)
         
         return _new_object
+
+    def get_all_values(self):
+        r"""
+        Documentation here
+        """
+        pass
 
     def get_data_type(self, name):
         """Returns a tag type defined by name.

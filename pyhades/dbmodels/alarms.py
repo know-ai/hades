@@ -621,6 +621,14 @@ class AlarmSummary(BaseModel):
         EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
         EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
         try:
+            requests.get(f'{EVENT_LOGGER_SERVICE_URL}/api/healthcheck/', timeout=(3, 5), verify=False)
+
+        except:
+
+            EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
+        
+        
+        try:
             comments = requests.get(f"{EVENT_LOGGER_SERVICE_URL}/api/logs/comments/{self.id}")
             if comments:
 

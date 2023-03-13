@@ -21,8 +21,15 @@ def get_headers(auth_service_host:str="127.0.0.1", auth_service_port:int=5000, a
         "X-API-KEY": None
     } 
     try:
-        url = f"http://{auth_service_host}:{auth_service_port}{auth_endpoint}"
-        response = requests.get(url)
+        url = f"https://{auth_service_host}:{auth_service_port}{auth_endpoint}"
+        try:
+            response = requests.get(f'https://{auth_service_host}:{auth_service_port}/api/healthcheck/', timeout=(3, 5), verify=False)
+
+        except:
+
+            url = f"http://{auth_service_host}:{auth_service_port}{auth_endpoint}"
+            
+        response = requests.get(url, verify=False)
         if response and response.status_code==200:
             
             response = response.json()
@@ -245,7 +252,13 @@ def system_log_transition(
         :return:
         """
         result = func(*args, **kwargs)
-        event_url = f"http://{event_logger_service_host}:{event_logger_service_port}{event_logger_endpoint}"
+        event_url = f"https://{event_logger_service_host}:{event_logger_service_port}{event_logger_endpoint}"
+        try:
+            requests.get(f'https://{event_logger_service_host}:{event_logger_service_port}/api/healthcheck/', verify=False)
+
+        except:
+
+            event_url = f"http://{event_logger_service_host}:{event_logger_service_port}{event_logger_endpoint}"
 
         if log:
             
@@ -285,7 +298,8 @@ def system_log_transition(
                                 requests.post(
                                     event_url, 
                                     headers=get_headers(auth_service_host, auth_service_port, auth_endpoint), 
-                                    json=payload
+                                    json=payload,
+                                    verify=False
                                     )
                             except requests.ConnectionError as ex:
                                 trace = []

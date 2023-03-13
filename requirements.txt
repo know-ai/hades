@@ -1,8 +1,8 @@
 python-statemachine==0.8.0
-peewee==3.14.10
-psycopg2-binary==2.9.3; sys_platform != 'win32'
-psycopg2==2.9.3; sys_platform == 'win32'
+peewee==3.15.4
+psycopg2-binary==2.9.5; sys_platform != 'win32'
+psycopg2==2.9.5; sys_platform == 'win32'
 PyYAML==6.0
-requests==2.28.1
-python-dotenv==0.20.0
-tqdm==4.50.2
+requests==2.28.2
+python-dotenv==0.21.1
+tqdm>=4.50.2
