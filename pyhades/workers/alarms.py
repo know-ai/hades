@@ -5,6 +5,9 @@ This module implements Alarm Worker.
 """
 import logging
 import time
+from ..alarms import AlarmState
+from datetime import datetime
+from ..dbmodels import AlarmLogging as AlarmModel
 
 from .worker import BaseWorker
 
@@ -27,6 +30,23 @@ class AlarmWorker(BaseWorker):
         while True:
 
             time.sleep(self._period)
+
+            for _, _alarm in self._manager._alarms.items():
+
+                if _alarm.state == AlarmState.SHLVD:
+
+                    _now = datetime.now()
+                    if _alarm._shelved_until:
+                        
+                        if _now >= _alarm._shelved_until:
+                            
+                            AlarmModel.create(
+                                name=_alarm.name,
+                                state=_alarm.state.state,
+                                priority=_alarm._priority,
+                                value=_alarm._value
+                            )
+                            _alarm.unshelve()
 
             while not _queue.empty():
 
