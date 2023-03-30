@@ -1,4 +1,3 @@
-from signal import alarm
 from .core import PyHades
 
 class PyHadesContext(object):

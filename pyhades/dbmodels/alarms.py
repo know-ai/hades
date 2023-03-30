@@ -8,6 +8,16 @@ import os
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+EVENT_LOGGER_SERVICE_HOST = os.environ.get('EVENT_LOGGER_SERVICE_HOST') or "127.0.0.1"
+EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
+EVENT_LOGGER_SERVICE_URL = f"https://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
+try:
+    requests.get(f'{EVENT_LOGGER_SERVICE_URL}/api/healthcheck/', timeout=(3, 5), verify=False)
+
+except:
+
+    EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
+
 
 class AlarmTypes(BaseModel):
 
@@ -617,28 +627,12 @@ class AlarmSummary(BaseModel):
         r"""
         Documentation here
         """
-        EVENT_LOGGER_SERVICE_HOST = os.environ.get('EVENT_LOGGER_SERVICE_HOST') or "127.0.0.1"
-        EVENT_LOGGER_SERVICE_PORT = os.environ.get('EVENT_LOGGER_SERVICE_PORT') or "5004"
-        EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
-        try:
-            requests.get(f'{EVENT_LOGGER_SERVICE_URL}/api/healthcheck/', timeout=(3, 5), verify=False)
+        comments = requests.get(f"{EVENT_LOGGER_SERVICE_URL}/api/logs/comments/{self.id}", verify=False)
+        if comments:
 
-        except:
-
-            EVENT_LOGGER_SERVICE_URL = f"http://{EVENT_LOGGER_SERVICE_HOST}:{EVENT_LOGGER_SERVICE_PORT}"
+            return comments.json()
         
-        
-        try:
-            comments = requests.get(f"{EVENT_LOGGER_SERVICE_URL}/api/logs/comments/{self.id}")
-            if comments:
-
-                return comments.json()
-
-            return []
-        
-        except:
-
-            return []
+        return []
 
     def serialize(self):
         r"""
@@ -660,7 +654,7 @@ class AlarmSummary(BaseModel):
         return_to_service_time = None
         if self.return_to_service_time:
 
-            return_to_service_time = self.return_To_service_time.strftime(DATETIME_FORMAT)
+            return_to_service_time = self.return_to_service_time.strftime(DATETIME_FORMAT)
 
         alarm = alarm_manager.get_alarm_by_name(self.alarm.name)
 

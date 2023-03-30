@@ -10,6 +10,7 @@ from .utils import (
 
 from statemachine import StateMachine
 from statemachine import State as _State
+from .buffer import Buffer
 
 from .tags import CVTEngine, TagBinding, GroupBinding
 from .logger import DataLoggerEngine
@@ -1410,6 +1411,9 @@ class AutomationStateMachine(PyHadesStateMachine):
                         _time_window = config['modules']['engine']['time_window']
                         self.time_window = int(_time_window / self.get_interval())
 
+                    if 'roll_type' in config['modules']['engine']:
+                        self.roll_type = config['modules']['engine']['roll_type']
+
                     if 'system_tags' in config['modules']['engine']:
 
                         self.system_tags = config['modules']['engine']['system_tags']
@@ -1427,6 +1431,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
+        
         for tag in list(self.system_tags.keys()):
 
             location = None
@@ -1435,7 +1440,7 @@ class AutomationStateMachine(PyHadesStateMachine):
                 location = self.system_tags[tag]['location']
 
             self.buffer[tag] = {
-                'data': list(),
+                'data': Buffer(length=self.time_window, roll=self.roll_type),
                 'location': location
                             }
 
