@@ -21,14 +21,14 @@
         "yards": 1.093613,
         "miles": 0.000621
     },
-    "meter_squared" : {
-        "centimeter_squared": 1e4,
-        "milimiter_squared": 1e6,
-        "kilometer_squared": 1e-6,
-        "inch_squared": 1550.003,
-        "foot_squared": 10.76391,
-        "yard_squared": 1.19599,
-        "mile_squared": 0.0000003861
+    "meter_square" : {
+        "centimeter_square": 1e4,
+        "milimiter_square": 1e6,
+        "kilometer_square": 1e-6,
+        "inch_square": 1550.003,
+        "foot_square": 10.76391,
+        "yard_square": 1.19599,
+        "mile_square": 0.0000003861
     },
     "meter_cube" : {
         "liter": 1e3,
@@ -103,9 +103,9 @@
         "foot_of_water": 0.00033456e6,
         "meters_of_water": 0.00010197838e6,
         "kilopascal": 1000,
-        "pound_squared_inch": 145.03,
+        "pound_square_inch": 145.03,
         "bar": 10,
-        "kilogram_force_centimeter_squared": 10.197,
+        "kilogram_force_centimeter_square": 10.197,
         "milimeter_of_mercury": 7500.2,
         "atmospheres": 9.8717
     },
@@ -122,8 +122,8 @@
     },
     "stoke" : {
         "centistoke": 100,
-        "foot_squared_second": 0.001076391505118,
-        "meter_squared_second": 0.0001
+        "foot_square_second": 0.001076391505118,
+        "meter_square_second": 0.0001
     },
     "day" : {
         "hour": 24,
@@ -133,7 +133,7 @@
         "microsecond": 86400e6
     },
     "watt_meter_kelvin" : {
-        "british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit": 6.9381117888
+        "british_thermal_unit_inch_hour_foot_square_degree_fahrenheit": 6.9381117888
     },
     "joule": {
         "newton_meter": 1,
@@ -151,9 +151,9 @@
         "british_thermal_unit_second": 9.478133944988911e-4,
         "horse_power": 1.341e-3
     },
-    "meter_second_squared" : {
-        "inch_second_squared": 39.37008,
-        "feet_second_squared": 3.280839895,
-        "mile_second_squared": 0.00062137119
+    "meter_second_square" : {
+        "inch_second_square": 39.37008,
+        "feet_second_square": 3.280839895,
+        "mile_second_square": 0.00062137119
     }
 }

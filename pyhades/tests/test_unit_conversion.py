@@ -47,26 +47,26 @@ class TestUnitConversion(unittest.TestCase):
     def testAreaUnitConversion(self):
 
         value = 10
-        unit = 'meter_squared'
-        to = 'inch_squared'
+        unit = 'meter_square'
+        to = 'inch_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 15500.03, 5)
 
         value = 1
-        unit = 'inch_squared'
-        to = 'meter_squared'
+        unit = 'inch_square'
+        to = 'meter_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.000645, 5)
 
         value = 1
-        unit = 'yard_squared'
-        to = 'foot_squared'
+        unit = 'yard_square'
+        to = 'foot_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 9, 5)
 
         value = 100
-        unit = 'centimeter_squared'
-        to = 'meter_squared'
+        unit = 'centimeter_square'
+        to = 'meter_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.01, 5)
 
@@ -232,7 +232,7 @@ class TestUnitConversion(unittest.TestCase):
 
         value = 1
         unit = 'megapascal'
-        to = 'pound_squared_inch'
+        to = 'pound_square_inch'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 145.03, 5)
 
@@ -297,13 +297,13 @@ class TestUnitConversion(unittest.TestCase):
     def testKinematicViscosityUnitConversion(self):
 
         value = 1
-        unit = 'foot_squared_second'
+        unit = 'foot_square_second'
         to = 'centistoke'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 92903, 3)
 
         value = 1
-        unit = 'meter_squared_second'
+        unit = 'meter_square_second'
         to = 'stoke'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 10000, 3)
@@ -381,14 +381,14 @@ class TestUnitConversion(unittest.TestCase):
     def testConductivityUnitConversion(self):
 
         value = 1
-        unit = 'british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit'
+        unit = 'british_thermal_unit_inch_hour_foot_square_degree_fahrenheit'
         to = 'watt_meter_kelvin'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.14413, 3)
 
         value = 1
         unit = 'watt_meter_kelvin'
-        to = 'british_thermal_unit_inch_hour_foot_squared_degree_fahrenheit'
+        to = 'british_thermal_unit_inch_hour_foot_square_degree_fahrenheit'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 6.938, 3)
 
@@ -435,25 +435,25 @@ class TestUnitConversion(unittest.TestCase):
     def testAccelerationUnitConversion(self):
 
         value = 1
-        unit = 'meter_second_squared'
-        to = 'mile_second_squared'
+        unit = 'meter_second_square'
+        to = 'mile_second_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 0.0006214, 3)
 
         value = 1
-        unit = 'mile_second_squared'
-        to = 'meter_second_squared'
+        unit = 'mile_second_square'
+        to = 'meter_second_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 1609.344, 3)
 
         value = 1
-        unit = 'meter_second_squared'
-        to = 'meter_second_squared'
+        unit = 'meter_second_square'
+        to = 'meter_second_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 1.00, 3)
 
         value = 1
-        unit = 'feet_second_squared'
-        to = 'inch_second_squared'
+        unit = 'feet_second_square'
+        to = 'inch_second_square'
         new_value = UnitConversion.convert(value, from_unit=unit, to_unit=to)
         self.assertAlmostEqual(new_value, 12, 3)

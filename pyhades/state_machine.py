@@ -1458,25 +1458,25 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
         return self.default_alarms
 
-    @logging_error_handler
-    def fill_buffer(self, data:dict)->dict:
-        r"""
-        Documentation here
-        """
-        for tag_name, value in data.items():
+    # @logging_error_handler
+    # def fill_buffer(self, data:dict)->dict:
+    #     r"""
+    #     Documentation here
+    #     """
+    #     for tag_name, value in data.items():
 
-            if len(self.buffer[tag_name]['data']) < self.time_window:
+    #         if len(self.buffer[tag_name]['data']) < self.time_window:
 
-                _value = self.buffer[tag_name]['data']
-                _value.append(value['y'])
-                self.buffer[tag_name]['data'] = _value
-                self.ready_to_run = False
+    #             _value = self.buffer[tag_name]['data']
+    #             _value.append(value['y'])
+    #             self.buffer[tag_name]['data'] = _value
+    #             self.ready_to_run = False
 
-            else:
+    #         else:
 
-                _value = self.buffer[tag_name]['data']
-                _value = _value[1:] + _value[:1]
-                _value[-1] = value['y']
-                self.buffer[tag_name]['data'] = _value
-                if all(self.buffer[tag_name]['data']):
-                    self.ready_to_run = True
+    #             _value = self.buffer[tag_name]['data']
+    #             _value = _value[1:] + _value[:1]
+    #             _value[-1] = value['y']
+    #             self.buffer[tag_name]['data'] = _value
+    #             if all(self.buffer[tag_name]['data']):
+    #                 self.ready_to_run = True
