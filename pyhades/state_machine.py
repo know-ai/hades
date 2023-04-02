@@ -1431,13 +1431,32 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        
-        for tag in list(self.system_tags.keys()):
+        system_tags = list(self.system_tags.keys())
+        for tag in system_tags:
 
             location = None
             if 'location' in self.system_tags[tag]:
 
                 location = self.system_tags[tag]['location']
+
+            if 'variable' in self.system_tags[tag]:
+                        
+                variable = self.system_tags[tag].pop('variable')
+
+                if variable.lower() in ['volumetricflow', 'massdensity']:
+
+                    if variable.lower()=='volumetricflow':
+                    
+                        continue
+                    
+                    else:
+
+                        self.buffer[system_tags[0]] = {
+                            'data': Buffer(length=self.time_window, roll=self.roll_type),
+                            'location': location
+                        }
+                    
+                    continue
 
             self.buffer[tag] = {
                 'data': Buffer(length=self.time_window, roll=self.roll_type),
@@ -1457,26 +1476,3 @@ class AutomationStateMachine(PyHadesStateMachine):
         Documentation here
         """
         return self.default_alarms
-
-    # @logging_error_handler
-    # def fill_buffer(self, data:dict)->dict:
-    #     r"""
-    #     Documentation here
-    #     """
-    #     for tag_name, value in data.items():
-
-    #         if len(self.buffer[tag_name]['data']) < self.time_window:
-
-    #             _value = self.buffer[tag_name]['data']
-    #             _value.append(value['y'])
-    #             self.buffer[tag_name]['data'] = _value
-    #             self.ready_to_run = False
-
-    #         else:
-
-    #             _value = self.buffer[tag_name]['data']
-    #             _value = _value[1:] + _value[:1]
-    #             _value[-1] = value['y']
-    #             self.buffer[tag_name]['data'] = _value
-    #             if all(self.buffer[tag_name]['data']):
-    #                 self.ready_to_run = True
