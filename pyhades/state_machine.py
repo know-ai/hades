@@ -659,8 +659,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        data = self.read_data()
-        self.fill_buffer(data)
+        self.fill_buffer()
         if self.ready_to_run:
             self.wait_to_run()
 
@@ -669,8 +668,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         r"""
         Documentation here
         """
-        data = self.read_data()
-        self.fill_buffer(data)
+        self.fill_buffer()
         self.criticity.value = 1
 
     @logging_error_handler
