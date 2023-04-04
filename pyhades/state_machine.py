@@ -1439,7 +1439,7 @@ class AutomationStateMachine(PyHadesStateMachine):
 
             if 'variable' in self.system_tags[tag]:
                         
-                variable = self.system_tags[tag].pop('variable')
+                variable = self.system_tags[tag]['variable']
 
                 if variable.lower() in ['volumetricflow', 'massdensity']:
 
