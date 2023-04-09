@@ -1,11 +1,12 @@
-import logging
+import logging, os, requests, socketio
 from inspect import ismethod
 
 from .utils import (
     log_detailed,
     logging_error_handler,
     notify_state,
-    parse_config
+    parse_config,
+    get_headers
     )
 
 from statemachine import StateMachine
@@ -18,6 +19,21 @@ from .models import FloatType, IntegerType, BooleanType, StringType
 from .alarms import Alarm, TriggerType
 from .managers.alarms import AlarmManager
 from .managers.logger import DBManager
+
+port = os.environ.get('APP_PORT')
+
+CERT_FILE = os.environ.get('CERT_FILE') or "idetect.crt"
+KEY_FILE = os.environ.get('KEY_FILE') or "idetect.key"
+
+CERTFILE = os.path.join("app", "ssl", CERT_FILE)
+KEYFILE = os.path.join("app", "ssl", KEY_FILE)
+if not os.path.exists(CERTFILE):
+
+    CERTFILE = None
+
+if not os.path.exists(KEYFILE):
+
+    KEYFILE = None
 
 FLOAT = "float"
 INTEGER = "int"
@@ -638,21 +654,38 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.default_alarms = list()
         self.default_tags = list()
         self.buffer = dict()
+        self._sio = None
         self.event_name = "machine_event"
         self.time_window = 10
         self.last_state = "start"
 
-    @logging_error_handler
+    # @logging_error_handler
     def while_starting(self):
         """
 
         """
+        # self.PIPELINE_NAME = os.environ.get('PIPELINE_NAME') or ""
+        # if self.PIPELINE_NAME:
+
+        #     self.PIPELINE_NAME = f"{self.PIPELINE_NAME}."
+
         self.app_mode = self.app.get_mode()
         self.sio = self.app.get_socketio()
         self.config_file_location = self.app.config_file_location
         self.init_configuration()
         self.init_socketio_for_variables()
+        # DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
+        # DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
+        # self.DAQ_SERVICE_URL = f"https://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
+        # try:
+        #     requests.get(f'{self.DAQ_SERVICE_URL}/api/healthcheck/', timeout=(3, 5), verify=False)
+
+        # except:
+
+        #     self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
+
         self.start_to_wait()
+        
 
     @logging_error_handler
     def while_waiting(self):

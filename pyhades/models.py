@@ -66,22 +66,24 @@ class PropertyType:
                 }
                 self.__sio.emit("notify_attr", payload_to_sio)
 
-            # Notify to OPCUA Server
-            payload = {
-                'folder_struct': ["Engines", machine['name']['value']],
-                'engine': machine
-            }
-            if folder_name:
-                payload = {
-                    'folder_struct': [folder_name, "Engines", machine['name']['value']],
-                    'engine': machine
-                }
+            # # Notify to OPCUA Server
+            # payload = {
+            #     'folder_struct': ["Engines", machine['name']['value']],
+            #     'engine': machine
+            # }
+            # if folder_name:
+            #     payload = {
+            #         'folder_struct': [folder_name, "Engines", machine['name']['value']],
+            #         'engine': machine
+            #     }
 
-            payload= payload
-            folder_struct = payload.pop('folder_struct')
-            engine = payload['engine']
+            # payload= payload
+            # folder_struct = payload.pop('folder_struct')
+            # engine = payload['engine']
 
-            self.__machine.set_engine_into_server(folder_struct=folder_struct, **engine)
+            # if hasattr(self.__machine, 'set_engine_into_server'):
+
+            #     self.__machine.set_engine_into_server(folder_struct=folder_struct, **engine)
 
         self.__value = value
 

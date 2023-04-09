@@ -196,7 +196,11 @@ def notify_state(func, args, kwargs):
 
                     engine_state = destination.value
                     info = state_machine.serialize()
-                    info["state"] = engine_state
+                    info["state"] = {
+                        "value": engine_state,
+                        "unit": None
+                    }
+
                     if state_machine.sio: 
                         
                         state_machine.sio.emit('notify_state', info)
