@@ -651,6 +651,7 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.default_alarms = list()
         self.app = app
         self.ready_to_run = False
+        self.roll_type = "backward"
         self.default_alarms = list()
         self.default_tags = list()
         self.buffer = dict()
@@ -664,26 +665,11 @@ class AutomationStateMachine(PyHadesStateMachine):
         """
 
         """
-        # self.PIPELINE_NAME = os.environ.get('PIPELINE_NAME') or ""
-        # if self.PIPELINE_NAME:
-
-        #     self.PIPELINE_NAME = f"{self.PIPELINE_NAME}."
-
         self.app_mode = self.app.get_mode()
         self.sio = self.app.get_socketio()
         self.config_file_location = self.app.config_file_location
         self.init_configuration()
         self.init_socketio_for_variables()
-        # DAQ_SERVICE_HOST = os.environ.get('DAQ_SERVICE_HOST') or "127.0.0.1"
-        # DAQ_SERVICE_PORT = os.environ.get('DAQ_SERVICE_PORT') or "5001"
-        # self.DAQ_SERVICE_URL = f"https://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
-        # try:
-        #     requests.get(f'{self.DAQ_SERVICE_URL}/api/healthcheck/', timeout=(3, 5), verify=False)
-
-        # except:
-
-        #     self.DAQ_SERVICE_URL = f"http://{DAQ_SERVICE_HOST}:{DAQ_SERVICE_PORT}"
-
         self.start_to_wait()
         
 
@@ -1486,7 +1472,6 @@ class AutomationStateMachine(PyHadesStateMachine):
                             'data': Buffer(length=self.time_window, roll=self.roll_type),
                             'location': location
                         }
-                    
                     continue
 
             self.buffer[tag] = {
