@@ -53,8 +53,8 @@
         ["foot_cube_minute", "ft3/min"],
         ["foot_cube_hour", "ft3/h"],
         ["us_gallons_minute", "US gal/min"],
-        ["us_barrels_oil_day", "US brl/d"],
-        ["us_barrels_oil_hour", "US brl/h"],
+        ["us_barrels_oil_day", "US bbl/d"],
+        ["us_barrels_oil_hour", "US bbl/h"],
         ["normal_meter_cube_hour", "Nm3/h"],
         ["standard_cubic_feet_hour", "Std. ft3/h"],
         ["standard_cubic_feet_minute", "Std. ft3/min"]
@@ -117,7 +117,7 @@
         ["foot_cube", "ft3"],
         ["us_gallons", "US gal"],
         ["imperial_gallons", "Imp gal"],
-        ["us_barrel_oil", "US brl"]
+        ["us_barrel_oil", "US bbl"]
     ],
     "Mass": [
         ["exagrams", "Eg"],

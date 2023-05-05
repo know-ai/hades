@@ -582,3 +582,59 @@ class TagValue(BaseModel):
 
                     tag_info[f'{tag.tag.name}'] = tag.value
 
+    @classmethod
+    def export_tags_to_csv(cls, start:datetime, end:datetime, tags:list):
+        r"""
+        Documentation here
+        """
+        # Select tags
+        tag_names_query = cls.select(fn.DISTINCT(cls.tag_id))        
+        tag_info = dict()
+        tag_info['timestamp'] = None
+        _query = ""
+        _tags = list()
+        for tag in tag_names_query:
+
+            if tag.tag.name in tags:
+
+                tag_info[tag.tag.name] = None
+                
+                _tags.append(tag.tag.id)
+            
+        del tag_names_query
+
+        _query = f"cls.tag_id.in_(_tags)"
+
+
+        previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
+
+        # Creating query
+        _query += f" & (cls.timestamp >=start) & (cls.timestamp <= end)"
+
+        tags = cls.select().where(eval(_query)).order_by(cls.timestamp.asc())
+        row = 0
+        with open(f'daq_tag_value_from_{start}_to_{end}.csv', 'w', newline='') as f:
+            
+            for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
+
+                timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
+                if previous_timestamp!=timestamp:
+                    
+                    if tag_info:
+
+                        if row==0:
+                    
+                            dict_writer = csv.DictWriter(f, tag_info.keys(), delimiter=",")
+                            dict_writer.writeheader()
+
+                        dict_writer.writerow(tag_info)
+                        row += 1
+
+                    tag_info = dict()
+                    previous_timestamp = timestamp
+                    tag_info['timestamp'] = timestamp
+                    tag_info[tag.tag.name] = tag.value
+
+                else:
+
+                    tag_info[f'{tag.tag.name}'] = tag.value

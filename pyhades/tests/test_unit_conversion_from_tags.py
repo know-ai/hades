@@ -67,7 +67,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
         new_value = tag_engine.read_tag(tag_name, unit='lt')
         self.assertAlmostEqual(new_value, 10000.0, 5)
 
-        new_value = tag_engine.read_tag(tag_name, unit='US brl')
+        new_value = tag_engine.read_tag(tag_name, unit='US bbl')
         self.assertAlmostEqual(new_value, 62.8981, 5)
 
         new_value = tag_engine.read_tag(tag_name, unit='ft3')
@@ -133,7 +133,7 @@ class TestUnitConversionFromTags(unittest.TestCase):
         new_value = tag_engine.read_tag(tag_name, unit='ft3/min')
         self.assertAlmostEqual(new_value, 2119.093, 5)
 
-        new_value = tag_engine.read_tag(tag_name, unit='US brl/d')
+        new_value = tag_engine.read_tag(tag_name, unit='US bbl/d')
         self.assertAlmostEqual(new_value, 543478.3, 5)
 
     def testVolumetricGasFlowUnitConversion(self):

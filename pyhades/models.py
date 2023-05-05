@@ -39,7 +39,7 @@ class PropertyType:
     @value.setter
     @logging_error_handler
     def value(self, value):
-
+        
         if self.__sio is not None:
 
             if self.is_logged():
