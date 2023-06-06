@@ -50,7 +50,7 @@ class Buffer(list):
             return self[0]
         return self[-1]
     
-    def apply_each(self, fn:function, start:int=None, stop:int=None):
+    def apply_each(self, fn, start:int=None, stop:int=None):
         r"""
         Applies a function to each item of a subset of the buffer, and returns the modified buffer
         """
@@ -69,7 +69,7 @@ class Buffer(list):
 
         return foo
     
-    def apply(self, fn:function, start:int=None, stop:int=None):
+    def apply(self, fn, start:int=None, stop:int=None):
         r"""
         Applies a function to a subset of the buffer, and returns the result
         """
