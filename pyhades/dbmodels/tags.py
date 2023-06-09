@@ -4,6 +4,8 @@ from datetime import datetime
 import csv
 from tqdm import tqdm
 from io import StringIO
+from io import BytesIO
+
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
@@ -583,6 +585,8 @@ class TagValue(BaseModel):
 
                     tag_info[f'{tag.tag.name}'] = tag.value
 
+
+    ##
     @classmethod
     def get_exported_csv(cls, start:datetime, end:datetime):
         r"""
@@ -601,33 +605,37 @@ class TagValue(BaseModel):
 
         previous_timestamp = datetime.now().strftime(DATETIME_FORMAT)[:-5]
         tags = cls.select().where((cls.timestamp >=start) & (cls.timestamp <= end))
-        rows = []
+        row = 0
         
-        for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
+        with BytesIO() as f:
+            writer = csv.writer(f)
+            
+            for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
 
-            timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
-            if previous_timestamp!=timestamp:
-                
-                if tag_info:
+                timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
+                if previous_timestamp!=timestamp:
 
-                    rows.append(tag_info)
+                    if tag_info:
 
-                tag_info = dict()
-                previous_timestamp = timestamp
-                tag_info['timestamp'] = timestamp
-                tag_info[tag.tag.name] = tag.value
+                        if row==0:
 
-            else:
+                            writer.writerow(tag_info.keys())
 
-                tag_info[f'{tag.tag.name}'] = tag.value
-                
-        output = StringIO()
-        dict_writer = csv.DictWriter(output, fieldnames=tag_info.keys(), delimiter=",")
-        dict_writer.writeheader()
-        dict_writer.writerows(rows)
+                        writer.writerow(tag_info.values())
+                        row += 1
 
-        return output.getvalue()
-    
+                    tag_info = dict()
+                    previous_timestamp = timestamp
+                    tag_info['timestamp'] = timestamp
+                    tag_info[tag.tag.name] = tag.value
+
+                else:
+
+                    tag_info[f'{tag.tag.name}'] = tag.value
+            
+            return f.getvalue()
+        
+    #########
     @classmethod
     def export_tags_to_csv(cls, start:datetime, end:datetime, tags:list):
         r"""
@@ -687,7 +695,6 @@ class TagValue(BaseModel):
 
 
     @classmethod
-
     def get_exported_tags_csv(cls, start:datetime, end:datetime, tags:list):
         r"""
         Documentation here
@@ -718,25 +725,25 @@ class TagValue(BaseModel):
 
         tags = cls.select().where(eval(_query)).order_by(cls.timestamp.asc())
         
-        output = StringIO()
-        dict_writer = csv.DictWriter(output, fieldnames=tag_info.keys(), delimiter=",")
-        dict_writer.writeheader()
+        with BytesIO() as f:
+            writer = csv.writer(f)
+            writer.writerow(tag_info.keys())
 
-        for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
+            for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
 
-            timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
-            if previous_timestamp!=timestamp:
+                timestamp = tag.timestamp.strftime(DATETIME_FORMAT)[:-5]
+                if previous_timestamp!=timestamp:
 
-                if tag_info:
+                    if tag_info:
 
-                    dict_writer.writerow(tag_info)
+                        writer.writerow(tag_info.values())
 
-                tag_info = dict()
-                previous_timestamp = timestamp
-                tag_info['timestamp'] = timestamp
-                tag_info[tag.tag.name] = tag.value
+                    tag_info = dict()
+                    previous_timestamp = timestamp
+                    tag_info['timestamp'] = timestamp
+                    tag_info[tag.tag.name] = tag.value
 
-            else:
-                tag_info[f'{tag.tag.name}'] = tag.value
-
-        return output.getvalue()
+                else:
+                    tag_info[f'{tag.tag.name}'] = tag.value
+            
+            return f.getvalue()
