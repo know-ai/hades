@@ -1,12 +1,11 @@
-import logging, os, requests, socketio
+import logging, os
 from inspect import ismethod
 
 from .utils import (
     log_detailed,
     logging_error_handler,
     notify_state,
-    parse_config,
-    get_headers
+    parse_config
     )
 
 from statemachine import StateMachine
@@ -130,7 +129,7 @@ class PyHadesStateMachine(StateMachine):
         self._tag_bindings = list()
         self._group_bindings = list()
         self._machine_interval = list()
-
+        self.previous_attrs = self.serialize()
         attrs = self.get_attributes()
 
         for key, value in attrs.items():
@@ -427,6 +426,16 @@ class PyHadesStateMachine(StateMachine):
                 # loop machine
                 try:
                     method()
+                    
+                    if hasattr(self, 'sio'):
+                        
+                        machine = self.serialize()
+                        
+                        if machine != self.previous_attrs:
+
+                            self.sio.emit("notify_machine_attr", machine)
+                            self.previous_attrs = machine                
+
                 except Exception as e:
                     message = "Machine - {}: Error on machine loop".format(self.name)
                     log_detailed(e, message)
@@ -672,7 +681,6 @@ class AutomationStateMachine(PyHadesStateMachine):
         self.init_socketio_for_variables()
         self.start_to_wait()
         
-
     @logging_error_handler
     def while_waiting(self):
         r"""
@@ -1477,7 +1485,7 @@ class AutomationStateMachine(PyHadesStateMachine):
             self.buffer[tag] = {
                 'data': Buffer(length=self.time_window, roll=self.roll_type),
                 'location': location
-                            }
+                }
 
     @logging_error_handler
     def get_default_tags(self):

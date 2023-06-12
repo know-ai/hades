@@ -169,15 +169,14 @@ class Converter(Singleton):
         r"""
         Documentation here
         """
-        _from = from_unit.lower()
-        _to = to_unit.lower()
+        _unit = Units.read_by_name(from_unit)
+        _variable = _unit['variable'].lower()
+        _from = from_unit
+        _to = to_unit
         multiplier = None
         for key, _value in self.__dict__.items():
 
             if isinstance(_value, dict):
-
-                _unit = Units.read_by_name(from_unit)
-                _variable = _unit['variable'].lower()
 
                 if _variable=='temperature':
 
