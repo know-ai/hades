@@ -1,6 +1,7 @@
 from .tag_value import TagValue
 from ..utils import Observer
 from ..dbmodels.tags import Tags
+from ..dbmodels import Units
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S.%f"
 
@@ -27,6 +28,8 @@ class Tag:
         self.tcp_source_address = tcp_source_address
         self.node_namespace = node_namespace
         self.unit = unit
+        self.variable = None
+        self.id = None
 
         if display_name:
 
@@ -55,6 +58,20 @@ class Tag:
         """
 
         self.display_name = value
+
+    def set_variable(self, value:str):
+        r"""
+        Documentation here
+        """
+
+        self.variable = value
+
+    def set_id(self, value:int):
+        r"""
+        Documentation here
+        """
+
+        self.id = value
 
     def set_tcp_source_address(self, tcp_source_address):
 
@@ -112,6 +129,20 @@ class Tag:
         """
 
         return self.display_name
+    
+    def get_variable(self)->str:
+        r"""
+        Documentation here
+        """
+
+        return self.variable
+    
+    def get_id(self)->int:
+        r"""
+        Documentation here
+        """
+
+        return self.id
 
     def get_tcp_source_address(self):
         
@@ -123,15 +154,42 @@ class Tag:
 
     def get_attributes(self):
 
-        query = Tags.read_by_name(self.name)
-        tag_id = query.id
-
         return {
-            "id": tag_id,
+            "id": self.get_id(),
             "value": self.get_value_attributes(),
             "name": self.name,
             "unit": self.get_unit(),
             "data_type": self.get_data_type(),
+            "variable": self.get_variable(),
+            "description": self.get_description(),
+            "display_name": self.get_display_name(),
+            "min_value": self.get_min_value(),
+            "max_value": self.get_max_value(),
+            "tcp_source_address": self.get_tcp_source_address(),
+            "node_namespace": self.get_node_namespace()
+        }
+    
+    def serialize(self)->dict:
+        r"""
+        Documentation here
+        """
+
+        if not self.get_id():
+
+            query = Tags.read_by_name(self.name)
+            self.id = int(query.id)
+
+        if not self.get_variable():
+
+            _unit = Units.read_by_unit(self.get_unit())
+            self.variable = _unit['variable'].lower()
+        
+        return {
+            "id": self.get_id(),
+            "name": self.name,
+            "unit": self.get_unit(),
+            "data_type": self.get_data_type(),
+            "variable": self.get_variable(),
             "description": self.get_description(),
             "display_name": self.get_display_name(),
             "min_value": self.get_min_value(),

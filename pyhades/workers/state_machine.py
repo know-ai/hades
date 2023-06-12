@@ -58,7 +58,6 @@ class MachineScheduler():
             while self._ready:
                 func = self._ready.popleft()
                 func()
-                
 
     def set_last(self):
 

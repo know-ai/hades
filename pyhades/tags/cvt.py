@@ -158,20 +158,11 @@ class CVT:
     def get_tags(self):
         """Returns a list of the defined tags names.
         """
+
         result = list()
         for _, value in self._tags.items():
 
-            _value = {
-                'name': value.name,
-                'unit': value.get_unit(),
-                'data_type': value.get_data_type(),
-                'description': value.get_description(),
-                'display_name': value.get_display_name(),
-                'min_value': value.get_min_value(),
-                'max_value': value.get_max_value(),
-                'tcp_source_address': value.get_tcp_source_address(),
-                'node_namespace': value.get_node_namespace(),
-            }
+            _value = value.serialize()
             result.append(_value)
 
         return result
@@ -180,7 +171,7 @@ class CVT:
         r"""
         Documentation here
         """
-        for tag_id, tag in self._tags.items():
+        for _, tag in self._tags.items():
 
             if tag.get_node_namespace()==node_namespace:
                 
@@ -204,8 +195,7 @@ class CVT:
         r"""
         Documentation here
         """
-        tag = Tags.read_by_name(name)
-        for tag_name, tag in self._tags.items():
+        for _, tag in self._tags.items():
 
             if self._tags[str(tag.id)]['name']==name:
 
@@ -257,26 +247,20 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        
-        _new_object = copy.copy(self._tags[str(tag.id)].get_value())
-
-        _tag = self._tags[str(tag.id)]
+        tag = self._tags[str(tag.id)]        
+        _new_object = copy.copy(tag.get_value())
         _unit = Units.read_by_unit(unit)
-        from_unit = Units.read_by_unit(_tag.unit)
+        from_unit = Units.read_by_unit(tag.unit)
         from_unit = from_unit['name']
         value = self._tags[str(tag.id)].get_value()
+
         if _unit:
+
             to_unit = _unit['name']
             new_value =  self.unit_converter.convert(value, from_unit=from_unit, to_unit=to_unit)
             _new_object = copy.copy(new_value)
         
         return _new_object
-
-    def get_all_values(self):
-        r"""
-        Documentation here
-        """
-        pass
 
     def get_data_type(self, name):
         """Returns a tag type defined by name.
@@ -322,6 +306,17 @@ class CVT:
         """
         tag = Tags.read_by_name(name)
         return self._tags[str(tag.id)].get_unit()
+    
+    def get_variable(self, name):
+
+        """Returns the units defined by name.
+        
+        # Parameters
+        name (str):
+            Tag name.
+        """
+        tag = Tags.read_by_name(name)
+        return self._tags[str(tag.id)].get_variable()
 
     def get_description(self, name):
 
@@ -576,12 +571,13 @@ class CVTEngine(Singleton):
 
         """ 
         __tags = list()
+
         for _, attrs in tags.items():
 
             _tag = Tag(**attrs)
 
             __tags.append(_tag.parser())
-            
+   
         self.__tags.extend(__tags)
 
         return __tags
@@ -650,6 +646,21 @@ class CVTEngine(Singleton):
         """
 
         return self._cvt.get_unit(name)
+    
+    def get_variable(self, name:str)->str:
+        r"""
+        Gets tag's variable.
+        
+        **Parameters:**
+        
+        * **name** (str): Tag name.
+
+        **Returns**
+
+        * **variable** (str): Tag's variable
+        """
+
+        return self._cvt.get_variable(name)
 
     def get_description(self, name:str)->str:
         r"""
@@ -1030,7 +1041,7 @@ class CVTEngine(Singleton):
 
         **Returns**
 
-        * **value** (float) Tag's value
+        * **unit** (float) Tag's unit
 
         ```python
         >>> tag_engine.read_tag('TAG1')
@@ -1139,6 +1150,32 @@ class CVTEngine(Singleton):
 
         _query = dict()
         _query["action"] = "get_unit"
+
+        _query["parameters"] = dict()
+        _query["parameters"]["name"] = name
+
+        self.request(_query)
+        result = self.response()
+
+        if result["result"]:
+            
+            return result["response"]
+        
+    def read_variable(self, name:str)->str:
+        """
+        Returns the tag's unit, in thread-safe mechanism.
+        
+        **Parameters:**
+        
+        * **name** (str): Tag name.
+
+        **Returns**
+
+        * **variable** (str): Tag's variable.
+        """
+
+        _query = dict()
+        _query["action"] = "get_variable"
 
         _query["parameters"] = dict()
         _query["parameters"]["name"] = name
@@ -1420,6 +1457,9 @@ class CVTEngine(Singleton):
             elif action == "get_unit":
                 resp = self._cvt.get_unit(name)
 
+            elif action == "get_variable":
+                resp = self._cvt.get_variable(name)
+
             elif action == "get_description":
                 resp = self._cvt.get_description(name)
 
@@ -1617,3 +1657,45 @@ class CVTEngine(Singleton):
         self._request_lock = threading.Lock()
         self._response_lock = threading.Lock()
         self._response_lock.acquire()
+
+    def convert_units_to_default(self, default_units:dict, **kwargs):
+        r"""
+        kwars: (dict) {
+            "tag_name1": {
+                "value": value1,
+                "unit": unit1
+            },
+            "tag_name2": {
+                "value": value2,
+                "unit": unit2
+            }
+        }
+        """
+        result = dict()
+        for tag_name, attrs in kwargs.items():
+
+            to_unit = self.read_unit(name=tag_name)
+            display_name = self.read_display_name(name=tag_name)
+
+            from_unit = attrs['unit']
+
+            if from_unit is not None and from_unit!='Adim':
+
+                variable = self.read_variable(tag_name)
+
+                if variable in default_units:
+                    
+                    to_unit = default_units[variable]
+                    value = attrs['value']
+                    from_unit = Units.read_by_unit(attrs['unit'])
+                    to_unit = Units.read_by_unit(to_unit)
+                    new_value = self._cvt.unit_converter.convert(value=value, from_unit=from_unit['name'], to_unit=to_unit['name'])
+            
+            result[tag_name] = {
+                'y': new_value,
+                'unit': to_unit['unit'],
+                'variable': variable,
+                'display_name': display_name
+            }
+
+        return result

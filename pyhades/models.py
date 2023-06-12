@@ -20,13 +20,11 @@ class PropertyType:
 
     def __init__(self, _type, default=None, unit=None, log:bool=False, tag_name:str=None):
         
-        self.tag_engine = None
         self._type = _type
         self.unit = unit
-        self.__default = default
         self.__value = default
-        self.__sio = None
         self.__log = log
+        self.__sio = None
         self.__tag_name = tag_name
 
     @property
@@ -41,13 +39,8 @@ class PropertyType:
     def value(self, value):
         
         if self.__sio is not None:
-
-            if self.is_logged():
-
-                self.__machine.write_tag(name=self.tag_name, value=value)
             
             machine = self.__machine.serialize()
-            self.__sio.emit("notify_machine_attr", machine)
             folder_name = ""
             
             if self.tag_name:
@@ -65,32 +58,16 @@ class PropertyType:
                     }
                 }
                 self.__sio.emit("notify_attr", payload_to_sio)
+            
+        if self.is_logged():
 
-            # # Notify to OPCUA Server
-            # payload = {
-            #     'folder_struct': ["Engines", machine['name']['value']],
-            #     'engine': machine
-            # }
-            # if folder_name:
-            #     payload = {
-            #         'folder_struct': [folder_name, "Engines", machine['name']['value']],
-            #         'engine': machine
-            #     }
-
-            # payload= payload
-            # folder_struct = payload.pop('folder_struct')
-            # engine = payload['engine']
-
-            # if hasattr(self.__machine, 'set_engine_into_server'):
-
-            #     self.__machine.set_engine_into_server(folder_struct=folder_struct, **engine)
-
+            self.__machine.write_tag(name=self.tag_name, value=value)
+            
         self.__value = value
 
     def init_socketio(self, machine):
         r"""
         Documentation here"""
-
         from .core import PyHades
         app = PyHades()
 

@@ -154,25 +154,23 @@ class QueryLogger:
     def query_trends(self, start, stop, *tags):
         r"""
         Documentation here
-        """
-
-        
+        """        
         start = datetime.strptime(start, DATETIME_FORMAT)
         stop = datetime.strptime(stop, DATETIME_FORMAT)
-        
-        
         result = {tag: {
             'values': list(),
             'unit': self.tag_engine.get_unit(tag)
         } for tag in tags}
         
+
         for tag in tags:
 
-            trend = Tags.select().where(Tags.name.in_(tags)).get()
+            trend = Tags.select().where(Tags.name==tag).get()
+            
             values = trend.values.select().where((TagValue.timestamp > start) & (TagValue.timestamp < stop)).order_by(TagValue.timestamp.asc())
 
             for value in values:
-
+                
                 result[tag]['values'].append({"x": value.timestamp.strftime(DATETIME_FORMAT), "y": value.value})
 
 
