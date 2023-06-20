@@ -607,7 +607,7 @@ class TagValue(BaseModel):
         tags = cls.select().where((cls.timestamp >=start) & (cls.timestamp <= end))
         row = 0
         
-        with BytesIO() as f:
+        with StringIO() as f:
             writer = csv.writer(f)
             
             for tag in tqdm(tags, desc="Downloading csv", unit="records"):               
@@ -725,7 +725,7 @@ class TagValue(BaseModel):
 
         tags = cls.select().where(eval(_query)).order_by(cls.timestamp.asc())
         
-        with BytesIO() as f:
+        with StringIO() as f:
             writer = csv.writer(f)
             writer.writerow(tag_info.keys())
 
