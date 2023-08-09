@@ -245,7 +245,8 @@ def system_log_transition(
     event_logger_endpoint:str='/api/events/add',
     auth_service_host:str="127.0.0.1",
     auth_service_port:int=5000, 
-    auth_endpoint:str='/api/healthcheck/key'
+    auth_endpoint:str='/api/healthcheck/key',
+    is_leak:bool=False
     ):
     
     @decorator
@@ -296,7 +297,8 @@ def system_log_transition(
                                 'description': info['description']['value'],
                                 'classification': info['classification']['value'],
                                 'priority': info['priority']['value'],
-                                'criticity': info['criticity']['value']
+                                'criticity': info['criticity']['value'],
+                                'is_leak': is_leak
                             }
                             try:
                                 requests.post(
