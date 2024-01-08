@@ -116,7 +116,6 @@ class QueryLogger:
         
         return self.query_trend(tag, start, stop)
 
-
     def query_lasts(self, seconds=None, *tags):
         r"""
         Documentation here
@@ -173,5 +172,32 @@ class QueryLogger:
                 
                 result[tag]['values'].append({"x": value.timestamp.strftime(DATETIME_FORMAT), "y": value.value})
 
+
+        return result
+
+    def query_values(self, stop, *tags):
+        r"""
+        Documentation here
+        """        
+        stop = datetime.strptime(stop, DATETIME_FORMAT)
+        result = dict()
+
+        for tag in tags:
+
+            try:
+
+                trend = Tags.select().where(Tags.name==tag).get()
+                value = trend.values.select().where(TagValue.timestamp < stop).order_by(TagValue.timestamp.desc()).limit(1)
+                result[tag] = {
+                    'value': value[0].value if value else None,
+                    'unit': self.tag_engine.get_unit(tag)
+                }
+            
+            except:
+
+                result[tag] = {
+                    'value': None,
+                    'unit': ""
+                }
 
         return result
