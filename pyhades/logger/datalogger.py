@@ -18,6 +18,7 @@ from ..alarms.trigger import TriggerType
 import json, os
 from ..src import get_directory
 from ..alarms.states import AlarmState
+import logging
 
 
 class DataLogger:
@@ -158,31 +159,43 @@ class DataLogger:
         self._db.drop_tables(tables, safe=True)
 
     def write_tag(self, tag, value):
-
-        trend = Tags.read_by_name(tag)
-        tag_value = TagValue.create(tag=trend, value=value)
-        tag_value.save()
+        try:
+            trend = Tags.read_by_name(tag)
+            tag_value = TagValue.create(tag=trend, value=value)
+            tag_value.save()
+        except Exception as e:
+            logging.warning(f"Rollback done in database due to conflicts writing tag")
+            conn = self._db.connection()
+            conn.rollback()
 
     def write_tags(self, tags:list):
 
-        TagValue.insert_many(tags).execute()
-        # tag_value.save()
+        try:
+            TagValue.insert_many(tags).execute()
+        except Exception as e:
+            logging.warning(f"Rollback done in database due to conflicts writing tags")
+            conn = self._db.connection()
+            conn.rollback()
 
     def read_tag(self, tag):
-        
-        query = Tags.select().order_by(Tags.start)
-        trend = query.where(Tags.name == tag).get()
-        
-        period = trend.period
-        values = trend.values.select()
-        
-        result = dict()
+        try:
+            query = Tags.select().order_by(Tags.start)
+            trend = query.where(Tags.name == tag).get()
+            
+            period = trend.period
+            values = trend.values.select()
+            
+            result = dict()
 
-        t0 = values[0].timestamp.strftime('%Y-%m-%d %H:%M:%S')
-        values = [value.value for value in values]
+            t0 = values[0].timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            values = [value.value for value in values]
 
-        result["t0"] = t0
-        result["dt"] = period
-        result["values"] = values
-        
-        return result
+            result["t0"] = t0
+            result["dt"] = period
+            result["values"] = values
+            
+            return result
+        except Exception as e:
+            logging.warning(f"Rollback done in database due to conflicts reading tag")
+            conn = self._db.connection()
+            conn.rollback()

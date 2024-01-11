@@ -191,7 +191,6 @@ ORDER BY ts;
 
         return self.query_trend(tag, start, stop)
 
-
     def query_first(self, tag, seconds=None, waveform=False):
 
         tag_values = self.get_values(tag)
