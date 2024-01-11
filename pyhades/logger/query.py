@@ -111,9 +111,9 @@ ORDER BY id DESC LIMIT 1
         start = datetime.strptime(start, DATETIME_FORMAT)
         if start < oldest_record_timestamp:
             start = oldest_record_timestamp
+        stop = datetime.strptime(stop, DATETIME_FORMAT)
         if stop > current_record_timestamp:
             stop = current_record_timestamp
-        stop = datetime.strptime(stop, DATETIME_FORMAT)
         seconds = (stop-start).total_seconds()
         inner_list = [[] for _ in range(len(tags))]
         outer_query = ""
