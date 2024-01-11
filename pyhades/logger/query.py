@@ -75,6 +75,103 @@ class QueryLogger:
         result["values"] = values
 
         return result
+    
+    def get_oldest_record(self):
+        r"""
+        Documentation here
+        """
+        cursor = self._logger.get_db().cursor()
+        query = f"""
+SELECT * FROM tagvalue
+ORDER BY id ASC LIMIT 1
+        """
+        cursor.execute(query)
+        record_id, tag_id, tag_value, timestamp = cursor.fetchall()[0]
+        return record_id, tag_id, tag_value, timestamp
+
+    def get_current_record(self):
+        r"""
+        Documentation here
+        """
+        cursor = self._logger.get_db().cursor()
+        query = f"""
+SELECT * FROM tagvalue
+ORDER BY id DESC LIMIT 1
+        """
+        cursor.execute(query)
+        record_id, tag_id, tag_value, timestamp = cursor.fetchall()[0]
+        return record_id, tag_id, tag_value, timestamp
+    
+    def query_trend_modified(self, start, stop, *tags):
+        r"""
+        Documentation here
+        """
+        _, _, _, current_record_timestamp = self.get_current_record()
+        _, _, _, oldest_record_timestamp = self.get_oldest_record()
+        start = datetime.strptime(start, DATETIME_FORMAT)
+        if start < oldest_record_timestamp:
+            start = oldest_record_timestamp
+        if stop > current_record_timestamp:
+            stop = current_record_timestamp
+        stop = datetime.strptime(stop, DATETIME_FORMAT)
+        seconds = (stop-start).total_seconds()
+        inner_list = [[] for _ in range(len(tags))]
+        outer_query = ""
+        for tag in tags:
+            tag_id = self.tag_engine.serialize_tag_by_name(tag)["id"]
+            outer_query += f'AVG("value") FILTER (WHERE tag_id = {tag_id}) as VAR{tag_id},'
+        
+        outer_query = outer_query[:-1]
+        interval = self.tag_engine._config['modules']['daq']['interval']
+        points_to_get = seconds / interval
+        if points_to_get < 5000:
+            truncate_to = "milliseconds"
+        elif points_to_get >= 5000 and points_to_get < 10000:
+            truncate_to = "seconds"
+        elif points_to_get >= 10000 and points_to_get < 300000:
+            truncate_to = "minutes"
+        elif points_to_get >= 300000 and points_to_get < 18000000:
+            truncate_to = "hours"
+        else:
+            truncate_to = "days"
+
+        result = {tag: {
+            'values': list(),
+            'unit': self.tag_engine.get_unit(tag)
+        } for tag in tags}
+        cursor = self._logger.get_db().cursor()
+        query = f"""
+SELECT
+    ts,
+    {outer_query}
+FROM (
+  SELECT
+      date_trunc('{truncate_to}', timestamp) as ts,
+      tag_id,
+      value
+  FROM tagvalue
+  WHERE timestamp BETWEEN '{start}' AND '{stop}' 
+  ORDER BY ts) as tv
+GROUP BY ts
+ORDER BY ts;
+        """
+        cursor.execute(query)
+        query_result = cursor.fetchall()
+        for timestamp, *data in query_result:
+            
+            for i, value in enumerate(data):
+                
+                inner_list[i].append(
+                    {
+                        "x": timestamp.strftime(DATETIME_FORMAT),
+                        "y": value
+                    }
+                )
+        for i, element in enumerate(inner_list):
+
+            result[tags[i]]['values'] = element
+
+        return result
 
     def query_last(self, tag, seconds=None, waveform=False):
 
@@ -171,7 +268,6 @@ class QueryLogger:
             for value in values:
                 
                 result[tag]['values'].append({"x": value.timestamp.strftime(DATETIME_FORMAT), "y": value.value})
-
 
         return result
 
