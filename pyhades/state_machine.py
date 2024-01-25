@@ -1436,12 +1436,19 @@ class AutomationStateMachine(PyHadesStateMachine):
                         _time_window = config['modules']['engine']['time_window']
                         self.time_window = int(_time_window / self.get_interval())
 
+                    if 'threshold' in config['modules']['engine']:
+                        self.threshold = config['modules']['engine']['time_window']
+
                     if 'roll_type' in config['modules']['engine']:
                         self.roll_type = config['modules']['engine']['roll_type']
 
                     if 'system_tags' in config['modules']['engine']:
 
                         self.system_tags = config['modules']['engine']['system_tags']
+
+                    if 'utility_tags' in config['modules']['engine']:
+
+                        self.utility_tags = config['modules']['engine']['utility_tags']
                     
                     if 'number_of_times_alarm_triggered_before_pre_alarm' in config['modules']['engine']:
 
