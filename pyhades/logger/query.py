@@ -124,9 +124,9 @@ ORDER BY id DESC LIMIT 1
         outer_query = outer_query[:-1]
         interval = self.tag_engine._config['modules']['daq']['interval']
         points_to_get = seconds / interval
-        if points_to_get < 5000:
-            truncate_to = "milliseconds"
-        elif points_to_get >= 5000 and points_to_get < 10000:
+        # if points_to_get < 5000:
+        #     truncate_to = "milliseconds"
+        if points_to_get < 10000:
             truncate_to = "seconds"
         elif points_to_get >= 10000 and points_to_get < 300000:
             truncate_to = "minutes"
@@ -160,13 +160,15 @@ ORDER BY ts;
         for timestamp, *data in query_result:
             
             for i, value in enumerate(data):
+
+                if value is not None:
                 
-                inner_list[i].append(
-                    {
-                        "x": timestamp.strftime(DATETIME_FORMAT),
-                        "y": value
-                    }
-                )
+                    inner_list[i].append(
+                        {
+                            "x": timestamp.strftime(DATETIME_FORMAT),
+                            "y": value
+                        }
+                    )
         for i, element in enumerate(inner_list):
 
             result[tags[i]]['values'] = element

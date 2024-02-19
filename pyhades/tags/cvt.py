@@ -14,6 +14,7 @@ from .tag import Tag
 from ..logger import DataLoggerEngine
 from ..dbmodels import Tags, Variables, Units
 import yaml
+import logging
 from ..utils import log_detailed
 from .unit_conversion import UnitConversion
 
@@ -239,6 +240,12 @@ class CVT:
     
         self.logger.write_tags(tags)
 
+    def get_units(self):
+        r"""
+        Documentation here
+        """
+        return Units.read_all()
+        
     def get_value(self, name, unit:str=None):
         """Returns a tag value defined by name.
         
@@ -270,7 +277,13 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_data_type()
+        if tag:
+
+            return self._tags[str(tag.id)].get_data_type()
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_data_type method")
 
     def get_attributes(self, id:int):
         """Returns a tag type defined by name.
@@ -294,6 +307,7 @@ class CVT:
         
         else:
 
+            logging.warning(f"{name} tag Not exists in CVT.get_attributes_by_tag_name method")
             return dict()
 
     def get_unit(self, name):
@@ -305,7 +319,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_unit()
+        
+        if tag:
+
+            return self._tags[str(tag.id)].get_unit()
+        
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_unit method")
     
     def get_variable(self, name):
 
@@ -316,7 +337,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_variable()
+        
+        if tag:
+
+            return self._tags[str(tag.id)].get_variable()
+        
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_variable method")
 
     def get_description(self, name):
 
@@ -327,7 +355,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_description()
+        
+        if tag:
+
+            return self._tags[str(tag.id)].get_description()
+        
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_description method")
 
     def get_display_name(self, name):
 
@@ -338,7 +373,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_display_name()
+
+        if tag:
+
+            return self._tags[str(tag.id)].get_display_name()
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_display_name method")
 
     def get_min_value(self, name):
 
@@ -349,7 +391,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_min_value()
+
+        if tag:
+
+            return self._tags[str(tag.id)].get_min_value()
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_min_value method")
 
     def get_max_value(self, name):
 
@@ -360,7 +409,14 @@ class CVT:
             Tag name.
         """
         tag = Tags.read_by_name(name)
-        return self._tags[str(tag.id)].get_max_value()
+
+        if tag:
+
+            return self._tags[str(tag.id)].get_max_value()
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.get_max_value method")
 
     def get_data_types(self):
         """Returns all tag types.
@@ -380,7 +436,14 @@ class CVT:
             Tag observer object, will update once a tag object is changed.
         """
         tag = Tags.read_by_name(name)
-        self._tags[str(tag.id)].attach(observer)
+
+        if tag:
+
+            self._tags[str(tag.id)].attach(observer)
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.attach_observer method")
 
     def detach_observer(self, name, observer):
         """Detaches an observer from a tag object defined by name.
@@ -392,7 +455,14 @@ class CVT:
             Tag observer object.
         """
         tag = Tags.read_by_name(name)
-        self._tags[str(tag.id)].detach(observer)
+
+        if tag:
+
+            self._tags[str(tag.id)].detach(observer)
+
+        else:
+
+            logging.warning(f"{name} tag Not exists in CVT.detach_observer method")
 
 
 class CVTEngine(Singleton):
@@ -963,6 +1033,13 @@ class CVTEngine(Singleton):
         """
 
         return self._cvt.get_tags()
+
+    def get_units(self)->list:
+        r"""
+        Documentation here
+        """
+
+        return self._cvt.get_units()
 
     def write_tag(self, name:str, value:float)->dict:
         """
@@ -1695,6 +1772,39 @@ class CVTEngine(Singleton):
                 'y': new_value,
                 'unit': to_unit['unit'],
                 'variable': variable,
+                'display_name': display_name
+            }
+
+        return result
+
+    def convert_units(self,**kwargs):
+        r"""
+        kwars: (dict) {
+            "tag_name1": {
+                "value": value1,
+                "from_unit": "unit1",
+                "to_unit": "unit2"
+            },
+            "tag_name2": {
+                "value": value2,
+                "from_unit": "unit1",
+                "to_unit": "unit2"
+            }
+        }
+        """
+        result = dict()
+        for tag_name, attrs in kwargs.items():
+
+            value = attrs['value']
+            display_name = self.read_display_name(name=tag_name)                     
+            from_unit = Units.read_by_unit(attrs["from_unit"])
+            to_unit = Units.read_by_unit(attrs["to_unit"])
+            new_value = self._cvt.unit_converter.convert(value=value, from_unit=from_unit['name'], to_unit=to_unit['name'])
+            
+            result[tag_name] = {
+                'value': new_value,
+                'from_unit': from_unit['unit'],
+                'to_unit': to_unit['unit'],
                 'display_name': display_name
             }
 

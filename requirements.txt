@@ -3,7 +3,7 @@ peewee==3.15.4
 psycopg2-binary==2.9.5; sys_platform != 'win32'
 psycopg2==2.9.5; sys_platform == 'win32'
 PyYAML==6.0
-requests==2.28.2
+requests==2.31.0
 python-dotenv==0.21.1
 tqdm>=4.50.2
 python-socketio==5.8.0
